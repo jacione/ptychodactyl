@@ -13,15 +13,15 @@ import os
 class Camera:
     def __init__(self):
         # The directory should be wherever the SDK dll file(s) are stored
-        os.chdir("")
-        self.dll = CDLL('SSClassic_USBCamera_SDK.dll')
+        filedir = 'C:/Users/Nick Porter/Documents/Mightex Camera/SDK/Lib/x64'
+        self.dll = CDLL(f'{filedir}/SSClassic_USBCamera_SDK.dll')
 
         # Basic IO functions for connecting/disconnecting with the camera
         self.sdk_InitDevice = self.dll.SSClassicUSB_InitDevice
-        self.sdk_InitDevice.argtypes = [c_void_p]
+        self.sdk_InitDevice.argtypes = []
         self.sdk_InitDevice.restype = c_int
 
-        self.sdk_AddCamera = self.dll.SSClassicUSB_AddCameraToWorkingSet
+        self.sdk_AddCamera = self.dll.SSClassicUSB_AddDeviceToWorkingSet
         self.sdk_AddCamera.argtypes = [c_int]
         self.sdk_AddCamera.restype = c_int
 
@@ -30,11 +30,11 @@ class Camera:
         self.sdk_StartCameraEngine.restype = c_int
 
         self.sdk_StopCameraEngine = self.dll.SSClassicUSB_StopCameraEngine
-        self.sdk_StopCameraEngine.argtypes = [c_void_p]
+        self.sdk_StopCameraEngine.argtypes = []
         self.sdk_StopCameraEngine.restype = c_int
 
         self.sdk_UnInitDevice = self.dll.SSClassicUSB_UnInitDevice
-        self.sdk_UnInitDevice.argtypes = [c_void_p]
+        self.sdk_UnInitDevice.argtypes = [ ]
         self.sdk_UnInitDevice.restype = c_int
 
         num_cameras = self.sdk_InitDevice()
@@ -73,7 +73,7 @@ class Camera:
             print('Camera engine not started!')
             return
         stop = self.sdk_StopCameraEngine()
-        if stop != -1:
+        if stop == -1:
             raise IOError('Could not stop camera engine!')
 
         self.is_on = False
