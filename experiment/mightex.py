@@ -2,9 +2,8 @@
 Script to control the mightex camera
 """
 
-
 from ctypes import *
-import numpy
+import numpy as np
 from matplotlib import pyplot as plt
 import time
 import os
@@ -17,52 +16,103 @@ class Camera:
         self.dll = CDLL(f'{filedir}/SSClassic_USBCamera_SDK.dll')
 
         # Basic IO functions for connecting/disconnecting with the camera
-        self.sdk_InitDevice = self.dll.SSClassicUSB_InitDevice
-        self.sdk_InitDevice.argtypes = []
-        self.sdk_InitDevice.restype = c_int
+        self.__sdk_InitDevice = self.dll.SSClassicUSB_InitDevice
+        self.__sdk_InitDevice.argtypes = []
+        self.__sdk_InitDevice.restype = c_int
 
-        self.sdk_AddCamera = self.dll.SSClassicUSB_AddDeviceToWorkingSet
-        self.sdk_AddCamera.argtypes = [c_int]
-        self.sdk_AddCamera.restype = c_int
+        self.__sdk_AddCamera = self.dll.SSClassicUSB_AddDeviceToWorkingSet
+        self.__sdk_AddCamera.argtypes = [c_int]  # [ID]
+        self.__sdk_AddCamera.restype = c_int
 
-        self.sdk_StartCameraEngine = self.dll.SSClassicUSB_StartCameraEngine
-        self.sdk_StartCameraEngine.argtypes = [c_void_p, c_int, c_int, c_int]
-        self.sdk_StartCameraEngine.restype = c_int
+        self.__sdk_StartCameraEngine = self.dll.SSClassicUSB_StartCameraEngine
+        self.__sdk_StartCameraEngine.argtypes = [c_void_p, c_int, c_int, c_int]  # [GUI, bitdepth, threads, callback]
+        self.__sdk_StartCameraEngine.restype = c_int
 
-        self.sdk_StopCameraEngine = self.dll.SSClassicUSB_StopCameraEngine
-        self.sdk_StopCameraEngine.argtypes = []
-        self.sdk_StopCameraEngine.restype = c_int
+        self.__sdk_StopCameraEngine = self.dll.SSClassicUSB_StopCameraEngine
+        self.__sdk_StopCameraEngine.argtypes = []
+        self.__sdk_StopCameraEngine.restype = c_int
 
-        self.sdk_UnInitDevice = self.dll.SSClassicUSB_UnInitDevice
-        self.sdk_UnInitDevice.argtypes = [ ]
-        self.sdk_UnInitDevice.restype = c_int
+        self.__sdk_UnInitDevice = self.dll.SSClassicUSB_UnInitDevice
+        self.__sdk_UnInitDevice.argtypes = []
+        self.__sdk_UnInitDevice.restype = c_int
 
-        num_cameras = self.sdk_InitDevice()
+        # Methods for collecting frame data
+        self.__sdk_SetWorkMode = self.dll.SSClassicUSB_SetCameraWorkMode
+        self.__sdk_SetWorkMode.argtypes = [c_int, c_int]  # [ID, mode=0] (0 for normal)
+        self.__sdk_SetWorkMode.restype = c_int
+
+        self.__sdk_StartFrameGrab = self.dll.SSClassicUSB_StartFrameGrab
+        self.__sdk_StartFrameGrab.argtypes = [c_int, c_int]  # [ID, num_frames=0x8888] (0x8888 for continuous)
+        self.__sdk_StartFrameGrab.restype = c_int
+
+        self.__sdk_StopFrameGrab = self.dll.SSClassicUSB_StopFrameGrab
+        self.__sdk_StopFrameGrab.argtypes = [c_int]  # [ID]
+        self.__sdk_StopFrameGrab.restype = c_int
+
+        # As I understand it (which is barely) the frame hooker is what grabs the frame data?
+        self.__sdk_InstallFrameHooker = self.dll.SSClassicUSB_InstallFrameHooker
+        self.__sdk_InstallFrameHooker.argtypes = [c_int, c_void_p]  # [type=0, callback=None] (type=0 for raw data)
+        self.__sdk_InstallFrameHooker.restype = c_int
+
+        self.__sdk_GetCurrentFrame = self.dll.SSClassicUSB_GetCurrentFrame16bit
+        self.__sdk_GetCurrentFrame.argtypes = [c_int, c_int, POINTER(c_short)]  # [type, ID, pointer to data]
+        self.__sdk_GetCurrentFrame.restype = POINTER(c_short)
+
+        # Methods to define camera parameters
+        self.__sdk_SetResolution = self.dll.SSClassicUSB_SetCustomizedResolution
+        self.__sdk_SetResolution.argtypes = [c_int, c_int, c_int, c_int, c_int]  # [ID, width, height, bin=0, binmode=0]
+        self.__sdk_SetResolution.restype = c_int
+        self.width = 0
+        self.height = 0
+
+        self.__sdk_SetExposure = self.dll.SSClassicUSB_SetExposureTime
+        self.__sdk_SetExposure.argtypes = [c_int, c_int]  # [ID, exposure_time (x0.05 ms)]
+        self.__sdk_SetExposure.restype = c_int
+        self.exposure = 0.0  # milliseconds
+
+        self.__sdk_SetGain = self.dll.SSClassicUSB_SetGains
+        self.__sdk_SetGain.argtypes = [c_int, c_int]  # [ID, gain]
+        self.__sdk_SetGain.restype = c_int
+        self.gain = 0  # gain level (gain factor * 8)
+
+        # Initialize the camera
+        num_cameras = self.__sdk_InitDevice()
         if num_cameras != 1:
             raise IOError(f'{num_cameras} cameras detected!')
 
-        add = self.sdk_AddCamera(1)
+        add = self.__sdk_AddCamera(1)
         if add == -1:
             raise IOError('Could not add camera device to working set!')
 
         self.is_on = False
+
+        self.camera_on()
+        self.set_defaults()
 
         return
 
     def __del__(self):
         if self.is_on:
             self.camera_off()
-        self.sdk_UnInitDevice()
+        self.__sdk_UnInitDevice()
 
     def camera_on(self):
         if self.is_on:
             print('Camera engine already started!')
             return
 
-        # The arguments are [GUIwindow=None, bitdepth=16, threads=4, callback=1)
-        start = self.sdk_StartCameraEngine(None, 16, 4, 1)
+        # The arguments are [GUI=None, bitdepth=16, threads=4, callback=1)
+        start = self.__sdk_StartCameraEngine(None, 16, 4, 1)
         if start == -1:
             raise IOError('Could not start camera engine!')
+
+        mode = self.__sdk_SetWorkMode(1, 0)
+        if mode == -1:
+            raise IOError('Could not set camera mode!')
+
+        grab = self.__sdk_StartFrameGrab(1, 0x8888)
+        if grab == -1:
+            raise IOError('Could not begin frame grab!')
 
         self.is_on = True
         print('SUCCESS: Camera engine started!')
@@ -72,13 +122,73 @@ class Camera:
         if not self.is_on:
             print('Camera engine not started!')
             return
-        stop = self.sdk_StopCameraEngine()
+
+        grab = self.__sdk_StopFrameGrab(1)
+        if grab == -1:
+            raise IOError('Could not terminate frame grab!')
+
+        stop = self.__sdk_StopCameraEngine()
         if stop == -1:
-            raise IOError('Could not stop camera engine!')
+            raise IOError('Could not terminate camera engine!')
 
         self.is_on = False
         print('SUCCESS: Camera engine stopped!')
         return
+
+    def set_resolution(self, width: int, height: int):
+        success = self.__sdk_SetResolution(1, width, height, 0, 0)
+        if success == 1:
+            self.width = width
+            self.height = height
+        return
+
+    def set_exposure(self, ms):
+        # Give a value in milliseconds;
+        us50 = int(ms * 200)
+        if us50 < 1:
+            us50 = 1
+        elif us50 > 15000:
+            us50 = 15000
+        success = self.__sdk_SetExposure(1, us50)
+        if success == 1:
+            self.exposure = ms
+        return
+
+    def set_gain(self, gain: int):
+        # Gain is given in integer steps from 1-64, corresponding to a gain factor of 0.125x - 8x.
+        # A gain of 8 corresponds to 1x gain.
+        if gain < 1:
+            gain = 1
+        if gain > 64:
+            gain = 64
+        success = self.__sdk_SetGain(1, gain)
+        if success == 1:
+            self.gain = gain
+        return
+
+    def set_defaults(self):
+        self.set_resolution(2560, 1920)
+        self.set_exposure(5.1)
+        self.set_gain(8)
+        return
+
+    def get_frame(self):
+        if not self.is_on:
+            print('Camera is not initialized!')
+        data_size = self.width*self.height
+        data = np.zeros(data_size)
+        sptr = POINTER(c_short)
+        self.__sdk_InstallFrameHooker(1, None)
+        rptr = self.__sdk_GetCurrentFrame(0, 1, sptr)
+
+        for i in range(data_size):
+            data[i] = rptr.contents.value
+            rptr = rptr + 1
+
+        data.reshape((self.width, self.height))
+        plt.imshow(data)
+        plt.show()
+        return data
 
 
 if __name__ == '__main__':
