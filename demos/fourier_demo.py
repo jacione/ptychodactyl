@@ -65,5 +65,28 @@ def phase_wheel():
     plt.show()
 
 
+def demo_phase():
+    x = np.linspace(-np.pi, np.pi, 500)
+    phi = np.pi / 4
+    y1 = lambda n: 0.25 * (n+1) * np.exp(-0.75*x**2) * np.sin(6 * x)
+    g1 = lambda n: 0.25 * (n+1) * np.exp(-0.75*x**2)
+    y2 = lambda n: np.exp(-0.75*x**2) * np.sin(10 * (x - n*phi))
+
+    x0 = np.array([0, 1, 1, 0]) * 2*np.pi
+    y0 = np.array([0, 0, 1, 1]) * 1.3
+
+    ax1 = plt.subplot(121, xticks=[], yticks=[], title='Different Amplitudes')
+    ax2 = plt.subplot(122, xticks=[], yticks=[], title='Different Phases')
+    for i in range(4):
+        ax1.plot(x0[i]+x, y0[i]+y1(i))
+        ax1.plot(x0[i]+x, y0[i]+g1(i), lw=1, ls='--', c='k')
+        ax1.plot(x0[i]+x, y0[i]-g1(i), lw=1, ls='--', c='k')
+        ax2.plot(x, 2*i+y2(i))
+
+    ax2.axvline(0, c='k', lw=1, ls='--')
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == '__main__':
-    phase_wheel()
+    demo_phase()
