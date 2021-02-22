@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import colors
+from matplotlib.animation import ArtistAnimation
 from scipy import misc
 import os
 
@@ -66,25 +67,23 @@ def phase_wheel():
 
 
 def demo_phase():
-    x = np.linspace(-np.pi, np.pi, 500)
-    phi = np.pi / 4
-    y1 = lambda n: 0.25 * (n+1) * np.exp(-0.75*x**2) * np.sin(6 * x)
-    g1 = lambda n: 0.25 * (n+1) * np.exp(-0.75*x**2)
-    y2 = lambda n: np.exp(-0.75*x**2) * np.sin(10 * (x - n*phi))
+    x = np.linspace(-2*np.pi, 2*np.pi, 500)
 
-    x0 = np.array([0, 1, 1, 0]) * 2*np.pi
-    y0 = np.array([0, 0, 1, 1]) * 1.3
+    n_frames = 50
+    adjust = np.sin(np.linspace(0, 2*np.pi, n_frames))
+    amp = 1.25 + adjust
+    phi = 2*np.pi*adjust
 
-    ax1 = plt.subplot(121, xticks=[], yticks=[], title='Different Amplitudes')
-    ax2 = plt.subplot(122, xticks=[], yticks=[], title='Different Phases')
-    for i in range(4):
-        ax1.plot(x0[i]+x, y0[i]+y1(i))
-        ax1.plot(x0[i]+x, y0[i]+g1(i), lw=1, ls='--', c='k')
-        ax1.plot(x0[i]+x, y0[i]-g1(i), lw=1, ls='--', c='k')
-        ax2.plot(x, 2*i+y2(i))
-
-    ax2.axvline(0, c='k', lw=1, ls='--')
-    plt.tight_layout()
+    fig = plt.figure(figsize=(6, 7), tight_layout=True)
+    frames = []
+    ax1 = plt.subplot(211, xticks=[], yticks=[], title='Amplitude')
+    ax2 = plt.subplot(212, xticks=[], yticks=[], title='Phase')
+    for i in range(n_frames):
+        f1, = ax1.plot(amp[i]*np.exp(-x**2/4)*np.sin(10*x), c='b', animated=True)
+        f2, = ax2.plot(np.exp(-x**2/4)*np.sin(10*x - phi[i]), c='b', animated=True)
+        frames.append([f1, f2])
+    vid = ArtistAnimation(fig, frames, interval=100, repeat_delay=0)
+    vid.save(f'{here}/amp_phase.gif', fps=10)
     plt.show()
 
 
