@@ -16,31 +16,31 @@ def normalize(x):
 def demo_ft():
     pic = misc.ascent()
     ft_pic = np.fft.fftshift(np.fft.fftn(pic))
-    intensity = np.log(np.abs(ft_pic))
+    amplitude_squared = np.log(np.abs(ft_pic))
     phase = np.angle(ft_pic)
-    intensity = normalize(intensity)
+    amplitude_squared = normalize(amplitude_squared)
     phase = normalize(phase)
     ones = np.ones_like(pic)
-    comp_image = np.dstack((phase, ones, intensity))
+    comp_image = np.dstack((phase, ones, amplitude_squared))
     comp_image = colors.hsv_to_rgb(comp_image)
 
     bad_pic = np.fft.ifftn(np.abs(np.fft.fftn(pic)))
     bad_amp = normalize(np.log(np.abs(bad_pic)))
     bad_phi = normalize(np.angle(bad_pic))
-    bad_comp = np.dstack((bad_phi, ones, bad_amp))
-    bad_comp = colors.hsv_to_rgb(bad_comp)
+    # bad_comp = np.dstack((bad_phi, ones, bad_amp))
+    # bad_comp = colors.hsv_to_rgb(bad_comp)
 
     plt.subplot(131, xticks=[], yticks=[])
     plt.imshow(pic, cmap='gray')
     plt.subplot(132, xticks=[], yticks=[])
-    plt.imshow(intensity, cmap='gray')
+    plt.imshow(amplitude_squared, cmap='gray')
     plt.subplot(133, xticks=[], yticks=[])
     plt.imshow(bad_amp, cmap='gray')
     plt.tight_layout()
     plt.show()
     plt.imsave(f'{here}/pic.png', pic, cmap='gray')
     plt.imsave(f'{here}/ft_pic.png', comp_image)
-    plt.imsave(f'{here}/intensity.png', intensity, cmap='gray')
+    plt.imsave(f'{here}/intensity.png', amplitude_squared, cmap='gray')
     plt.imsave(f'{here}/bad_pic.png', bad_amp, cmap='gray')
 
 
@@ -88,4 +88,4 @@ def demo_phase():
 
 
 if __name__ == '__main__':
-    demo_phase()
+    demo_ft()
