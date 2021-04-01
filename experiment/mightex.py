@@ -10,9 +10,9 @@ import os
 
 
 class Camera:
-    def __init__(self):
+    def __init__(self, resolution=(2560, 1920)):
         # The directory should be wherever the SDK dll file(s) are stored
-        filedir = 'C:/Users/Nick Porter/Documents/Mightex Camera/SDK/Lib/x64'
+        filedir = 'C:/Users/jacione/Documents/Mightex_SM_software/SDK/Lib/x64'
         self.dll = CDLL(f'{filedir}/SSClassic_USBCamera_SDK.dll')
 
         # Basic IO functions for connecting/disconnecting with the camera
@@ -49,21 +49,14 @@ class Camera:
         self.__sdk_StopFrameGrab.argtypes = [c_int]  # [ID]
         self.__sdk_StopFrameGrab.restype = c_int
 
-        # As I understand it (which is barely) the frame hooker is what grabs the frame data?
-        self.__sdk_InstallFrameHooker = self.dll.SSClassicUSB_InstallFrameHooker
-        self.__sdk_InstallFrameHooker.argtypes = [c_int, c_void_p]  # [type=0, callback=None] (type=0 for raw data)
-        self.__sdk_InstallFrameHooker.restype = c_int
-
-        self.__sdk_GetCurrentFrame = self.dll.SSClassicUSB_GetCurrentFrame16bit
-        self.__sdk_GetCurrentFrame.argtypes = [c_int, c_int, POINTER(c_short)]  # [type, ID, pointer to data]
-        self.__sdk_GetCurrentFrame.restype = POINTER(c_short)
-
         # Methods to define camera parameters
         self.__sdk_SetResolution = self.dll.SSClassicUSB_SetCustomizedResolution
         self.__sdk_SetResolution.argtypes = [c_int, c_int, c_int, c_int, c_int]  # [ID, width, height, bin=0, binmode=0]
         self.__sdk_SetResolution.restype = c_int
-        self.width = 0
-        self.height = 0
+        self.width = resolution[0]
+        self.height = resolution[1]
+        self.resolution = resolution
+        self.im_size = self.width * self.height
 
         self.__sdk_SetExposure = self.dll.SSClassicUSB_SetExposureTime
         self.__sdk_SetExposure.argtypes = [c_int, c_int]  # [ID, exposure_time (x0.05 ms)]
@@ -74,6 +67,16 @@ class Camera:
         self.__sdk_SetGain.argtypes = [c_int, c_int]  # [ID, gain]
         self.__sdk_SetGain.restype = c_int
         self.gain = 0  # gain level (gain factor * 8)
+
+        # As I understand it (which is barely) the frame hooker is what grabs the frame data?
+        self.__sdk_InstallFrameHooker = self.dll.SSClassicUSB_InstallFrameHooker
+        self.__sdk_InstallFrameHooker.argtypes = [c_int, c_void_p]  # [type=0, callback=None] (type=0 for raw data)
+        self.__sdk_InstallFrameHooker.restype = c_int
+
+        self.__sdk_GetCurrentFrame = self.dll.SSClassicUSB_GetCurrentFrame16bit
+        self.__sdk_GetCurrentFrame.argtypes = [c_int, c_int, np.ctypeslib.ndpointer('i2', 2, resolution)]
+                                            # [type,    ID,     pointer to data]
+        self.__sdk_GetCurrentFrame.restype = np.ctypeslib.ndpointer('i2', 1, self.im_size)
 
         # Initialize the camera
         num_cameras = self.__sdk_InitDevice()
@@ -90,6 +93,14 @@ class Camera:
         self.set_defaults()
 
         return
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.is_on:
+            self.camera_off()
+        self.__sdk_UnInitDevice()
 
     def __del__(self):
         if self.is_on:
@@ -140,6 +151,7 @@ class Camera:
         if success == 1:
             self.width = width
             self.height = height
+            self.im_size = self.width * self.height
         return
 
     def set_exposure(self, ms):
@@ -175,23 +187,18 @@ class Camera:
     def get_frame(self):
         if not self.is_on:
             print('Camera is not initialized!')
-        data_size = self.width*self.height
-        data = np.zeros(data_size)
-        sptr = POINTER(c_short)
+        sptr = np.empty(self.resolution, dtype='i2')
         self.__sdk_InstallFrameHooker(1, None)
-        rptr = self.__sdk_GetCurrentFrame(0, 1, sptr)
+        data = self.__sdk_GetCurrentFrame(0, 1, sptr)
 
-        for i in range(data_size):
-            data[i] = rptr.contents.value
-            rptr = rptr + 1
-
-        data.reshape((self.width, self.height))
+        data = data.reshape(self.resolution).T
+        print(np.min(data), np.max(data))
         plt.imshow(data)
         plt.show()
         return data
 
 
 if __name__ == '__main__':
-    cam = Camera()
-    cam.camera_on()
-    cam.camera_off()
+    with Camera() as cam:
+        cam.get_frame()
+        cam.camera_off()
