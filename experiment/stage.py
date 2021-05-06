@@ -53,8 +53,7 @@ class StageController:
         pass
 
     def home_all(self):
-        self.command('0HOM')
-        self.measure(False)
+        self.move_to((0, 0, 0, 0))
         return
 
     def home_xy(self):
@@ -63,9 +62,10 @@ class StageController:
         self.measure(False)
         pass
 
-    def move_ax(self, ax, pos):
-        cmd = f'{ax}MVA{pos}'
-        self.command(cmd)
+    def move_to(self, xyzq):
+        for i, ax in enumerate(self.axes):
+            self.command(f'{ax}MSA{xyzq[i]}')
+        self.command('0RUN')
         self.measure(False)
         return
 
@@ -93,15 +93,33 @@ class StageController:
         self.measure(False)
         return
 
-    def move_z0(self, z0_pos):
-        cmd = f'{self.z_ax}MVA{z0_pos:0.6f}'
+    def move_x(self, x_pos):
+        cmd = f'{self.x_ax}MVA{x_pos:0.6f}'
         self.command(cmd)
         self.measure(False)
         return
 
-    def move_q(self, q):
-        # Todo: Implement rotation control
+    def move_y(self, y_pos):
+        cmd = f'{self.y_ax}MVA{y_pos:0.6f}'
+        self.command(cmd)
+        self.measure(False)
+        return
+
+    def move_z(self, z_pos):
+        cmd = f'{self.z_ax}MVA{z_pos:0.6f}'
+        self.command(cmd)
+        self.measure(False)
+        return
+
+    def move_q(self, q_pos):
+        cmd = f'{self.q_ax}MVA{q_pos:0.6f}'
+        self.command(cmd)
+        self.measure(False)
         pass
+
+    def show_off(self):
+        self.move_to((5, 5, 5, 10))
+        self.move_to((0, 0, 0, 0))
 
     def measure(self, print_lines=True):
         positions = []
@@ -143,7 +161,7 @@ class StageController:
 
     def is_moving(self):
         for ax in self.axes:
-            if not bool(int(self.get_status(ax)[4])):
+            if bool(int(self.get_status(ax)[1:4])):
                 return True
         else:
             return False
@@ -166,8 +184,4 @@ class StageController:
 
 if __name__ == '__main__':
     ctrl = StageController()
-    ctrl.move_z0(5)
-    ctrl.move_x0(1)
-    ctrl.move_z0(0)
-    ctrl.move_x0(0)
-    ctrl.check()
+    ctrl.show_off()
