@@ -192,12 +192,23 @@ class Camera:
     def get_frame(self):
         if not self.is_on:
             print('Camera is not initialized!')
-        sptr = np.empty(self.im_size+127, dtype=self.dtype)
-        self.__sdk_InstallFrameHooker(1, None)
-        data = self.__sdk_GetCurrentFrame(0, 1, sptr)
-        # FIXME: For some reason this doesn't always read the whole image data.
-
-        data = data[127:].reshape(self.im_shape)
+        while True:
+            sptr = np.empty(self.im_size+127, dtype=self.dtype)
+            self.__sdk_InstallFrameHooker(1, None)
+            data = self.__sdk_GetCurrentFrame(0, 1, sptr)
+            # For some reason this doesn't always read the whole image data on the lab computer.
+            # It would be better to figure out why this happens and fix it at the root, but in the meantime I've added
+            # some error handling.
+            # TODO: Figure out how to prevent failure in the first place.
+            try:
+                data = data[127:].reshape(self.im_shape)
+                if np.sum(data[-1]) == 0:
+                    print('API partial failure, trying again...')
+                    continue
+            except ValueError:
+                print('API total failure, trying again...')
+                continue
+            break
         plt.imshow(data, clim=[80, 125])
         plt.tight_layout()
         plt.show()
