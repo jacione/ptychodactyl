@@ -3,10 +3,19 @@ from matplotlib import pyplot as plt
 from matplotlib import colors
 from matplotlib.animation import ArtistAnimation
 from scipy import misc
+from skimage import draw
 import os
 
 
 here = os.path.dirname(os.path.realpath(__file__))
+
+
+def FT(arr):
+    return np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(arr)))
+
+
+def IFT(arr):
+    return np.fft.fftshift(np.fft.ifftn(np.fft.ifftshift(arr)))
 
 
 def normalize(x):
@@ -15,7 +24,7 @@ def normalize(x):
 
 def demo_ft():
     pic = misc.ascent()
-    ft_pic = np.fft.fftshift(np.fft.fftn(pic))
+    ft_pic = FT(pic)
     amplitude_squared = np.log(np.abs(ft_pic))
     phase = np.angle(ft_pic)
     amplitude_squared = normalize(amplitude_squared)
@@ -87,5 +96,27 @@ def demo_phase():
     plt.show()
 
 
+def demo_double_pinhole():
+    N = 1024
+    ctr = N // 2
+    d = N // 16
+    r = 16
+    obj = np.zeros((N, N))
+    obj[draw.disk((ctr, ctr-d), r)] = 1
+    obj[draw.disk((ctr, ctr+d), r)] = 1
+    # obj[draw.disk((ctr+d, ctr), r)] = 1
+    # obj[draw.disk((ctr-d, ctr), r)] = 1
+
+    img = FT(obj)
+    img = np.abs(img)
+
+    plt.subplot(121, xticks=[], yticks=[])
+    plt.imshow(obj[1*N//3:2*N//3, 1*N//3:2*N//3], cmap='plasma')
+    plt.subplot(122, xticks=[], yticks=[])
+    plt.imshow(img[1*N//3:2*N//3, 1*N//3:2*N//3], cmap='plasma')
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == '__main__':
-    demo_ft()
+    demo_double_pinhole()

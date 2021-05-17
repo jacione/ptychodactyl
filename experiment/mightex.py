@@ -12,7 +12,8 @@ import os
 class Camera:
     def __init__(self, resolution=(2560, 1920)):
         # The directory should be wherever the SDK dll file(s) are stored
-        filedir = 'C:/Users/jacione/Documents/Mightex_SM_software/SDK/Lib/x64'
+        # filedir = 'C:/Users/jacione/Documents/Mightex_SM_software/SDK/Lib/x64'
+        filedir = 'C:/Users/jacio/OneDrive/Documents/Research/mightex_sdk/SDK/Lib/x64'
         self.dll = CDLL(f'{filedir}/SSClassic_USBCamera_SDK.dll')
 
         self.is_on = False
@@ -205,4 +206,5 @@ class Camera:
 
 if __name__ == '__main__':
     with Camera() as cam:
+        cam.set_exposure(300)
         cam.get_frame()

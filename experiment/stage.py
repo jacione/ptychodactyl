@@ -24,6 +24,7 @@ class StageController:
         self.z_ax = 1
         self.q_ax = 4
 
+        # This just makes it easier to access each axis sequentially
         self.axes = [self.x_ax, self.y_ax, self.z_ax, self.q_ax]
         self.ax_names = {self.x_ax: 'X', self.y_ax: 'Y', self.z_ax: 'Z', self.q_ax: 'Q'}
 
@@ -46,8 +47,8 @@ class StageController:
         pass
 
     def zero(self):
-        # Move to zero the sample on the beamline
-        # Rotate to align the y-axis parallel to the beamline
+        # TODO: Move to zero the sample on the beamline
+        # TODO: Rotate to align the y-axis parallel to the beamline
         self.command('0ZRO')
         self.measure(False)
         pass
@@ -118,10 +119,13 @@ class StageController:
         pass
 
     def show_off(self):
+        # Moves all the axes around simultaneously
+        # ...just for fun
         self.move_to((5, 5, 5, 10))
         self.move_to((0, 0, 0, 0))
 
     def measure(self, print_lines=True):
+        # Checks the encoder on each axis and updates the attributes within the class instance
         positions = []
         lines = 'AXIS'.ljust(12) + 'CALC'.ljust(12) + 'MEAS\n'
         while self.is_moving():
@@ -143,6 +147,7 @@ class StageController:
         return
 
     def check(self):
+        # Checks each axis for errors
         for ax in self.axes:
             status = self.get_status(ax)
             print(f'{self.ax_names[ax]}-axis  (SB: {status})')
@@ -155,11 +160,13 @@ class StageController:
                 print('\tNo errors')
 
     def get_status(self, ax):
+        # Checks the status byte for a given axis
         s = int(self.query(f'{ax}STA?'))
         status = f'{s:b}'.rjust(8, '0')
         return status
 
     def is_moving(self):
+        # Checks each axis' status byte to see if any of them are moving.
         for ax in self.axes:
             if bool(int(self.get_status(ax)[1:4])):
                 return True
@@ -167,10 +174,12 @@ class StageController:
             return False
 
     def command(self, cmd_str):
+        # Sends a command string to the mightex stage
         self.port.write(bytes(f'{cmd_str}\n\r'.encode('utf-8')))
         pass
 
     def query(self, qry_str):
+        # Sends a query string to the mightex stage and reads a response
         self.port.write(bytes(f'{qry_str}\n\r'.encode('utf-8')))
         time.sleep(0.1)
         s = str(self.port.readline())
