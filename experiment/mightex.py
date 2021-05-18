@@ -10,7 +10,7 @@ import os
 
 
 class Camera:
-    def __init__(self, resolution=(2560, 1920)):
+    def __init__(self, resolution=(2560, 1920), verbose=False):
         # The directory should be wherever the SDK dll file(s) are stored
         dir_lab = 'C:/Users/jacione/Documents/Mightex_SM_software/SDK/Lib/x64'
         dir_jnp = 'C:/Users/jacio/OneDrive/Documents/Research/mightex_sdk/SDK/Lib/x64'
@@ -22,6 +22,7 @@ class Camera:
         self.is_on = False
         self.dtype = 'i2'
         self.image_metadata_size = 128
+        self.verbose = verbose
 
         # Basic IO functions for connecting/disconnecting with the camera
         self.__sdk_InitDevice = self.dll.SSClassicUSB_InitDevice
@@ -116,9 +117,13 @@ class Camera:
             self.__sdk_UnInitDevice()
             print('SUCCESS: Camera disconnected!')
 
+    def print(self, text):
+        if self.verbose:
+            print(text)
+
     def camera_on(self):
         if self.is_on:
-            print('Camera engine already started!')
+            self.print('Camera engine already started!')
             return
 
         # The arguments are [GUI=None, bitdepth=16, threads=4, callback=1)
@@ -135,12 +140,12 @@ class Camera:
             raise IOError('Could not begin frame grab!')
 
         self.is_on = True
-        print('SUCCESS: Camera engine started!')
+        self.print('SUCCESS: Camera engine started!')
         return
 
     def camera_off(self):
         if not self.is_on:
-            print('Camera engine not started!')
+            self.print('Camera engine not started!')
             return
 
         grab = self.__sdk_StopFrameGrab(1)
@@ -152,7 +157,7 @@ class Camera:
             raise IOError('Could not terminate camera engine!')
 
         self.is_on = False
-        print('SUCCESS: Camera engine stopped!')
+        self.print('SUCCESS: Camera engine stopped!')
         return
 
     def set_resolution(self, width: int, height: int):
@@ -196,23 +201,28 @@ class Camera:
 
     def get_frame(self, show=False):
         if not self.is_on:
-            print('Camera is not initialized!')
+            self.print('Camera is not initialized!')
+            self.camera_on()
         data = np.empty(self.data_size, dtype=self.dtype)
+        trycount = 0
         while True:
             # For some reason this doesn't always read the whole image data on the lab computer.
             # It would be better to figure out why this happens and fix it at the root, but in the meantime I've added
             # some error handling to detect and discard incomplete measurements.
             # TODO: Figure out how to prevent failure in the first place.
+            trycount += 1
+            if trycount > 10:
+                raise IOError('Camera API refuses to cooperate and refuses to explain why...')
             try:
                 sptr = np.empty(self.data_size, dtype=self.dtype)
                 self.__sdk_InstallFrameHooker(1, None)
                 data = self.__sdk_GetCurrentFrame(0, 1, sptr)
                 data = data[self.image_metadata_size:].reshape(self.im_shape)
                 if np.min(np.sum(data, axis=1)) == 0:
-                    print('API partial failure, trying again...')
+                    self.print('API partial failure, trying again...')
                     continue
             except ValueError:
-                print('API total failure, trying again...')
+                self.print('API total failure, trying again...')
                 continue
             break
         if show:
@@ -224,5 +234,4 @@ class Camera:
 
 if __name__ == '__main__':
     with Camera() as cam:
-        cam.set_exposure(300)
         cam.get_frame()
