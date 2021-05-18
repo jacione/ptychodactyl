@@ -53,7 +53,7 @@ class MMC200:
         pass
 
     def home_all(self):
-        self.move_to((0, 0, 0, 0))
+        self.set_position((0, 0, 0, 0))
         return
 
     def home_horizontal(self):
@@ -62,7 +62,15 @@ class MMC200:
         self.measure(False)
         pass
 
-    def move_to(self, xyzq):
+    def set_position(self, xyzq, laser_frame=True):
+        x, y, z, q = xyzq
+        if laser_frame:
+            q_rads = q * np.pi / 180
+            xp = x*np.cos(q_rads) + z*np.sin(q_rads)
+            zp = z*np.cos(q_rads) - x*np.sin(q_rads)
+            x = xp
+            z = zp
+        xyzq = x, y, z, q
         for i, ax in enumerate(self.axes):
             self.command(f'{ax}MSA{xyzq[i]}')
         self.command('0RUN')
@@ -78,12 +86,12 @@ class MMC200:
     def set_x0(self, x0_pos):
         # Transform the desired h-position into the xyz coordinates
         q = self.q * np.pi / 180
-        x = x0_pos*np.cos(q)
-        y = -x0_pos*np.sin(q)
+        x = x0_pos * np.cos(q)
+        z = -x0_pos * np.sin(q)
         self.command(f'{self.x_ax}MVA{x:0.6f}')
         while self.is_moving():
             time.sleep(0.1)
-        self.command(f'{self.z_ax}MVA{y:0.6f}')
+        self.command(f'{self.z_ax}MVA{z:0.6f}')
         self.measure(False)
         return
 
@@ -106,11 +114,11 @@ class MMC200:
         # Transform the desired h-position into the xyz coordinates
         q = self.q * np.pi / 180
         x = z0_pos * np.sin(q)
-        y = z0_pos * np.cos(q)
+        z = z0_pos * np.cos(q)
         self.command(f'{self.x_ax}MVA{x:0.6f}')
         while self.is_moving():
             time.sleep(0.1)
-        self.command(f'{self.z_ax}MVA{y:0.6f}')
+        self.command(f'{self.z_ax}MVA{z:0.6f}')
         self.measure(False)
         return
 
@@ -123,8 +131,8 @@ class MMC200:
     def show_off(self):
         # Moves all the axes around simultaneously
         # ...just for fun
-        self.move_to((5, 5, 5, 10))
-        self.move_to((0, 0, 0, 0))
+        self.set_position((5, 5, 5, 10))
+        self.set_position((0, 0, 0, 0))
 
     def measure(self, print_lines=True):
         # Checks the encoder on each axis and updates the attributes within the class instance
