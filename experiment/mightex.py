@@ -12,12 +12,16 @@ import os
 class Camera:
     def __init__(self, resolution=(2560, 1920)):
         # The directory should be wherever the SDK dll file(s) are stored
-        # filedir = 'C:/Users/jacione/Documents/Mightex_SM_software/SDK/Lib/x64'
-        filedir = 'C:/Users/jacio/OneDrive/Documents/Research/mightex_sdk/SDK/Lib/x64'
-        self.dll = CDLL(f'{filedir}/SSClassic_USBCamera_SDK.dll')
+        dir_lab = 'C:/Users/jacione/Documents/Mightex_SM_software/SDK/Lib/x64'
+        dir_jnp = 'C:/Users/jacio/OneDrive/Documents/Research/mightex_sdk/SDK/Lib/x64'
+        try:
+            self.dll = CDLL(f'{dir_lab}/SSClassic_USBCamera_SDK.dll')
+        except FileNotFoundError:
+            self.dll = CDLL(f'{dir_jnp}/SSClassic_USBCamera_SDK.dll')
 
         self.is_on = False
         self.dtype = 'i2'
+        self.image_metadata_size = 128
 
         # Basic IO functions for connecting/disconnecting with the camera
         self.__sdk_InitDevice = self.dll.SSClassicUSB_InitDevice
@@ -61,6 +65,7 @@ class Camera:
         self.height = resolution[1]
         self.im_shape = (self.height, self.width)
         self.im_size = self.width * self.height
+        self.data_size = self.im_size + self.image_metadata_size
 
         self.__sdk_SetExposure = self.dll.SSClassicUSB_SetExposureTime
         self.__sdk_SetExposure.argtypes = [c_int, c_int]  # [ID, exposure_time (x0.05 ms)]
@@ -78,9 +83,9 @@ class Camera:
         self.__sdk_InstallFrameHooker.restype = c_int
 
         self.__sdk_GetCurrentFrame = self.dll.SSClassicUSB_GetCurrentFrame16bit
-        self.__sdk_GetCurrentFrame.argtypes = [c_int, c_int, np.ctypeslib.ndpointer(self.dtype, 1, (self.im_size+127,))]
                                             # [type,    ID,     pointer to data]
-        self.__sdk_GetCurrentFrame.restype = np.ctypeslib.ndpointer(self.dtype, 1, (self.im_size+127,))
+        self.__sdk_GetCurrentFrame.argtypes = [c_int, c_int, np.ctypeslib.ndpointer(self.dtype, 1, (self.data_size,))]
+        self.__sdk_GetCurrentFrame.restype = np.ctypeslib.ndpointer(self.dtype, 1, (self.data_size,))
 
         # Initialize the camera
         num_cameras = self.__sdk_InitDevice()
@@ -189,29 +194,31 @@ class Camera:
         self.set_gain(8)
         return
 
-    def get_frame(self):
+    def get_frame(self, show=False):
         if not self.is_on:
             print('Camera is not initialized!')
+        data = np.empty(self.data_size, dtype=self.dtype)
         while True:
-            sptr = np.empty(self.im_size+127, dtype=self.dtype)
-            self.__sdk_InstallFrameHooker(1, None)
-            data = self.__sdk_GetCurrentFrame(0, 1, sptr)
             # For some reason this doesn't always read the whole image data on the lab computer.
             # It would be better to figure out why this happens and fix it at the root, but in the meantime I've added
-            # some error handling.
+            # some error handling to detect and discard incomplete measurements.
             # TODO: Figure out how to prevent failure in the first place.
             try:
-                data = data[127:].reshape(self.im_shape)
-                if np.sum(data[-1]) == 0:
+                sptr = np.empty(self.data_size, dtype=self.dtype)
+                self.__sdk_InstallFrameHooker(1, None)
+                data = self.__sdk_GetCurrentFrame(0, 1, sptr)
+                data = data[self.image_metadata_size:].reshape(self.im_shape)
+                if np.min(np.sum(data, axis=1)) == 0:
                     print('API partial failure, trying again...')
                     continue
             except ValueError:
                 print('API total failure, trying again...')
                 continue
             break
-        plt.imshow(data, clim=[80, 125])
-        plt.tight_layout()
-        plt.show()
+        if show:
+            plt.imshow(data, clim=[80, 125])
+            plt.tight_layout()
+            plt.show()
         return data
 
 
