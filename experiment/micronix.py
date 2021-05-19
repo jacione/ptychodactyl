@@ -26,8 +26,8 @@ class MMC200:
         self.q_ax = 4
 
         # This just makes it easier to access each axis sequentially
-        self.axes = [self.x_ax, self.z_ax, self.y_ax, self.q_ax]
-        self.ax_names = {self.x_ax: 'X', self.z_ax: 'Y', self.y_ax: 'Z', self.q_ax: 'Q'}
+        self.axes = [self.x_ax, self.y_ax, self.z_ax, self.q_ax]
+        self.ax_names = {self.x_ax: 'X', self.y_ax: 'Y', self.z_ax: 'Z', self.q_ax: 'Q'}
 
         # These are the measured positions in the coordinate system of the STAGES
         self.x = 0
@@ -73,7 +73,7 @@ class MMC200:
             z = zp
         xyzq = x, y, z, q
         for i, ax in enumerate(self.axes):
-            self.command(f'{ax}MSA{xyzq[i]}')
+            self.command(f'{ax}MSA{xyzq[i]:0.6f}')
         self.command('0RUN')
         self.measure()
         return
@@ -81,10 +81,10 @@ class MMC200:
     def get_position(self):
         """Returns a tuple of the relevant positional data for ptychography"""
         self.print(f'AXIS   POS(mm)\n'
-                   f'  X    {self.x0}\n'
-                   f'  Y    {self.y0}\n'
-                   f'  Z    {self.z0}\n'
-                   f'  Q    {self.q}')
+                   f'  X    {self.x0:0.6f}\n'
+                   f'  Y    {self.y0:0.6f}\n'
+                   f'  Z    {self.z0:0.6f}\n'
+                   f'  Q    {self.q:0.6f}')
         return self.x0, self.y0, self.z0, self.q
 
     def set_x(self, x_pos):
@@ -106,7 +106,7 @@ class MMC200:
         return
 
     def set_y(self, y_pos):
-        cmd = f'{self.z_ax}MVA{y_pos:0.6f}'
+        cmd = f'{self.y_ax}MVA{y_pos:0.6f}'
         self.command(cmd)
         self.measure()
         return
@@ -115,7 +115,7 @@ class MMC200:
         self.set_y(y_pos)
 
     def set_z(self, z_pos):
-        cmd = f'{self.y_ax}MVA{z_pos:0.6f}'
+        cmd = f'{self.z_ax}MVA{z_pos:0.6f}'
         self.command(cmd)
         self.measure()
         return
@@ -142,7 +142,9 @@ class MMC200:
         # Moves all the axes around simultaneously
         # ...just for fun
         self.set_position((5, 5, 5, 10))
+        self.get_position()
         self.set_position((0, 0, 0, 0))
+        self.get_position()
 
     def measure(self):
         # Checks the encoder on each axis and updates the attributes within the class instance
@@ -152,7 +154,7 @@ class MMC200:
         for ax in self.axes:
             pos = self.query(f'{ax}POS?')
             pos = pos.split(',')  # Parse the returned string
-            pos = (float(pos[0]), float(pos[1]))
+            pos = float(pos[1])
             positions.append(pos)
 
         self.x, self.y, self.z, self.q = tuple(positions)
@@ -212,5 +214,5 @@ class MMC200:
 
 
 if __name__ == '__main__':
-    ctrl = MMC200()
+    ctrl = MMC200(verbose=True)
     ctrl.show_off()

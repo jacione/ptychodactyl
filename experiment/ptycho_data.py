@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import os
 import h5py
-from datetime import datetime
+from datetime import date
 
 
 class DataSet:
@@ -18,7 +18,7 @@ class DataSet:
         self.im_shape = im_shape  # image resolution
         self.position = np.empty((self.N, 4))  # (x, y, z, th) for each get_position
 
-        self.data = np.empty((self.N, self.im_shape[0], self.im_shape[1]), dtype='i2')
+        self.data = np.empty((self.N, self.im_shape[1], self.im_shape[0]), dtype='i2')
 
         # These parameters probably won't change
         self.energy = energy  # photon energy in electron-volts
@@ -27,7 +27,7 @@ class DataSet:
 
         # Parameters for saving the data afterward
         self.dir = directory
-        self.title = title
+        self.title = title + '-'
         return
 
     def print(self, text):
@@ -37,8 +37,8 @@ class DataSet:
     def record_data(self, position, im_data):
         self.position[self.__n] = position
         self.data[self.__n] = im_data
-        self.__n += 1
         self.print(f'Take {self.__n} recorded!')
+        self.__n += 1
         return
 
     def show(self, n=None):
@@ -53,9 +53,9 @@ class DataSet:
             if input('Scan not complete! Are you sure you want to save? (Y/n)').lower() == 'n':
                 return
             else:
-                self.title = self.title + '_INCOMPLETE'
+                self.title = self.title + 'INCOMPLETE'
         else:
-            self.title = self.title + datetime.now().isoformat(sep=' ', timespec='seconds')
+            self.title = self.title + date.today().isoformat()
         print(f'Saving data as {self.dir}/{self.title}.cxi')
 
         if not os.path.exists(self.dir):
@@ -69,7 +69,7 @@ class DataSet:
 
         # Save collected data
         data = entry.create_group('data_1')
-        data.create_dataset('data', data=self.data, dtype='int')
+        data.create_dataset('data', data=self.data, dtype='i2')
         data.create_dataset('translation', data=self.position)
 
         # Save experimental parameters
