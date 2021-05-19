@@ -24,9 +24,10 @@ import click
 @click.option('-ry', nargs=2, default=(0, 8), help='Two numbers: min, max vertical positions (mm)')
 @click.option('-rq', nargs=2, default=(-90, 90), help='Two numbers: min, max rotational positions (deg)')
 @click.option('--resolution', nargs=2, default=(2560, 1920), help='Two numbers: horizontal, vertical image size')
+@click.option('--exposure', default=8.0)
 @click.option('--distance', default=0.33, help='Sample to detector (m)')
 @click.option('--energy', default=1.957346, help='Laser photon energy (eV)')
-def collect(title, directory, verbose, is2d, nx, ny, nq, rx, ry, rq, resolution, distance, energy):
+def collect(title, directory, verbose, is2d, nx, ny, nq, rx, ry, rq, resolution, exposure, distance, energy):
     """
     CLI for collecting 3D or 2D ptychography data.
 
@@ -55,15 +56,13 @@ def collect(title, directory, verbose, is2d, nx, ny, nq, rx, ry, rq, resolution,
 
     # Initialize the devices and data structures
     stages = micronix.MMC200(verbose=verbose)
-    camera = mightex.Camera(resolution=resolution, verbose=verbose)
+    camera = mightex.Camera(resolution=resolution, exposure=exposure, verbose=verbose)
     dataset = ptycho_data.DataSet(num_takes=num_takes, title=title, directory=directory, im_shape=resolution,
-                                  distance=distance, energy=energy)
+                                  distance=distance, energy=energy, verbose=verbose)
 
     # If it's running verbose, it'll print information on every take. Otherwise, it'll display a simple progress bar.
-    count = range(num_takes)
+    print(f'Run type: {run_type}')
     if verbose:
-        count = click.progressbar(count)
-        print(f'Run type: {run_type}')
         print(f'Camera resolution: {resolution}')
         print(f'Detector distance: {distance} m')
         print(f'Photon energy: {energy} eV')
@@ -73,15 +72,15 @@ def collect(title, directory, verbose, is2d, nx, ny, nq, rx, ry, rq, resolution,
         print('Y    '+f'{ry[0]}'.ljust(6)+f'{ry[1]}'.ljust(6)+f'{ny}'.ljust(6))
         if not is2d:
             print('Q    '+f'{rq[0]}'.ljust(6)+f'{rq[1]}'.ljust(6)+f'{nq}'.ljust(6))
-        print(f'Total: {num_takes} takes')
+    print(f'Total: {num_takes} takes')
 
-    for i in count:
-        if verbose:
-            print(f'\n\nTake {i} started!')
-        stages.set_position((X[i], Y[i], 0, Q[i]))
-        diff_pattern = camera.get_frame()
-        dataset.record_data(stages.get_position(), diff_pattern)
+    with click.progressbar(range(num_takes)) as count:
+        for i in count:
+            stages.set_position((X[i], Y[i], 0, Q[i]))
+            diff_pattern = camera.get_frame()
+            dataset.record_data(stages.get_position(), diff_pattern)
 
+    stages.home_all()
     dataset.save_to_cxi()
 
 

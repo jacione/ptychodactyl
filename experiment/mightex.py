@@ -5,10 +5,11 @@ Script to control the mightex camera
 from ctypes import *
 import numpy as np
 from matplotlib import pyplot as plt
+from scipy.ndimage import center_of_mass
 
 
 class Camera:
-    def __init__(self, resolution=(2560, 1920), verbose=False):
+    def __init__(self, resolution=(2560, 1920), exposure=0.01, verbose=False):
         # The directory should be wherever the SDK dll file(s) are stored
         dir_lab = 'C:/Users/jacione/Documents/Mightex_SM_software/SDK/Lib/x64'
         dir_jnp = 'C:/Users/jacio/OneDrive/Documents/Research/mightex_sdk/SDK/Lib/x64'
@@ -21,6 +22,7 @@ class Camera:
         self.width = resolution[0]
         self.height = resolution[1]
         self.image_metadata_size = 128
+        self.exposure = exposure
         self.im_shape = (self.height, self.width)
         self.im_size = self.width * self.height
         self.data_size = self.im_size + self.image_metadata_size
@@ -66,10 +68,17 @@ class Camera:
         self.__sdk_SetResolution.argtypes = [c_int, c_int, c_int, c_int, c_int]  # [ID, width, height, bin=0, binmode=0]
         self.__sdk_SetResolution.restype = c_int
 
+        self.__sdk_SetXYStart = self.dll.SSClassicUSB_SetXYStart
+        self.__sdk_SetXYStart.argtypes = [c_int, c_int, c_int]  # [ID, X-start, Y-start]
+        self.__sdk_SetXYStart.restype = c_int
+
+        self.__sdk_SetSensorFrequency = self.dll.SSClassicUSB_SetSensorFrequency
+        self.__sdk_SetSensorFrequency.argtypes = [c_int, c_int]  # [ID, frequency (24, 48, or 96)]
+        self.__sdk_SetSensorFrequency.restype = c_int
+
         self.__sdk_SetExposure = self.dll.SSClassicUSB_SetExposureTime
         self.__sdk_SetExposure.argtypes = [c_int, c_int]  # [ID, exposure_time (x0.05 ms)]
         self.__sdk_SetExposure.restype = c_int
-        self.exposure = 0.0  # milliseconds
 
         self.__sdk_SetGain = self.dll.SSClassicUSB_SetGains
         self.__sdk_SetGain.argtypes = [c_int, c_int, c_int, c_int]  # [ID, gain]
@@ -133,6 +142,8 @@ class Camera:
         if mode == -1:
             raise IOError('Could not set camera mode!')
 
+        self.__sdk_SetSensorFrequency(1, 24)
+
         grab = self.__sdk_StartFrameGrab(1, 0x8888)
         if grab == -1:
             raise IOError('Could not begin frame grab!')
@@ -159,8 +170,11 @@ class Camera:
         return
 
     def set_resolution(self, width: int, height: int):
-        success = self.__sdk_SetResolution(1, width, height, 0, 0)
-        if success == 1:
+        s1 = self.__sdk_SetResolution(1, width, height, 0, 0)
+        x_start = (2560 - width) // 2
+        y_start = (1920 - height) // 2
+        s2 = self.__sdk_SetXYStart(1, x_start, y_start)
+        if -1 not in [s1, s2]:
             self.width = width
             self.height = height
             self.im_size = self.width * self.height
@@ -192,8 +206,8 @@ class Camera:
         return
 
     def set_defaults(self):
-        self.set_resolution(2560, 1920)
-        self.set_exposure(2.0)
+        self.set_resolution(self.width, self.height)
+        self.set_exposure(self.exposure)
         self.set_gain(8)
         return
 
@@ -231,25 +245,34 @@ class Camera:
             plt.show()
         return data
 
+    def find_center(self):
+        img = self.get_frame()
+        # img = np.roll(img, (300, 300), (0, 1))
+        img = img - 2*np.median(img)
+        img[img < 0] = 0
+        return center_of_mass(img)
+
     def analyze_frame(self):
         img = self.get_frame()
-        cx = self.width // 2
-        cy = self.height // 2
-        x = img[cy]
-        y = img[:, cx]
-        plt.figure(tight_layout=True)
-        plt.subplot2grid((4, 4), (0, 0), rowspan=3, colspan=3, xticks=[], yticks=[])
-        plt.imshow(img, cmap='gray')
-        plt.axvline(cx, c='r')
-        plt.axhline(cy, c='g')
-        plt.subplot2grid((4, 4), (3, 0), colspan=3)
-        plt.plot(x, c='g')
-        plt.subplot2grid((4, 4), (0, 3), rowspan=3)
-        plt.plot(y, np.arange(self.height), c='r')
-        plt.show()
+        # img = np.roll(img, (300, 300), (0, 1))
+        img = img - 2*np.median(img)
+        img[img < 0] = 0
+        cy, cx = center_of_mass(img)
+        if self.verbose:
+            x = img[int(np.round(cy, 0))]
+            y = img[:, int(np.round(cx, 0))]
+            plt.figure(tight_layout=True)
+            plt.subplot2grid((4, 4), (0, 0), rowspan=3, colspan=3, xticks=[], yticks=[])
+            plt.imshow(img, cmap='bone')
+            plt.axhline(cy, c='g')
+            plt.axvline(cx, c='r')
+            plt.subplot2grid((4, 4), (3, 0), colspan=3)
+            plt.plot(x, c='g')
+            plt.subplot2grid((4, 4), (0, 3), rowspan=3)
+            plt.plot(y, np.arange(self.height), c='r')
+            plt.show()
 
 
 if __name__ == '__main__':
-    with Camera() as cam:
-        cam.set_defaults()
+    with Camera(resolution=(1024, 1024), verbose=True) as cam:
         cam.analyze_frame()
