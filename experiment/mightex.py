@@ -5,8 +5,6 @@ Script to control the mightex camera
 from ctypes import *
 import numpy as np
 from matplotlib import pyplot as plt
-import time
-import os
 
 
 class Camera:
@@ -84,7 +82,7 @@ class Camera:
         self.__sdk_InstallFrameHooker.restype = c_int
 
         self.__sdk_GetCurrentFrame = self.dll.SSClassicUSB_GetCurrentFrame16bit
-                                            # [type,    ID,     pointer to data]
+        # [type,    ID,     pointer to data]
         self.__sdk_GetCurrentFrame.argtypes = [c_int, c_int, np.ctypeslib.ndpointer(self.dtype, 1, (self.data_size,))]
         self.__sdk_GetCurrentFrame.restype = np.ctypeslib.ndpointer(self.dtype, 1, (self.data_size,))
 
@@ -219,11 +217,12 @@ class Camera:
                 data = self.__sdk_GetCurrentFrame(0, 1, sptr)
                 data = data[self.image_metadata_size:].reshape(self.im_shape)
                 if np.min(np.sum(data, axis=1)) == 0:
-                    self.print('API partial failure, trying again...')
+                    self.print('Camera API: Partial failure, trying again...')
                     continue
             except ValueError:
-                self.print('API total failure, trying again...')
+                self.print('Camera API: Total failure, trying again...')
                 continue
+            self.print('Camera API: Image captured!')
             break
         if show:
             plt.subplot(111, xticks=[], yticks=[])
@@ -239,17 +238,15 @@ class Camera:
         x = img[cy]
         y = img[:, cx]
         plt.figure(tight_layout=True)
-        plt.subplot2grid((4,4), (0,0), rowspan=3, colspan=3, xticks=[], yticks=[])
+        plt.subplot2grid((4, 4), (0, 0), rowspan=3, colspan=3, xticks=[], yticks=[])
         plt.imshow(img, cmap='gray')
         plt.axvline(cx, c='r')
         plt.axhline(cy, c='g')
-        plt.subplot2grid((4,4), (3,0), colspan=3)
+        plt.subplot2grid((4, 4), (3, 0), colspan=3)
         plt.plot(x, c='g')
-        plt.subplot2grid((4,4), (0,3), rowspan=3)
+        plt.subplot2grid((4, 4), (0, 3), rowspan=3)
         plt.plot(y, np.arange(self.height), c='r')
         plt.show()
-
-
 
 
 if __name__ == '__main__':

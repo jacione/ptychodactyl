@@ -10,12 +10,13 @@ from datetime import datetime
 
 
 class DataSet:
-    def __init__(self, num_takes, title, directory, im_shape, distance, energy):
+    def __init__(self, num_takes, title, directory, im_shape, distance, energy, verbose=False):
         # General parameters
+        self.verbose = verbose
         self.N = num_takes  # Total number of takes (all translations and rotations)
         self.__n = 0  # Current take
         self.im_shape = im_shape  # image resolution
-        self.position = np.empty((self.N, 3))  # (x, y, th) for each position
+        self.position = np.empty((self.N, 4))  # (x, y, z, th) for each get_position
 
         self.data = np.empty((self.N, self.im_shape[0], self.im_shape[1]), dtype='i2')
 
@@ -29,12 +30,15 @@ class DataSet:
         self.title = title
         return
 
+    def print(self, text):
+        if self.verbose:
+            print(text)
+
     def record_data(self, position, im_data):
         self.position[self.__n] = position
         self.data[self.__n] = im_data
         self.__n += 1
-        if self.__n == self.N:
-            self.title = self.title + datetime.now().isoformat(sep=' ', timespec='seconds')
+        self.print(f'Take {self.__n} recorded!')
         return
 
     def show(self, n=None):
@@ -49,17 +53,26 @@ class DataSet:
             if input('Scan not complete! Are you sure you want to save? (Y/n)').lower() == 'n':
                 return
             else:
-                self.title = self.title + ' (INCOMPLETE)'
+                self.title = self.title + '_INCOMPLETE'
+        else:
+            self.title = self.title + datetime.now().isoformat(sep=' ', timespec='seconds')
+        print(f'Saving data as {self.dir}/{self.title}.cxi')
+
         if not os.path.exists(self.dir):
             os.mkdir(self.dir)
+
+        # Create file
         f = h5py.File(f'{self.dir}/{self.title}.cxi', 'w')
 
+        # Create entry
         entry = f.create_group('entry_1')
 
+        # Save collected data
         data = entry.create_group('data_1')
         data.create_dataset('data', data=self.data, dtype='int')
         data.create_dataset('translation', data=self.position)
 
+        # Save experimental parameters
         inst = entry.create_group('instrument_1')
         source = inst.create_group('source_1')
         source.create_dataset('energy', data=self.energy)

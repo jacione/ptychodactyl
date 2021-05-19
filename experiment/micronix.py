@@ -13,7 +13,8 @@ class MMC200:
     """
     Class to interface with a Micronix MMC-200 stage controller.
     """
-    def __init__(self):
+    def __init__(self, verbose=False):
+        self.verbose = verbose
         # Connect to the controller
         self.port = serial.Serial('COM3', baudrate=38400, timeout=2)
         self.port.flush()
@@ -33,7 +34,7 @@ class MMC200:
         self.y = 0
         self.z = 0
 
-        # This is the measured rotational position which relates the two coordinate systems
+        # This is the measured rotational get_position which relates the two coordinate systems
         self.q = 0
 
         # These are the calculated positions in the coordinate system of the BEAMLINE
@@ -49,7 +50,7 @@ class MMC200:
         # TODO: Move to zero the sample on the beamline
         # TODO: Rotate to align the y-axis parallel to the beamline
         self.command('0ZRO')
-        self.measure(False)
+        self.measure()
         pass
 
     def home_all(self):
@@ -59,7 +60,7 @@ class MMC200:
     def home_horizontal(self):
         cmd = f'{self.x_ax}MSA0;{self.z_ax}MSA0 \n0RUN'
         self.command(cmd)
-        self.measure(False)
+        self.measure()
         pass
 
     def set_position(self, xyzq, laser_frame=True):
@@ -74,17 +75,26 @@ class MMC200:
         for i, ax in enumerate(self.axes):
             self.command(f'{ax}MSA{xyzq[i]}')
         self.command('0RUN')
-        self.measure(False)
+        self.measure()
         return
+
+    def get_position(self):
+        """Returns a tuple of the relevant positional data for ptychography"""
+        self.print(f'AXIS   POS(mm)\n'
+                   f'  X    {self.x0}\n'
+                   f'  Y    {self.y0}\n'
+                   f'  Z    {self.z0}\n'
+                   f'  Q    {self.q}')
+        return self.x0, self.y0, self.z0, self.q
 
     def set_x(self, x_pos):
         cmd = f'{self.x_ax}MVA{x_pos:0.6f}'
         self.command(cmd)
-        self.measure(False)
+        self.measure()
         return
 
     def set_x0(self, x0_pos):
-        # Transform the desired h-position into the xyz coordinates
+        # Transform the desired h-get_position into the xyz coordinates
         q = self.q * np.pi / 180
         x = x0_pos * np.cos(q)
         z = -x0_pos * np.sin(q)
@@ -92,13 +102,13 @@ class MMC200:
         while self.is_moving():
             time.sleep(0.1)
         self.command(f'{self.z_ax}MVA{z:0.6f}')
-        self.measure(False)
+        self.measure()
         return
 
     def set_y(self, y_pos):
         cmd = f'{self.z_ax}MVA{y_pos:0.6f}'
         self.command(cmd)
-        self.measure(False)
+        self.measure()
         return
 
     def set_y0(self, y_pos):
@@ -107,11 +117,11 @@ class MMC200:
     def set_z(self, z_pos):
         cmd = f'{self.y_ax}MVA{z_pos:0.6f}'
         self.command(cmd)
-        self.measure(False)
+        self.measure()
         return
 
     def set_z0(self, z0_pos):
-        # Transform the desired h-position into the xyz coordinates
+        # Transform the desired h-get_position into the xyz coordinates
         q = self.q * np.pi / 180
         x = z0_pos * np.sin(q)
         z = z0_pos * np.cos(q)
@@ -119,13 +129,13 @@ class MMC200:
         while self.is_moving():
             time.sleep(0.1)
         self.command(f'{self.z_ax}MVA{z:0.6f}')
-        self.measure(False)
+        self.measure()
         return
 
     def set_q(self, q_pos):
         cmd = f'{self.q_ax}MVA{q_pos:0.6f}'
         self.command(cmd)
-        self.measure(False)
+        self.measure()
         pass
 
     def show_off(self):
@@ -134,17 +144,15 @@ class MMC200:
         self.set_position((5, 5, 5, 10))
         self.set_position((0, 0, 0, 0))
 
-    def measure(self, print_lines=True):
+    def measure(self):
         # Checks the encoder on each axis and updates the attributes within the class instance
         positions = []
-        lines = 'AXIS'.ljust(12) + 'CALC'.ljust(12) + 'MEAS\n'
         while self.is_moving():
             time.sleep(0.1)
         for ax in self.axes:
             pos = self.query(f'{ax}POS?')
             pos = pos.split(',')  # Parse the returned string
             pos = (float(pos[0]), float(pos[1]))
-            lines = lines + self.ax_names[ax].ljust(12) + str(pos[0]).ljust(12) + str(pos[1]) + '\n'
             positions.append(pos)
 
         self.x, self.y, self.z, self.q = tuple(positions)
@@ -152,25 +160,20 @@ class MMC200:
         self.x0 = self.x * np.cos(self.q) - self.z * np.sin(self.q)
         self.z0 = self.x * np.sin(self.q) + self.z * np.cos(self.q)
         self.y0 = self.y
-        if print_lines:
-            print(lines)
         return
-
-    def position(self):
-        return self.x0, self.y0, self.q
 
     def check(self):
         # Checks each axis for errors
         for ax in self.axes:
             status = self.get_status(ax)
-            print(f'{self.ax_names[ax]}-axis  (SB: {status})')
+            self.print(f'{self.ax_names[ax]}-axis  (SB: {status})')
             err = self.query(f'{ax}ERR?')
             if len(err):
                 for s in err.split('#'):
                     if len(s) and not s.isspace():
-                        print(f'\t{s}')
+                        self.print(f'\t{s}')
             else:
-                print('\tNo errors')
+                self.print('\tNo errors')
 
     def get_status(self, ax):
         # Checks the status byte for a given axis
@@ -185,6 +188,10 @@ class MMC200:
                 return True
         else:
             return False
+
+    def print(self, text):
+        if self.verbose:
+            print(text)
 
     def command(self, cmd_str):
         # Sends a command string to the mightex stage
