@@ -12,7 +12,7 @@ import click
 
 @click.command()
 @click.option('-s', '--title', default='test', help='Data will be saved by this name')
-@click.option('-d', '--directory', default='C:/Users/jacione/Documents/ptychography_data',
+@click.option('-d', '--directory', default='C:/Users/jacione/Box/3d-ptycho/data',
               help='Data will be saved in this directory')
 @click.option('-2d/-3d', 'is2d', default=False, help='Ignore/include rotation in data collection')
 @click.option('-nx', default=10, help='Number of horizontal steps')

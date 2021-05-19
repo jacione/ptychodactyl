@@ -20,8 +20,13 @@ class Camera:
             self.dll = CDLL(f'{dir_jnp}/SSClassic_USBCamera_SDK.dll')
 
         self.is_on = False
-        self.dtype = 'i2'
+        self.width = resolution[0]
+        self.height = resolution[1]
         self.image_metadata_size = 128
+        self.im_shape = (self.height, self.width)
+        self.im_size = self.width * self.height
+        self.data_size = self.im_size + self.image_metadata_size
+        self.dtype = 'i2'
         self.verbose = verbose
 
         # Basic IO functions for connecting/disconnecting with the camera
@@ -62,11 +67,6 @@ class Camera:
         self.__sdk_SetResolution = self.dll.SSClassicUSB_SetCustomizedResolution
         self.__sdk_SetResolution.argtypes = [c_int, c_int, c_int, c_int, c_int]  # [ID, width, height, bin=0, binmode=0]
         self.__sdk_SetResolution.restype = c_int
-        self.width = resolution[0]
-        self.height = resolution[1]
-        self.im_shape = (self.height, self.width)
-        self.im_size = self.width * self.height
-        self.data_size = self.im_size + self.image_metadata_size
 
         self.__sdk_SetExposure = self.dll.SSClassicUSB_SetExposureTime
         self.__sdk_SetExposure.argtypes = [c_int, c_int]  # [ID, exposure_time (x0.05 ms)]
@@ -74,7 +74,7 @@ class Camera:
         self.exposure = 0.0  # milliseconds
 
         self.__sdk_SetGain = self.dll.SSClassicUSB_SetGains
-        self.__sdk_SetGain.argtypes = [c_int, c_int]  # [ID, gain]
+        self.__sdk_SetGain.argtypes = [c_int, c_int, c_int, c_int]  # [ID, gain]
         self.__sdk_SetGain.restype = c_int
         self.gain = 0  # gain level (gain factor * 8)
 
@@ -109,13 +109,13 @@ class Camera:
         if self.is_on:
             self.camera_off()
         self.__sdk_UnInitDevice()
-        print('SUCCESS: Camera disconnected!')
+        self.print('SUCCESS: Camera disconnected!')
 
     def __del__(self):
         if self.is_on:
             self.camera_off()
             self.__sdk_UnInitDevice()
-            print('SUCCESS: Camera disconnected!')
+            self.print('SUCCESS: Camera disconnected!')
 
     def print(self, text):
         if self.verbose:
@@ -188,14 +188,14 @@ class Camera:
             gain = 1
         if gain > 64:
             gain = 64
-        success = self.__sdk_SetGain(1, gain)
+        success = self.__sdk_SetGain(1, 0, gain, 0)
         if success == 1:
             self.gain = gain
         return
 
     def set_defaults(self):
         self.set_resolution(2560, 1920)
-        self.set_exposure(5.1)
+        self.set_exposure(2.0)
         self.set_gain(8)
         return
 
@@ -215,7 +215,7 @@ class Camera:
                 raise IOError('Camera API refuses to cooperate and refuses to explain why...')
             try:
                 sptr = np.empty(self.data_size, dtype=self.dtype)
-                self.__sdk_InstallFrameHooker(1, None)
+                self.__sdk_InstallFrameHooker(0, None)
                 data = self.__sdk_GetCurrentFrame(0, 1, sptr)
                 data = data[self.image_metadata_size:].reshape(self.im_shape)
                 if np.min(np.sum(data, axis=1)) == 0:
@@ -226,12 +226,33 @@ class Camera:
                 continue
             break
         if show:
-            plt.imshow(data, clim=[80, 125])
+            plt.subplot(111, xticks=[], yticks=[])
+            plt.imshow(data, cmap='plasma')
             plt.tight_layout()
             plt.show()
         return data
 
+    def analyze_frame(self):
+        img = self.get_frame()
+        cx = self.width // 2
+        cy = self.height // 2
+        x = img[cy]
+        y = img[:, cx]
+        plt.figure(tight_layout=True)
+        plt.subplot2grid((4,4), (0,0), rowspan=3, colspan=3, xticks=[], yticks=[])
+        plt.imshow(img, cmap='gray')
+        plt.axvline(cx, c='r')
+        plt.axhline(cy, c='g')
+        plt.subplot2grid((4,4), (3,0), colspan=3)
+        plt.plot(x, c='g')
+        plt.subplot2grid((4,4), (0,3), rowspan=3)
+        plt.plot(y, np.arange(self.height), c='r')
+        plt.show()
+
+
+
 
 if __name__ == '__main__':
     with Camera() as cam:
-        cam.get_frame()
+        cam.set_defaults()
+        cam.analyze_frame()
