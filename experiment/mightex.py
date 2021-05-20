@@ -19,6 +19,8 @@ class Camera:
             self.dll = CDLL(f'{dir_jnp}/SSClassic_USBCamera_SDK.dll')
 
         self.is_on = False
+        self.full_width = 2560
+        self.full_height = 1920
         self.width = resolution[0]
         self.height = resolution[1]
         self.image_metadata_size = 128
@@ -165,8 +167,8 @@ class Camera:
 
     def set_resolution(self, width: int, height: int):
         s1 = self.__sdk_SetResolution(1, width, height, 0, 0)
-        x_start = (2560 - width) // 2
-        y_start = (1920 - height) // 2
+        x_start = (self.full_width - width) // 2
+        y_start = (self.full_height - height) // 2
         s2 = self.__sdk_SetXYStart(1, x_start, y_start)
         if -1 not in [s1, s2]:
             self.width = width
