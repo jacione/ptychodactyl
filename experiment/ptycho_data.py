@@ -10,19 +10,20 @@ from datetime import date
 
 
 class DataSet:
-    def __init__(self, num_takes, title, directory, im_shape, distance, energy, verbose=False):
+    def __init__(self, num_takes, title, directory, im_shape, pixel_size, distance, energy, is2d, verbose=False):
         # General parameters
         self.verbose = verbose
         self.N = num_takes  # Total number of takes (all translations and rotations)
         self.__n = 0  # Current take
         self.im_shape = im_shape  # image resolution
         self.position = np.empty((self.N, 4))  # (x, y, z, th) for each get_position
+        self.is2d = is2d
 
         self.data = np.empty((self.N, self.im_shape[1], self.im_shape[0]), dtype='i2')
 
         # These parameters probably won't change
-        self.energy = energy  # photon energy in electron-volts
-        self.pixel_size = 2.2  # pixel side length in micrometers
+        self.energy = energy * 1.602176634e-19  # photon energy in JOULES
+        self.pixel_size = pixel_size * 1e-6  # pixel side length in meters
         self.distance = distance  # sample-to-detector distance in meters
 
         # Parameters for saving the data afterward
@@ -35,7 +36,7 @@ class DataSet:
             print(text)
 
     def record_data(self, position, im_data):
-        self.position[self.__n] = position
+        self.position[self.__n] = position * 1e-3  # Record position in meters
         self.data[self.__n] = im_data
         self.print(f'Take {self.__n} recorded!')
         self.__n += 1
@@ -70,7 +71,10 @@ class DataSet:
         # Save collected data
         data = entry.create_group('data_1')
         data.create_dataset('data', data=self.data, dtype='i2')
-        data.create_dataset('translation', data=self.position)
+        if self.is2d:
+            data.create_dataset('translation', data=self.position[:, :2])
+        else:
+            data.create_dataset('translation', data=self.position)
 
         # Save experimental parameters
         inst = entry.create_group('instrument_1')
