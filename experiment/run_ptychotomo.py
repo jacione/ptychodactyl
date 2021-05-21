@@ -5,7 +5,7 @@ This script is for collecting ptychography data.
 
 import numpy as np
 import ptycho_data
-import mightex
+from camera import Mightex, ThorCam
 import micronix
 import click
 
@@ -23,11 +23,12 @@ import click
 @click.option('-rx', nargs=2, default=(-4, 4), help='Two numbers: min, max horizontal positions (mm)')
 @click.option('-ry', nargs=2, default=(0, 8), help='Two numbers: min, max vertical positions (mm)')
 @click.option('-rq', nargs=2, default=(-90, 90), help='Two numbers: min, max rotational positions (deg)')
-@click.option('--resolution', nargs=2, default=(2560, 1920), help='Two numbers: horizontal, vertical image size')
-@click.option('--exposure', default=8.0)
+@click.option('--resolution', nargs=2, help='Two numbers: horizontal, vertical image size')
+@click.option('--exposure', help='Exposure time in milliseconds')
+@click.option('--gain', help='Analog gain')
 @click.option('--distance', default=0.33, help='Sample to detector (m)')
 @click.option('--energy', default=1.957346, help='Laser photon energy (eV)')
-def collect(title, directory, verbose, is2d, nx, ny, nq, rx, ry, rq, resolution, exposure, distance, energy):
+def collect(title, directory, verbose, is2d, nx, ny, nq, rx, ry, rq, resolution, exposure, gain, distance, energy):
     """
     CLI for collecting 3D or 2D ptychography data.
 
@@ -56,23 +57,27 @@ def collect(title, directory, verbose, is2d, nx, ny, nq, rx, ry, rq, resolution,
 
     # Initialize the devices and data structures
     stages = micronix.MMC200(verbose=verbose)
-    camera = mightex.Camera(resolution=resolution, exposure=exposure, verbose=verbose)
+    camera = Mightex(verbose=verbose)
+    camera.set_resolution(resolution)
+    camera.set_exposure(exposure)
+    camera.set_gain(gain)
     dataset = ptycho_data.DataSet(num_takes=num_takes, title=title, directory=directory, im_shape=resolution,
-                                  distance=distance, energy=energy, is2d=is2d, verbose=verbose)
+                                  pixel_size=camera.pixel_size, distance=distance, energy=energy, is2d=is2d,
+                                  verbose=verbose)
 
     # If it's running verbose, it'll print information on every take. Otherwise, it'll display a simple progress bar.
     print(f'Run type: {run_type}')
+    print(f'Camera resolution: {resolution}')
+    print(f'Detector distance: {distance} m')
+    print(f'Photon energy: {energy} eV')
+    print('Positioning (mm):')
+    print('     ' + 'MIN'.ljust(6) + 'MAX'.ljust(6) + 'STEPS')
+    print('X    ' + f'{rx[0]}'.ljust(6) + f'{rx[1]}'.ljust(6) + f'{nx}'.ljust(6))
+    print('Y    ' + f'{ry[0]}'.ljust(6) + f'{ry[1]}'.ljust(6) + f'{ny}'.ljust(6))
+    if not is2d:
+        print('Q    ' + f'{rq[0]}'.ljust(6) + f'{rq[1]}'.ljust(6) + f'{nq}'.ljust(6))
     if verbose:
         counter = lambda N: range(N)
-        print(f'Camera resolution: {resolution}')
-        print(f'Detector distance: {distance} m')
-        print(f'Photon energy: {energy} eV')
-        print('Positioning (mm):')
-        print('     '+'MIN'.ljust(6)+'MAX'.ljust(6)+'STEPS')
-        print('X    '+f'{rx[0]}'.ljust(6)+f'{rx[1]}'.ljust(6)+f'{nx}'.ljust(6))
-        print('Y    '+f'{ry[0]}'.ljust(6)+f'{ry[1]}'.ljust(6)+f'{ny}'.ljust(6))
-        if not is2d:
-            print('Q    '+f'{rq[0]}'.ljust(6)+f'{rq[1]}'.ljust(6)+f'{nq}'.ljust(6))
     else:
         counter = lambda N: click.progressbar(range(N))
     print(f'Total: {num_takes} takes')

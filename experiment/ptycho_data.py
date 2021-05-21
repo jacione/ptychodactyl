@@ -10,7 +10,7 @@ from datetime import date
 
 
 class DataSet:
-    def __init__(self, num_takes, title, directory, im_shape, distance, energy, is2d, verbose=False):
+    def __init__(self, num_takes, title, directory, im_shape, pixel_size, distance, energy, is2d, verbose=False):
         # General parameters
         self.verbose = verbose
         self.N = num_takes  # Total number of takes (all translations and rotations)
@@ -23,7 +23,7 @@ class DataSet:
 
         # These parameters probably won't change
         self.energy = energy * 1.602176634e-19  # photon energy in JOULES
-        self.pixel_size = 2.2 * 1e-6  # pixel side length in meters
+        self.pixel_size = pixel_size * 1e-6  # pixel side length in meters
         self.distance = distance  # sample-to-detector distance in meters
 
         # Parameters for saving the data afterward
