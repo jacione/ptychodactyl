@@ -7,6 +7,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.ndimage import center_of_mass
 from abc import ABC, abstractmethod
+import os
 
 
 MIGHTEX_DEFAULTS = {
@@ -28,28 +29,27 @@ THORCAM_DEFAULTS = {
     'pixel_size': 5.5
 }
 
-dir_lab = 'C:/Users/jacione/Documents/Mightex_SM_software/SDK/Lib/x64'
-dir_jnp = 'C:/Users/jacio/OneDrive/Documents/Research/mightex_sdk/SDK/Lib/x64'
-all_dirs = [dir_lab, dir_jnp]
+libs = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/libs'
 
 
 class Camera(ABC):
     @abstractmethod
     def __init__(self, defaults, verbose):
+        self.defaults = defaults
         self.is_on = False
         self.verbose = verbose
-        self.full_width = defaults['width']
-        self.full_height = defaults['height']
-        self.width = defaults['width']
-        self.height = defaults['height']
+        self.full_width = self.defaults['width']
+        self.full_height = self.defaults['height']
+        self.width = self.defaults['width']
+        self.height = self.defaults['height']
         self.im_shape = (self.height, self.width)
         self.im_size = self.width * self.height
-        self.dtype = defaults['dtype']
-        self.image_metadata_size = defaults['metadata']
+        self.dtype = self.defaults['dtype']
+        self.image_metadata_size = self.defaults['metadata']
         self.data_size = self.im_size + self.image_metadata_size
-        self.pixel_size = defaults['pixel_size']
-        self.exposure = defaults['exposure']
-        self.gain = defaults['gain']
+        self.pixel_size = self.defaults['pixel_size']
+        self.exposure = self.defaults['exposure']
+        self.gain = self.defaults['gain']
 
     def __enter__(self):
         return self
@@ -96,9 +96,9 @@ class Camera(ABC):
             print(text)
 
     def set_defaults(self):
-        self.set_resolution(self.im_shape)
-        self.set_exposure(self.exposure)
-        self.set_gain(self.gain)
+        self.set_resolution((self.defaults['width'], self.defaults['height']))
+        self.set_exposure(self.defaults['exposure'])
+        self.set_gain(self.defaults['gain'])
         return
 
     def find_center(self):
@@ -132,15 +132,8 @@ class Camera(ABC):
 class Mightex(Camera):
     def __init__(self, verbose=False):
         super().__init__(MIGHTEX_DEFAULTS, verbose)
-        # The directory should be wherever the SDK dll file(s) are stored
-        for d in all_dirs:
-            try:
-                dll = CDLL(f'{d}/SSClassic_USBCamera_SDK.dll')
-                break
-            except FileNotFoundError:
-                continue
-        else:
-            raise FileNotFoundError('Could not find SSClassic_USBCamera_SDK.dll in any known directories!')
+
+        dll = CDLL(f'{libs}/Mightex/SSClassic_USBCamera_SDK.dll')
 
         # Basic IO functions for connecting/disconnecting with the camera
         self.__sdk_InitDevice = dll.SSClassicUSB_InitDevice
@@ -335,6 +328,11 @@ class Mightex(Camera):
 class ThorCam(Camera):
     def __init__(self, verbose):
         super().__init__(THORCAM_DEFAULTS, verbose)
+
+        dll = CDLL(f'{libs}/ThorCam/tsi_sdk.dll')
+
+        self.sdk = dll.tsi_create_sdk(0)
+
         self.camera_on()
         self.set_defaults()
         return
@@ -343,8 +341,6 @@ class ThorCam(Camera):
         if self.is_on:
             self.print('Camera engine already started!')
             return
-
-        pass
 
         self.is_on = True
         self.print('SUCCESS: Camera engine started!')
@@ -355,8 +351,6 @@ class ThorCam(Camera):
             self.print('Camera engine not started!')
             return
 
-        pass
-
         self.is_on = False
         self.print('SUCCESS: Camera engine stopped!')
         return
@@ -366,16 +360,14 @@ class ThorCam(Camera):
         return
 
     def set_exposure(self, ms):
-        pass
+        us = ms * 1000
         return
 
     def set_gain(self, gain: int):
-        pass
         return
 
     def get_frame(self, show=False):
         if not self.is_on:
-            self.print('Camera is not initialized!')
             self.camera_on()
         data = np.zeros(self.im_shape)
         if show:
@@ -384,5 +376,4 @@ class ThorCam(Camera):
 
 
 if __name__ == '__main__':
-    with Mightex(verbose=True) as cam:
-        cam.analyze_frame()
+    cam = ThorCam(False)

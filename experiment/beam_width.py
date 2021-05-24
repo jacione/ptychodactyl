@@ -1,9 +1,10 @@
 """
 Measure the beamwidth on the camera
 """
+import os
 
 import numpy as np
-import mightex
+import camera
 from scipy.ndimage import center_of_mass
 import click
 
@@ -12,7 +13,7 @@ import click
 @click.option('-p', '--print', 'disp', is_flag=True, default=False)
 def measure(disp):
     pixel_size = 2.2e-3
-    with mightex.Camera() as cam:
+    with camera.Mightex() as cam:
         img = cam.get_frame()
     # img = np.ones((10, 10))
     ctr = center_of_mass(img)
@@ -28,4 +29,4 @@ def measure(disp):
 
 
 if __name__ == '__main__':
-    measure()
+    print('Done')
