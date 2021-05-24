@@ -23,7 +23,7 @@ THORCAM_DEFAULTS = {
     'width': 3296,
     'height': 2472,
     'exposure': 0.05,
-    'gain': 8,
+    'gain': 1,
     'metadata': 128,
     'dtype': 'i2',
     'pixel_size': 5.5
@@ -329,18 +329,35 @@ class ThorCam(Camera):
     def __init__(self, verbose):
         super().__init__(THORCAM_DEFAULTS, verbose)
 
-        dll = CDLL(f'{libs}/ThorCam/tsi_sdk.dll')
+        self.dll = CDLL(f'{libs}/ThorCam/thorlabs_tsi_camera_sdk.dll')
 
-        self.sdk = dll.tsi_create_sdk(0)
+        self.dll.tl_camera_open_sdk()
+        self.s_number = self.dll.tl_camera_discover_available_cameras()[0]
+        self.frames_per_trigger = 1
+
+        self._grab_data = self.dll.tl_camera_set_frames_per_trigger_zero_for_unlimited
+        # self._grab_data.argtypes = [c_int, np.ctypeslib.ndpointer(self.dtype, 2, self.im_shape),
+                                    # c_void_p, c_void_p, c_void_p]
 
         self.camera_on()
         self.set_defaults()
         return
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.camera_off()
+        self.dll.tl_camera_close_sdk()
+
+    def __del__(self):
+        self.camera_off()
+        self.dll.tl_camera_close_sdk()
+
     def camera_on(self):
         if self.is_on:
             self.print('Camera engine already started!')
             return
+
+        self.dll.tl_camera_open_camera(self.s_number)
+        self.dll.tl_camera_set_frames_per_trigger_zero_for_unlimited(self.frames_per_trigger)
 
         self.is_on = True
         self.print('SUCCESS: Camera engine started!')
@@ -351,25 +368,40 @@ class ThorCam(Camera):
             self.print('Camera engine not started!')
             return
 
+        self.dll.tl_camera_close_camera(self.s_number)
+
         self.is_on = False
         self.print('SUCCESS: Camera engine stopped!')
         return
 
     def set_resolution(self, resolution):
         pass
-        return
 
     def set_exposure(self, ms):
         us = ms * 1000
+        self.dll.tl_camera_set_exposure_time(self.s_number, us)
         return
 
     def set_gain(self, gain: int):
+        self.dll.tl_camera_set_gain(self.s_number, gain)
+        return
+
+    def set_frames_per_trigger(self, fpt):
+        self.frames_per_trigger = fpt
+        self.dll.tl_camera_set_frames_per_trigger_zero_for_unlimited(self.frames_per_trigger)
         return
 
     def get_frame(self, show=False):
         if not self.is_on:
             self.camera_on()
-        data = np.zeros(self.im_shape)
+        data = np.zeros(self.im_shape, dtype=self.dtype)
+        for i in range(self.frames_per_trigger):
+            image_buffer = np.ctypeslib.as_ctypes(np.empty(self.im_shape, dtype=self.dtype))
+            frame_count = c_int(0)
+            meta_data = c_char(0)
+            meta_size = c_int(0)
+            self._grab_data(self.s_number, byref(image_buffer), byref(frame_count), byref(meta_data), byref(meta_size))
+            data = data + np.ctypeslib.as_array(image_buffer, self.im_shape)
         if show:
             self.imshow(data)
         return data
