@@ -43,7 +43,7 @@ THORCAM_DEFAULTS = {
     'metadata': 128,
     'dtype': 'i2',
     'pixel_size': 5.5,
-    'serial_number': '09489'
+    'serial_number': '08949'
 }
 
 libs = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/libs'
@@ -391,14 +391,12 @@ class ThorCam(Camera):
     _dll.tl_camera_set_frames_per_trigger_zero_for_unlimited.argtypes = [c_void_p, c_uint]
     _dll.tl_camera_get_frames_per_trigger_range.argtypes = [c_void_p, POINTER(c_uint), POINTER(c_uint)]
     _dll.tl_camera_get_usb_port_type.argtypes = [c_void_p, POINTER(c_int)]
-    _dll.tl_camera_get_communication_interface.argtypes = [c_void_p, POINTER(c_int)]
     _dll.tl_camera_get_operation_mode.argtypes = [c_void_p, POINTER(c_int)]
     _dll.tl_camera_set_operation_mode.argtypes = [c_void_p, c_int]
     _dll.tl_camera_get_is_armed.argtypes = [c_void_p, POINTER(c_bool)]
     _dll.tl_camera_get_is_eep_supported.argtypes = [c_void_p, POINTER(c_bool)]
     _dll.tl_camera_get_is_led_supported.argtypes = [c_void_p, POINTER(c_bool)]
     _dll.tl_camera_get_is_cooling_supported.argtypes = [c_void_p, POINTER(c_bool)]
-    _dll.tl_camera_get_cooling_enable.argtypes = [c_void_p, POINTER(c_bool)]
     _dll.tl_camera_get_is_nir_boost_supported.argtypes = [c_void_p, POINTER(c_bool)]
     _dll.tl_camera_get_camera_sensor_type.argtypes = [c_void_p, POINTER(c_int)]
     _dll.tl_camera_get_color_filter_array_phase.argtypes = [c_void_p, POINTER(c_int)]
@@ -433,15 +431,6 @@ class ThorCam(Camera):
     _dll.tl_camera_get_frames_per_trigger_range.argtypes = [c_void_p, POINTER(c_uint), POINTER(c_uint)]
     _dll.tl_camera_get_image_width.argtypes = [c_void_p, POINTER(c_int)]
     _dll.tl_camera_get_image_height.argtypes = [c_void_p, POINTER(c_int)]
-    _dll.tl_camera_get_polar_phase.argtypes = [c_void_p, POINTER(c_int)]
-    _dll.tl_camera_get_frame_rate_control_value_range.argtypes = [c_void_p, POINTER(c_double), POINTER(c_double)]
-    _dll.tl_camera_get_is_frame_rate_control_enabled.argtypes = [c_void_p, POINTER(c_int)]
-    _dll.tl_camera_set_is_frame_rate_control_enabled.argtypes = [c_void_p, c_int]
-    _dll.tl_camera_get_frame_rate_control_value.argtypes = [c_void_p, POINTER(c_double)]
-    _dll.tl_camera_set_frame_rate_control_value.argtypes = [c_void_p, c_double]
-    _dll.tl_camera_get_timestamp_clock_frequency.argtypes = [c_void_p, POINTER(c_int)]
-    _dll.tl_camera_convert_gain_to_decibels.argtypes = [c_void_p, c_int, POINTER(c_double)]
-    _dll.tl_camera_convert_decibels_to_gain.argtypes = [c_void_p, c_double, POINTER(c_int)]
     _dll.tl_camera_get_is_operation_mode_supported.argtypes = [c_void_p, c_int, POINTER(c_bool)]
 
     _dll.tl_camera_get_last_error.restype = c_char_p
@@ -452,13 +441,10 @@ class ThorCam(Camera):
         super().__init__(THORCAM_DEFAULTS, verbose)
 
         ThorCam._dll.tl_camera_open_sdk()
-        serial_number_bytes = self.defaults['serial_number'].encode("utf-8") + b'\0'
-        c_camera_handle = c_void_p()  # void *
-        ThorCam._dll.tl_camera_open_camera(serial_number_bytes, c_camera_handle)
-        self._handle = c_camera_handle
+        self._handle = None
         self.frames_per_trigger = 1
 
-        self._grab_data = ThorCam._dll.tl_camera_set_frames_per_trigger_zero_for_unlimited
+        self._grab_data = ThorCam._dll.tl_camera_get_pending_frame_or_null
 
         self.camera_on()
         self.set_defaults()
@@ -472,13 +458,23 @@ class ThorCam(Camera):
         self.camera_off()
         ThorCam._dll.tl_camera_close_sdk()
 
+    @staticmethod
+    def _check_error(error_code):
+        if error_code != 0:
+            raise IOError(f'Camera returned error code: {error_code}')
+
     def camera_on(self):
         if self.is_on:
             self.print('Camera engine already started!')
             return
 
-        ThorCam._dll.tl_camera_open_camera(self._handle)
-        ThorCam._dll.tl_camera_set_frames_per_trigger_zero_for_unlimited(self.frames_per_trigger)
+        serial_number_bytes = self.defaults['serial_number'].encode("utf-8") + b'\0'
+        c_camera_handle = c_void_p()  # void *
+        error_code = ThorCam._dll.tl_camera_open_camera(serial_number_bytes, c_camera_handle)
+        self._check_error(error_code)
+        self._handle = c_camera_handle
+
+        ThorCam._dll.tl_camera_set_frames_per_trigger_zero_for_unlimited(self._handle, self.frames_per_trigger)
 
         self.is_on = True
         self.print('SUCCESS: Camera engine started!')
@@ -499,18 +495,21 @@ class ThorCam(Camera):
         pass
 
     def set_exposure(self, ms):
-        us = ms * 1000
-        ThorCam._dll.tl_camera_set_exposure_time(self._handle, us)
-        print(ThorCam._dll.tl_camera_get_exposure_time(self._handle))
+        us = int(ms * 1000)
+        us = c_longlong(us)
+        error_code = ThorCam._dll.tl_camera_set_exposure_time(self._handle, us)
+        self._check_error(error_code)
         return
 
     def set_gain(self, gain: int):
-        ThorCam._dll.tl_camera_set_gain(self._handle, gain)
+        error_code = ThorCam._dll.tl_camera_set_gain(self._handle, c_int(gain))
+        self._check_error(error_code)
         return
 
     def set_frames_per_trigger(self, fpt):
         self.frames_per_trigger = fpt
-        ThorCam._dll.tl_camera_set_frames_per_trigger_zero_for_unlimited(self.frames_per_trigger)
+        error_code = ThorCam._dll.tl_camera_set_frames_per_trigger_zero_for_unlimited(self.frames_per_trigger)
+        self._check_error(error_code)
         return
 
     def get_frame(self, show=False):
@@ -518,14 +517,17 @@ class ThorCam(Camera):
             self.camera_on()
         data = np.zeros(self.im_shape, dtype=self.dtype)
         ThorCam._dll.tl_camera_arm(self._handle, self.frames_per_trigger)
+        ThorCam._dll.tl_camera_issue_software_trigger(self._handle)
         for i in range(self.frames_per_trigger):
             image_buffer = POINTER(c_ushort)()
+            image_buffer._wrapper = self
             frame_count = c_int()
             meta_data = POINTER(c_char)()
             meta_size = c_int()
             error_code = self._grab_data(self._handle, image_buffer, frame_count, meta_data, meta_size)
-            image_buffer._wrapper = self
-            data = data + np.ctypeslib.as_array(image_buffer, self.im_shape)
+            self._check_error(error_code)
+            image = np.ctypeslib.as_array(image_buffer, self.im_shape)
+            data = data + image
         ThorCam._dll.tl_camera_disarm(self._handle)
         if show:
             self.imshow(data)
@@ -534,3 +536,4 @@ class ThorCam(Camera):
 
 if __name__ == '__main__':
     cam = ThorCam(False)
+    cam.get_frame(True)
