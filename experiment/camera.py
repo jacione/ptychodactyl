@@ -9,7 +9,23 @@ from scipy.ndimage import center_of_mass
 from abc import ABC, abstractmethod
 import os
 
+""" Config constants """
+_STRING_MAX = 4096  # for functions that return strings built on C char arrays, this is the max number of characters
 
+""" Callback ctypes types """
+_camera_connect_callback_type = CFUNCTYPE(None, c_char_p, c_int, c_void_p)
+_camera_disconnect_callback_type = CFUNCTYPE(None, c_char_p, c_void_p)
+_frame_available_callback_type = CFUNCTYPE(None, c_void_p, POINTER(c_ushort), c_int, POINTER(c_char), c_int, c_void_p)
+# metadata is ASCII, so use c_char
+_3x3Matrix_float = (c_float * 9)
+
+
+# def c_cmd(cmd, handle, ctype):
+#     ret_val = ctype()
+#
+#
+#
+#
 MIGHTEX_DEFAULTS = {
     'width': 2560,
     'height': 1920,
@@ -26,7 +42,8 @@ THORCAM_DEFAULTS = {
     'gain': 1,
     'metadata': 128,
     'dtype': 'i2',
-    'pixel_size': 5.5
+    'pixel_size': 5.5,
+    'serial_number': '09489'
 }
 
 libs = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/libs'
@@ -104,14 +121,14 @@ class Camera(ABC):
     def find_center(self):
         img = self.get_frame()
         # img = np.roll(img, (300, 300), (0, 1))
-        img = img - 2*np.median(img)
+        img = img - 2 * np.median(img)
         img[img < 0] = 0
         return center_of_mass(img)
 
     def analyze_frame(self):
         img = self.get_frame()
         # img = np.roll(img, (300, 300), (0, 1))
-        img = img - 2*np.median(img)
+        img = img - 2 * np.median(img)
         img[img < 0] = 0
         cy, cx = center_of_mass(img)
         if self.verbose:
@@ -130,72 +147,72 @@ class Camera(ABC):
 
 
 class Mightex(Camera):
+    _dll = CDLL(f'{libs}/Mightex/SSClassic_USBCamera_SDK.dll')
+
     def __init__(self, verbose=False):
         super().__init__(MIGHTEX_DEFAULTS, verbose)
 
-        dll = CDLL(f'{libs}/Mightex/SSClassic_USBCamera_SDK.dll')
-
         # Basic IO functions for connecting/disconnecting with the camera
-        self.__sdk_InitDevice = dll.SSClassicUSB_InitDevice
-        self.__sdk_InitDevice.argtypes = []
-        self.__sdk_InitDevice.restype = c_int
+        self._sdk_InitDevice = Mightex._dll.SSClassicUSB_InitDevice
+        self._sdk_InitDevice.argtypes = []
+        self._sdk_InitDevice.restype = c_int
 
-        self.__sdk_AddCamera = dll.SSClassicUSB_AddDeviceToWorkingSet
-        self.__sdk_AddCamera.argtypes = [c_int]  # [ID]
-        self.__sdk_AddCamera.restype = c_int
+        self._sdk_AddCamera = Mightex._dll.SSClassicUSB_AddDeviceToWorkingSet
+        self._sdk_AddCamera.argtypes = [c_int]  # [ID]
+        self._sdk_AddCamera.restype = c_int
 
-        self.__sdk_StartCameraEngine = dll.SSClassicUSB_StartCameraEngine
-        self.__sdk_StartCameraEngine.argtypes = [c_void_p, c_int, c_int, c_int]  # [GUI, bitdepth, threads, callback]
-        self.__sdk_StartCameraEngine.restype = c_int
+        self._sdk_StartCameraEngine = Mightex._dll.SSClassicUSB_StartCameraEngine
+        self._sdk_StartCameraEngine.argtypes = [c_void_p, c_int, c_int, c_int]  # [GUI, bitdepth, threads, callback]
+        self._sdk_StartCameraEngine.restype = c_int
 
-        self.__sdk_StopCameraEngine = dll.SSClassicUSB_StopCameraEngine
-        self.__sdk_StopCameraEngine.argtypes = []
-        self.__sdk_StopCameraEngine.restype = c_int
+        self._sdk_StopCameraEngine = Mightex._dll.SSClassicUSB_StopCameraEngine
+        self._sdk_StopCameraEngine.argtypes = []
+        self._sdk_StopCameraEngine.restype = c_int
 
-        self.__sdk_UnInitDevice = dll.SSClassicUSB_UnInitDevice
-        self.__sdk_UnInitDevice.argtypes = []
-        self.__sdk_UnInitDevice.restype = c_int
+        self._sdk_UnInitDevice = Mightex._dll.SSClassicUSB_UnInitDevice
+        self._sdk_UnInitDevice.argtypes = []
+        self._sdk_UnInitDevice.restype = c_int
 
         # Methods for collecting frame data
-        self.__sdk_SetWorkMode = dll.SSClassicUSB_SetCameraWorkMode
-        self.__sdk_SetWorkMode.argtypes = [c_int, c_int]  # [ID, mode=0] (0 for normal)
-        self.__sdk_SetWorkMode.restype = c_int
+        self._sdk_SetWorkMode = Mightex._dll.SSClassicUSB_SetCameraWorkMode
+        self._sdk_SetWorkMode.argtypes = [c_int, c_int]  # [ID, mode=0] (0 for normal)
+        self._sdk_SetWorkMode.restype = c_int
 
-        self.__sdk_StartFrameGrab = dll.SSClassicUSB_StartFrameGrab
-        self.__sdk_StartFrameGrab.argtypes = [c_int, c_int]  # [ID, num_frames=0x8888] (0x8888 for continuous)
-        self.__sdk_StartFrameGrab.restype = c_int
+        self._sdk_StartFrameGrab = Mightex._dll.SSClassicUSB_StartFrameGrab
+        self._sdk_StartFrameGrab.argtypes = [c_int, c_int]  # [ID, num_frames=0x8888] (0x8888 for continuous)
+        self._sdk_StartFrameGrab.restype = c_int
 
-        self.__sdk_StopFrameGrab = dll.SSClassicUSB_StopFrameGrab
-        self.__sdk_StopFrameGrab.argtypes = [c_int]  # [ID]
-        self.__sdk_StopFrameGrab.restype = c_int
+        self._sdk_StopFrameGrab = Mightex._dll.SSClassicUSB_StopFrameGrab
+        self._sdk_StopFrameGrab.argtypes = [c_int]  # [ID]
+        self._sdk_StopFrameGrab.restype = c_int
 
         # Methods to define camera parameters
-        self.__sdk_SetResolution = dll.SSClassicUSB_SetCustomizedResolution
-        self.__sdk_SetResolution.argtypes = [c_int, c_int, c_int, c_int, c_int]  # [ID, width, height, bin=0, binmode=0]
-        self.__sdk_SetResolution.restype = c_int
+        self._sdk_SetResolution = Mightex._dll.SSClassicUSB_SetCustomizedResolution
+        self._sdk_SetResolution.argtypes = [c_int, c_int, c_int, c_int, c_int]  # [ID, width, height, bin=0, binmode=0]
+        self._sdk_SetResolution.restype = c_int
 
-        self.__sdk_SetXYStart = dll.SSClassicUSB_SetXYStart
-        self.__sdk_SetXYStart.argtypes = [c_int, c_int, c_int]  # [ID, X-start, Y-start]
-        self.__sdk_SetXYStart.restype = c_int
+        self._sdk_SetXYStart = Mightex._dll.SSClassicUSB_SetXYStart
+        self._sdk_SetXYStart.argtypes = [c_int, c_int, c_int]  # [ID, X-start, Y-start]
+        self._sdk_SetXYStart.restype = c_int
 
-        self.__sdk_SetExposure = dll.SSClassicUSB_SetExposureTime
-        self.__sdk_SetExposure.argtypes = [c_int, c_int]  # [ID, exposure_time (x0.05 ms)]
-        self.__sdk_SetExposure.restype = c_int
+        self._sdk_SetExposure = Mightex._dll.SSClassicUSB_SetExposureTime
+        self._sdk_SetExposure.argtypes = [c_int, c_int]  # [ID, exposure_time (x0.05 ms)]
+        self._sdk_SetExposure.restype = c_int
 
-        self.__sdk_SetGain = dll.SSClassicUSB_SetGains
-        self.__sdk_SetGain.argtypes = [c_int, c_int, c_int, c_int]  # [ID, gain]
-        self.__sdk_SetGain.restype = c_int
+        self._sdk_SetGain = Mightex._dll.SSClassicUSB_SetGains
+        self._sdk_SetGain.argtypes = [c_int, c_int, c_int, c_int]  # [ID, gain]
+        self._sdk_SetGain.restype = c_int
         self.gain = 0  # gain level (gain factor * 8)
 
         # As I understand it (which is barely) the frame hooker is what grabs the frame data?
-        self.__sdk_InstallFrameHooker = dll.SSClassicUSB_InstallFrameHooker
-        self.__sdk_InstallFrameHooker.argtypes = [c_int, c_void_p]  # [type=0, callback=None] (type=0 for raw data)
-        self.__sdk_InstallFrameHooker.restype = c_int
+        self._sdk_InstallFrameHooker = Mightex._dll.SSClassicUSB_InstallFrameHooker
+        self._sdk_InstallFrameHooker.argtypes = [c_int, c_void_p]  # [type=0, callback=None] (type=0 for raw data)
+        self._sdk_InstallFrameHooker.restype = c_int
 
-        self.__sdk_GetCurrentFrame = dll.SSClassicUSB_GetCurrentFrame16bit
+        self._sdk_GetCurrentFrame = Mightex._dll.SSClassicUSB_GetCurrentFrame16bit
         # [type,    ID,     pointer to data]
-        self.__sdk_GetCurrentFrame.argtypes = [c_int, c_int, np.ctypeslib.ndpointer(self.dtype, 1, (self.data_size,))]
-        self.__sdk_GetCurrentFrame.restype = np.ctypeslib.ndpointer(self.dtype, 1, (self.data_size,))
+        self._sdk_GetCurrentFrame.argtypes = [c_int, c_int, np.ctypeslib.ndpointer(self.dtype, 1, (self.data_size,))]
+        self._sdk_GetCurrentFrame.restype = np.ctypeslib.ndpointer(self.dtype, 1, (self.data_size,))
 
         self.camera_on()
         self.set_defaults()
@@ -208,24 +225,24 @@ class Mightex(Camera):
             return
 
         # Initialize the camera
-        num_cameras = self.__sdk_InitDevice()
+        num_cameras = self._sdk_InitDevice()
         if num_cameras != 1:
             raise IOError(f'{num_cameras} cameras detected!')
 
-        add = self.__sdk_AddCamera(1)
+        add = self._sdk_AddCamera(1)
         if add == -1:
             raise IOError('Could not add camera device to working set!')
 
         # The arguments are [GUI=None, bitdepth=16, threads=4, callback=1)
-        start = self.__sdk_StartCameraEngine(None, 16, 4, 1)
+        start = self._sdk_StartCameraEngine(None, 16, 4, 1)
         if start == -1:
             raise IOError('Could not start camera engine!')
 
-        mode = self.__sdk_SetWorkMode(1, 0)
+        mode = self._sdk_SetWorkMode(1, 0)
         if mode == -1:
             raise IOError('Could not set camera mode!')
 
-        grab = self.__sdk_StartFrameGrab(1, 0x8888)
+        grab = self._sdk_StartFrameGrab(1, 0x8888)
         if grab == -1:
             raise IOError('Could not begin frame grab!')
 
@@ -238,15 +255,15 @@ class Mightex(Camera):
             self.print('Camera engine not started!')
             return
 
-        grab = self.__sdk_StopFrameGrab(1)
+        grab = self._sdk_StopFrameGrab(1)
         if grab == -1:
             raise IOError('Could not terminate frame grab!')
 
-        stop = self.__sdk_StopCameraEngine()
+        stop = self._sdk_StopCameraEngine()
         if stop == -1:
             raise IOError('Could not terminate camera engine!')
 
-        self.__sdk_UnInitDevice()
+        self._sdk_UnInitDevice()
 
         self.is_on = False
         self.print('SUCCESS: Camera disconnected!!')
@@ -256,10 +273,10 @@ class Mightex(Camera):
         if resolution is not None:
             width = resolution[0]
             height = resolution[1]
-            s1 = self.__sdk_SetResolution(1, width, height, 0, 0)
+            s1 = self._sdk_SetResolution(1, width, height, 0, 0)
             x_start = (self.full_width - width) // 2
             y_start = (self.full_height - height) // 2
-            s2 = self.__sdk_SetXYStart(1, x_start, y_start)
+            s2 = self._sdk_SetXYStart(1, x_start, y_start)
             if -1 not in [s1, s2]:
                 self.width = width
                 self.height = height
@@ -275,7 +292,7 @@ class Mightex(Camera):
                 us50 = 1
             elif us50 > 15000:
                 us50 = 15000
-            success = self.__sdk_SetExposure(1, us50)
+            success = self._sdk_SetExposure(1, us50)
             if success == 1:
                 self.exposure = ms
         return
@@ -288,7 +305,7 @@ class Mightex(Camera):
                 gain = 1
             if gain > 64:
                 gain = 64
-            success = self.__sdk_SetGain(1, 0, gain, 0)
+            success = self._sdk_SetGain(1, 0, gain, 0)
             if success == 1:
                 self.gain = gain
         return
@@ -303,14 +320,14 @@ class Mightex(Camera):
             # For some reason this doesn't always read the whole image data on the lab computer.
             # It would be better to figure out why this happens and fix it at the root, but in the meantime I've added
             # some error handling to detect and discard incomplete measurements.
-            # TODO: Figure out how to prevent failure in the first place.
+            # Figure out how to prevent failure in the first place.
             trycount += 1
             if trycount > 10:
                 raise IOError('Camera API refuses to cooperate and refuses to explain why...')
             try:
                 sptr = np.empty(self.data_size, dtype=self.dtype)
-                self.__sdk_InstallFrameHooker(0, None)
-                data = self.__sdk_GetCurrentFrame(0, 1, sptr)
+                self._sdk_InstallFrameHooker(0, None)
+                data = self._sdk_GetCurrentFrame(0, 1, sptr)
                 data = data[self.image_metadata_size:].reshape(self.im_shape)
                 if np.min(np.sum(data, axis=1)) == 0:
                     self.print('Camera API: Partial failure, trying again...')
@@ -326,18 +343,122 @@ class Mightex(Camera):
 
 
 class ThorCam(Camera):
+    _dll = CDLL(f'{libs}/ThorCam/thorlabs_tsi_camera_sdk.dll')
+    _dll.tl_camera_discover_available_cameras.argtypes = [c_char_p, c_int]
+    _dll.tl_camera_open_camera.argtypes = [c_char_p, POINTER(c_void_p)]
+    _dll.tl_camera_set_camera_connect_callback.argtypes = [_camera_connect_callback_type, c_void_p]
+    _dll.tl_camera_set_camera_disconnect_callback.argtypes = [_camera_disconnect_callback_type, c_void_p]
+    _dll.tl_camera_close_camera.argtypes = [c_void_p]
+    _dll.tl_camera_set_frame_available_callback.argtypes = [c_void_p, _frame_available_callback_type, c_void_p]
+    _dll.tl_camera_get_pending_frame_or_null.argtypes = [c_void_p, POINTER(POINTER(c_ushort)), POINTER(c_int),
+                                                         POINTER(POINTER(c_char)), POINTER(c_int)]
+    _dll.tl_camera_get_measured_frame_rate.argtypes = [c_void_p, POINTER(c_double)]
+    _dll.tl_camera_get_is_data_rate_supported.argtypes = [c_void_p, c_int, POINTER(c_bool)]
+    _dll.tl_camera_get_is_taps_supported.argtypes = [c_void_p, POINTER(c_bool), c_int]
+    _dll.tl_camera_get_color_correction_matrix.argtypes = [c_void_p, POINTER(_3x3Matrix_float)]
+    _dll.tl_camera_get_default_white_balance_matrix.argtypes = [c_void_p, POINTER(_3x3Matrix_float)]
+    _dll.tl_camera_arm.argtypes = [c_void_p, c_int]
+    _dll.tl_camera_issue_software_trigger.argtypes = [c_void_p]
+    _dll.tl_camera_disarm.argtypes = [c_void_p]
+    _dll.tl_camera_get_exposure_time.argtypes = [c_void_p, POINTER(c_longlong)]
+    _dll.tl_camera_set_exposure_time.argtypes = [c_void_p, c_longlong]
+    _dll.tl_camera_get_image_poll_timeout.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_set_image_poll_timeout.argtypes = [c_void_p, c_int]
+    _dll.tl_camera_get_exposure_time_range.argtypes = [c_void_p, POINTER(c_longlong), POINTER(c_longlong)]
+    _dll.tl_camera_get_firmware_version.argtypes = [c_void_p, c_char_p, c_int]
+    _dll.tl_camera_get_frame_time.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_get_trigger_polarity.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_set_trigger_polarity.argtypes = [c_void_p, c_int]
+    _dll.tl_camera_get_binx.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_set_binx.argtypes = [c_void_p, c_int]
+    _dll.tl_camera_get_sensor_readout_time.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_get_binx_range.argtypes = [c_void_p, POINTER(c_int), POINTER(c_int)]
+    _dll.tl_camera_get_is_hot_pixel_correction_enabled.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_set_is_hot_pixel_correction_enabled.argtypes = [c_void_p, c_int]
+    _dll.tl_camera_get_hot_pixel_correction_threshold.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_set_hot_pixel_correction_threshold.argtypes = [c_void_p, c_int]
+    _dll.tl_camera_get_hot_pixel_correction_threshold_range.argtypes = [c_void_p, POINTER(c_int), POINTER(c_int)]
+    _dll.tl_camera_get_sensor_width.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_get_gain_range.argtypes = [c_void_p, POINTER(c_int), POINTER(c_int)]
+    _dll.tl_camera_get_image_width_range.argtypes = [c_void_p, POINTER(c_int), POINTER(c_int)]
+    _dll.tl_camera_get_sensor_height.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_get_image_height_range.argtypes = [c_void_p, POINTER(c_int), POINTER(c_int)]
+    _dll.tl_camera_get_model.argtypes = [c_void_p, c_char_p, c_int]
+    _dll.tl_camera_get_name.argtypes = [c_void_p, c_char_p, c_int]
+    _dll.tl_camera_set_name.argtypes = [c_void_p, c_char_p]
+    _dll.tl_camera_get_name_string_length_range.argtypes = [c_void_p, POINTER(c_int), POINTER(c_int)]
+    _dll.tl_camera_get_frames_per_trigger_zero_for_unlimited.argtypes = [c_void_p, POINTER(c_uint)]
+    _dll.tl_camera_set_frames_per_trigger_zero_for_unlimited.argtypes = [c_void_p, c_uint]
+    _dll.tl_camera_get_frames_per_trigger_range.argtypes = [c_void_p, POINTER(c_uint), POINTER(c_uint)]
+    _dll.tl_camera_get_usb_port_type.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_get_communication_interface.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_get_operation_mode.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_set_operation_mode.argtypes = [c_void_p, c_int]
+    _dll.tl_camera_get_is_armed.argtypes = [c_void_p, POINTER(c_bool)]
+    _dll.tl_camera_get_is_eep_supported.argtypes = [c_void_p, POINTER(c_bool)]
+    _dll.tl_camera_get_is_led_supported.argtypes = [c_void_p, POINTER(c_bool)]
+    _dll.tl_camera_get_is_cooling_supported.argtypes = [c_void_p, POINTER(c_bool)]
+    _dll.tl_camera_get_cooling_enable.argtypes = [c_void_p, POINTER(c_bool)]
+    _dll.tl_camera_get_is_nir_boost_supported.argtypes = [c_void_p, POINTER(c_bool)]
+    _dll.tl_camera_get_camera_sensor_type.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_get_color_filter_array_phase.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_get_camera_color_correction_matrix_output_color_space.argtypes = [c_void_p, c_char_p]
+    _dll.tl_camera_get_data_rate.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_set_data_rate.argtypes = [c_void_p, c_int]
+    _dll.tl_camera_get_sensor_pixel_size_bytes.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_get_sensor_pixel_width.argtypes = [c_void_p, POINTER(c_double)]
+    _dll.tl_camera_get_sensor_pixel_height.argtypes = [c_void_p, POINTER(c_double)]
+    _dll.tl_camera_get_bit_depth.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_get_roi.argtypes = [c_void_p, POINTER(c_int), POINTER(c_int), POINTER(c_int),
+                                       POINTER(c_int)]
+    _dll.tl_camera_set_roi.argtypes = [c_void_p, c_int, c_int, c_int, c_int]
+    _dll.tl_camera_get_roi_range.argtypes = [c_void_p, POINTER(c_int), POINTER(c_int), POINTER(c_int), POINTER(c_int),
+                                             POINTER(c_int), POINTER(c_int), POINTER(c_int), POINTER(c_int)]
+    _dll.tl_camera_get_serial_number.argtypes = [c_void_p, c_char_p, c_int]
+    _dll.tl_camera_get_serial_number_string_length_range.argtypes = [c_void_p, POINTER(c_int), POINTER(c_int)]
+    _dll.tl_camera_get_is_led_on.argtypes = [c_void_p, POINTER(c_bool)]
+    _dll.tl_camera_set_is_led_on.argtypes = [c_void_p, c_bool]
+    _dll.tl_camera_get_eep_status.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_set_is_eep_enabled.argtypes = [c_void_p, c_bool]
+    _dll.tl_camera_get_biny.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_set_biny.argtypes = [c_void_p, c_int]
+    _dll.tl_camera_get_biny_range.argtypes = [c_void_p, POINTER(c_int), POINTER(c_int)]
+    _dll.tl_camera_get_gain.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_set_gain.argtypes = [c_void_p, c_int]
+    _dll.tl_camera_get_black_level.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_set_black_level.argtypes = [c_void_p, c_int]
+    _dll.tl_camera_get_black_level_range.argtypes = [c_void_p, POINTER(c_int), POINTER(c_int)]
+    _dll.tl_camera_get_frames_per_trigger_zero_for_unlimited.argtypes = [c_void_p, POINTER(c_uint)]
+    _dll.tl_camera_set_frames_per_trigger_zero_for_unlimited.argtypes = [c_void_p, c_uint]
+    _dll.tl_camera_get_frames_per_trigger_range.argtypes = [c_void_p, POINTER(c_uint), POINTER(c_uint)]
+    _dll.tl_camera_get_image_width.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_get_image_height.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_get_polar_phase.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_get_frame_rate_control_value_range.argtypes = [c_void_p, POINTER(c_double), POINTER(c_double)]
+    _dll.tl_camera_get_is_frame_rate_control_enabled.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_set_is_frame_rate_control_enabled.argtypes = [c_void_p, c_int]
+    _dll.tl_camera_get_frame_rate_control_value.argtypes = [c_void_p, POINTER(c_double)]
+    _dll.tl_camera_set_frame_rate_control_value.argtypes = [c_void_p, c_double]
+    _dll.tl_camera_get_timestamp_clock_frequency.argtypes = [c_void_p, POINTER(c_int)]
+    _dll.tl_camera_convert_gain_to_decibels.argtypes = [c_void_p, c_int, POINTER(c_double)]
+    _dll.tl_camera_convert_decibels_to_gain.argtypes = [c_void_p, c_double, POINTER(c_int)]
+    _dll.tl_camera_get_is_operation_mode_supported.argtypes = [c_void_p, c_int, POINTER(c_bool)]
+
+    _dll.tl_camera_get_last_error.restype = c_char_p
+    # noinspection PyProtectedMember
+    _dll._internal_command.argtypes = [c_void_p, c_char_p, c_uint, c_char_p, c_uint]
+
     def __init__(self, verbose):
         super().__init__(THORCAM_DEFAULTS, verbose)
 
-        self.dll = CDLL(f'{libs}/ThorCam/thorlabs_tsi_camera_sdk.dll')
-
-        self.dll.tl_camera_open_sdk()
-        self.s_number = self.dll.tl_camera_discover_available_cameras()[0]
+        ThorCam._dll.tl_camera_open_sdk()
+        serial_number_bytes = self.defaults['serial_number'].encode("utf-8") + b'\0'
+        c_camera_handle = c_void_p()  # void *
+        ThorCam._dll.tl_camera_open_camera(serial_number_bytes, c_camera_handle)
+        self._handle = c_camera_handle
         self.frames_per_trigger = 1
 
-        self._grab_data = self.dll.tl_camera_set_frames_per_trigger_zero_for_unlimited
-        # self._grab_data.argtypes = [c_int, np.ctypeslib.ndpointer(self.dtype, 2, self.im_shape),
-                                    # c_void_p, c_void_p, c_void_p]
+        self._grab_data = ThorCam._dll.tl_camera_set_frames_per_trigger_zero_for_unlimited
 
         self.camera_on()
         self.set_defaults()
@@ -345,19 +466,19 @@ class ThorCam(Camera):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.camera_off()
-        self.dll.tl_camera_close_sdk()
+        ThorCam._dll.tl_camera_close_sdk()
 
     def __del__(self):
         self.camera_off()
-        self.dll.tl_camera_close_sdk()
+        ThorCam._dll.tl_camera_close_sdk()
 
     def camera_on(self):
         if self.is_on:
             self.print('Camera engine already started!')
             return
 
-        self.dll.tl_camera_open_camera(self.s_number)
-        self.dll.tl_camera_set_frames_per_trigger_zero_for_unlimited(self.frames_per_trigger)
+        ThorCam._dll.tl_camera_open_camera(self._handle)
+        ThorCam._dll.tl_camera_set_frames_per_trigger_zero_for_unlimited(self.frames_per_trigger)
 
         self.is_on = True
         self.print('SUCCESS: Camera engine started!')
@@ -368,7 +489,7 @@ class ThorCam(Camera):
             self.print('Camera engine not started!')
             return
 
-        self.dll.tl_camera_close_camera(self.s_number)
+        ThorCam._dll.tl_camera_close_camera(self._handle)
 
         self.is_on = False
         self.print('SUCCESS: Camera engine stopped!')
@@ -379,29 +500,33 @@ class ThorCam(Camera):
 
     def set_exposure(self, ms):
         us = ms * 1000
-        self.dll.tl_camera_set_exposure_time(self.s_number, us)
+        ThorCam._dll.tl_camera_set_exposure_time(self._handle, us)
+        print(ThorCam._dll.tl_camera_get_exposure_time(self._handle))
         return
 
     def set_gain(self, gain: int):
-        self.dll.tl_camera_set_gain(self.s_number, gain)
+        ThorCam._dll.tl_camera_set_gain(self._handle, gain)
         return
 
     def set_frames_per_trigger(self, fpt):
         self.frames_per_trigger = fpt
-        self.dll.tl_camera_set_frames_per_trigger_zero_for_unlimited(self.frames_per_trigger)
+        ThorCam._dll.tl_camera_set_frames_per_trigger_zero_for_unlimited(self.frames_per_trigger)
         return
 
     def get_frame(self, show=False):
         if not self.is_on:
             self.camera_on()
         data = np.zeros(self.im_shape, dtype=self.dtype)
+        ThorCam._dll.tl_camera_arm(self._handle, self.frames_per_trigger)
         for i in range(self.frames_per_trigger):
-            image_buffer = np.ctypeslib.as_ctypes(np.empty(self.im_shape, dtype=self.dtype))
-            frame_count = c_int(0)
-            meta_data = c_char(0)
-            meta_size = c_int(0)
-            self._grab_data(self.s_number, byref(image_buffer), byref(frame_count), byref(meta_data), byref(meta_size))
+            image_buffer = POINTER(c_ushort)()
+            frame_count = c_int()
+            meta_data = POINTER(c_char)()
+            meta_size = c_int()
+            error_code = self._grab_data(self._handle, image_buffer, frame_count, meta_data, meta_size)
+            image_buffer._wrapper = self
             data = data + np.ctypeslib.as_array(image_buffer, self.im_shape)
+        ThorCam._dll.tl_camera_disarm(self._handle)
         if show:
             self.imshow(data)
         return data
