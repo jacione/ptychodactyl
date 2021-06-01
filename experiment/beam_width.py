@@ -14,7 +14,7 @@ import click
 def measure(disp):
     pixel_size = 2.2e-3
     with camera.Mightex() as cam:
-        img = cam.get_frame()
+        img = cam.get_frames()
     # img = np.ones((10, 10))
     ctr = center_of_mass(img)
     X = img[int(ctr[0])]
