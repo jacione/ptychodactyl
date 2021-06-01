@@ -13,7 +13,7 @@ import click
 @click.command()
 @click.help_option('-h', '--help')
 @click.option('-v', '--verbose', is_flag=True, default=False, help='Print information at each step')
-@click.option('-2d/-3d', 'is2d', default=False, help='Ignore/include rotation in data collection')
+@click.option('-3d/-2d', 'is3d', default=False, help='Include/ignore rotation in data collection')
 @click.option('-s', '--title', default='test', help='Data will be saved by this name')
 @click.option('-d', '--directory', default='C:/Users/jacione/Box/3d-ptycho/data',
               help='Data will be saved in this directory')
@@ -28,7 +28,7 @@ import click
 @click.option('--gain', help='Analog gain')
 @click.option('--distance', default=0.33, help='Sample to detector (m)')
 @click.option('--energy', default=1.957346, help='Laser photon energy (eV)')
-def collect(title, directory, verbose, is2d, nx, ny, nq, rx, ry, rq, resolution, exposure, gain, distance, energy):
+def collect(title, directory, verbose, is3d, nx, ny, nq, rx, ry, rq, resolution, exposure, gain, distance, energy):
     """
     CLI for collecting 3D or 2D ptychography data.
 
@@ -42,7 +42,7 @@ def collect(title, directory, verbose, is2d, nx, ny, nq, rx, ry, rq, resolution,
     y_range, dy = np.linspace(ry[0], ry[1], ny, retstep=True)
     q_range, dq = np.linspace(rq[0], rq[1], nq, retstep=True)
     run_type = '3D ptycho-tomography'
-    if is2d:
+    if is3d:
         # Ignore default rotation range if -2d flag is passed
         q_range = np.array([0])
         run_type = '2D ptychography'
@@ -62,7 +62,7 @@ def collect(title, directory, verbose, is2d, nx, ny, nq, rx, ry, rq, resolution,
     camera.set_exposure(exposure)
     camera.set_gain(gain)
     dataset = ptycho_data.DataSet(num_takes=num_takes, title=title, directory=directory, im_shape=resolution,
-                                  pixel_size=camera.pixel_size, distance=distance, energy=energy, is2d=is2d,
+                                  pixel_size=camera.pixel_size, distance=distance, energy=energy, is3d=is3d,
                                   verbose=verbose)
 
     # If it's running verbose, it'll print information on every take. Otherwise, it'll display a simple progress bar.
@@ -74,7 +74,7 @@ def collect(title, directory, verbose, is2d, nx, ny, nq, rx, ry, rq, resolution,
     print('     ' + 'MIN'.ljust(6) + 'MAX'.ljust(6) + 'STEPS')
     print('X    ' + f'{rx[0]}'.ljust(6) + f'{rx[1]}'.ljust(6) + f'{nx}'.ljust(6))
     print('Y    ' + f'{ry[0]}'.ljust(6) + f'{ry[1]}'.ljust(6) + f'{ny}'.ljust(6))
-    if not is2d:
+    if is3d:
         print('Q    ' + f'{rq[0]}'.ljust(6) + f'{rq[1]}'.ljust(6) + f'{nq}'.ljust(6))
     if verbose:
         counter = lambda N: range(N)
