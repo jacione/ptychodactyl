@@ -39,7 +39,7 @@ MIGHTEX_DEFAULTS = {
 THORCAM_DEFAULTS = {
     'width': 3296,
     'height': 2472,
-    'exposure': 0.05,
+    'exposure': 20,
     'gain': 1,
     'metadata': 128,
     'dtype': 'i2',
@@ -413,9 +413,11 @@ class ThorCam(Camera):
         self._handle.disarm()
         if show:
             self.imshow(data)
+            plt.hist(np.ravel(data), bins=100)
+            plt.show()
         return data
 
 
 if __name__ == '__main__':
-    cam = ThorCam(False)
-    cam.get_frames(show=True)
+    with ThorCam(False) as cam:
+        cam.get_frames(show=True)
