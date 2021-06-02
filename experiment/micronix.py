@@ -85,7 +85,7 @@ class MMC200:
                    f'  Y    {self.y0:0.6f}\n'
                    f'  Z    {self.z0:0.6f}\n'
                    f'  Q    {self.q:0.6f}')
-        return self.x0, self.y0, self.z0, self.q
+        return np.array([self.x0, self.y0, self.z0, self.q])
 
     def set_x(self, x_pos):
         cmd = f'{self.x_ax}MVA{x_pos:0.6f}'
@@ -217,4 +217,4 @@ class MMC200:
 
 if __name__ == '__main__':
     ctrl = MMC200(verbose=True)
-    ctrl.set_y(10)
+    ctrl.set_q(0)

@@ -42,7 +42,7 @@ def collect(title, directory, verbose, is3d, nx, ny, nq, rx, ry, rq, resolution,
     y_range, dy = np.linspace(ry[0], ry[1], ny, retstep=True)
     q_range, dq = np.linspace(rq[0], rq[1], nq, retstep=True)
     run_type = '3D ptycho-tomography'
-    if is3d:
+    if not is3d:
         # Ignore default rotation range if -2d flag is passed
         q_range = np.array([0])
         run_type = '2D ptychography'
@@ -57,10 +57,12 @@ def collect(title, directory, verbose, is3d, nx, ny, nq, rx, ry, rq, resolution,
 
     # Initialize the devices and data structures
     stages = micronix.MMC200(verbose=verbose)
-    camera = Mightex(verbose=verbose)
+    camera = ThorCam(verbose=verbose)
     camera.set_resolution(resolution)
     camera.set_exposure(exposure)
     camera.set_gain(gain)
+    if resolution is None:
+        resolution = camera.im_shape
     dataset = ptycho_data.DataSet(num_takes=num_takes, title=title, directory=directory, im_shape=resolution,
                                   pixel_size=camera.pixel_size, distance=distance, energy=energy, is3d=is3d,
                                   verbose=verbose)

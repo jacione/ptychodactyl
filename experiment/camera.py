@@ -389,35 +389,43 @@ class ThorCam(Camera):
         pass
 
     def set_exposure(self, ms):
-        us = int(ms * 1000)
-        self._handle.set_exposure_time_us(us)
+        if ms is not None:
+            us = int(ms * 1000)
+            self._handle.set_exposure_time_us(us)
         return
 
-    def set_gain(self, gain: int):
-        self._handle.set_gain(gain)
+    def set_gain(self, gain):
+        if gain is not None:
+            self._handle.set_gain(gain)
         return
 
-    def set_frames_per_trigger(self, fpt: int):
-        self._handle.set_frames_per_trigger_zero_for_unlimited(fpt)
+    def set_frames_per_trigger(self, fpt):
+        if fpt is not None:
+            self._handle.set_frames_per_trigger_zero_for_unlimited(fpt)
         return
 
     def get_frames(self, num_frames=1, show=False):
         if not self.is_on:
             self.camera_on()
         self._handle.arm()
-        self._handle.issue_software_trigger()
-        frame = None
-        while frame is None:
-            frame = self._handle.get_pending_frame_or_null()
-        data = self._handle.frame_to_array(frame)  # copies image data from frame into a numpy array
+        data = np.zeros(self.im_shape)
+        for i in range(num_frames):
+            self._handle.issue_software_trigger()
+            frame = None
+            while frame is None:
+                frame = self._handle.get_pending_frame_or_null()
+            data = data + self._handle.frame_to_array(frame)  # copies image data from frame into a numpy array
         self._handle.disarm()
         if show:
             self.imshow(data)
             plt.hist(np.ravel(data), bins=100)
             plt.show()
+        while self._handle.is_busy:
+            pass
         return data
 
 
 if __name__ == '__main__':
     with ThorCam(False) as cam:
-        cam.get_frames(show=True)
+        cam.get_frames(1, show=True)
+        cam.get_frames(5, show=True)

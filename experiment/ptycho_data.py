@@ -25,7 +25,7 @@ class DataSet:
         self.rotation = np.empty(self.num_entries)
         self.is3d = is3d
 
-        self.data = np.empty((self.num_entries, self.im_shape[1], self.im_shape[0]), dtype='u2')
+        self.data = np.empty((self.num_entries, self.im_shape[0], self.im_shape[1]), dtype='u4')
 
         # These parameters probably won't change
         self.energy = energy * 1.602176634e-19  # photon energy in JOULES
