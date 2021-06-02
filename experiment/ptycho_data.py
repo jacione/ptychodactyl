@@ -145,15 +145,18 @@ class GeneratedData(DataSet):
         # Generate an object
         obj_size = im_size + int(max_shift/probe_pixel_size) + 1
         print(obj_size)
-        img = ascent()
-        object_array = transform.resize(img, (obj_size, obj_size), anti_aliasing=True, preserve_range=True)
-
-        ax = plt.subplot(111, xticks=[], yticks=[])
-        ax.imshow(np.abs(object_array))
-        for i in range(self.num_entries):
-            ax.add_artist(Circle((probe_center+X[i], probe_center+Y[i]), probe_radius, color='r', fill=False))
+        object_array = hf.demo_image(obj_size)
+        plt.subplot(121)
+        plt.imshow(np.abs(object_array))
+        plt.subplot(122)
+        plt.imshow(np.angle(object_array))
         plt.show()
-        quit()
+
+        # ax = plt.subplot(111, xticks=[], yticks=[])
+        # ax.imshow(np.abs(object_array))
+        # for i in range(self.num_entries):
+        #     ax.add_artist(Circle((probe_center+X[i], probe_center+Y[i]), probe_radius, color='r', fill=False))
+        # plt.show()
 
         # fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
         for i in range(self.num_entries):
@@ -170,7 +173,7 @@ class GeneratedData(DataSet):
             # plt.pause(0.1)
             self.record_data(position*1e3*probe_pixel_size, diffraction)
 
-        # self.data = hf.detect(self.data, 0.9, 14)
+        self.data = hf.detect(self.data, 0.9, 16)
         # self.show()
         print(self)
 

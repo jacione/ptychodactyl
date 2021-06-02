@@ -5,6 +5,7 @@ import helper_funcs as hf
 from abc import ABC, abstractmethod
 from scipy import ndimage
 from matplotlib.patches import Rectangle
+import progressbar
 
 
 class PtychoData(ABC):
@@ -91,16 +92,11 @@ class CXIData(PtychoData):
 class Reconstruction:
     def __init__(self, data):
         self.data = data
-        # print(self.data)
-        self.probe = hf.init_probe(self.data.shape)
+        self.probe = hf.init_probe(self.data.images)
+        # self.probe = hf.init_probe_alt(self.data.shape)
         self.crop = self.data.shape[0]
         probe_pixel_size = data.distance * data.wavelength / (data.shape[0] * data.pixel_size)
-        # print(probe_pixel_size)
-        # print(np.max(np.abs(self.data.translation), axis=0))
-        # print(np.max(np.abs(self.data.translation), axis=0) / probe_pixel_size)
-        # print(np.around(np.max(np.abs(self.data.translation), axis=0) / probe_pixel_size).astype('int'))
         max_translation = np.around(np.max(np.abs(self.data.translation), axis=0) / probe_pixel_size).astype('int')
-        # print(data.shape + max_translation)
         self.object = hf.init_object(data.shape + max_translation)
         self.temp_object = np.zeros_like(self.object)
         self.rng = np.random.default_rng()
@@ -115,18 +111,15 @@ class Reconstruction:
 
     def run(self, num_iterations, algorithm, show_progress=False):
         update_function = self._algs[algorithm]
-        n = 0
         for x in range(num_iterations):
             entries = np.arange(self.data.num_entries)
             self.rng.shuffle(entries)
-            for i in entries:
+            for i in progressbar.progressbar(entries):
                 update_function(i, update_probe=(x > 0))
-                n += 1
-                if show_progress and n == 10:
-                    self.show_object_and_probe(i)
-                    n = 0
+            if show_progress:
+                self.show_progress()
 
-    def show_progress(self, i):
+    def show_progress(self):
         if len(plt.get_fignums()) == 0:
             kw = {'xticks': [], 'yticks': []}
             fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, subplot_kw=kw)
@@ -135,7 +128,6 @@ class Reconstruction:
         else:
             [ax1, ax2, ax3, ax4] = plt.gcf().get_axes()
         ax1.imshow(np.abs(self.object), cmap='bone')
-        ax1.add_artist(Rectangle(-self.translation[i].T, self.data.shape[0], self.data.shape[1], fill=False, color='r'))
         ax2.imshow(np.angle(self.object), cmap='hsv')
         ax3.imshow(np.abs(self.probe), cmap='bone')
         ax4.imshow(np.angle(self.probe), cmap='hsv')
@@ -168,20 +160,20 @@ class Reconstruction:
 
         self.temp_object = np.zeros_like(self.object)
 
-    def epie(self, i, alpha=0.8, beta=0.2, update_probe=True):
+    def epie(self, i, alpha=0.8, beta=0.5, update_probe=True):
         # Take a slice of the object that's the same size as the probe
         region = hf.shift(self.object, self.translation[i], crop=self.data.shape[0])
         psi1 = self.probe * region
-        PSI1 = np.fft.fftn(psi1)
+        PSI1 = hf.fft(psi1)
         PSI2 = self.data.images[i] * PSI1 / np.abs(PSI1)
-        psi2 = np.fft.ifftn(PSI2)
+        psi2 = hf.ifft(PSI2)
         d_psi = psi2 - psi1
-
-        self.probe = self.probe * np.sqrt(self.probe_energy/np.sum(np.abs(self.probe)**2)) / self.data.shape[0]
 
         object_update = alpha * d_psi * np.conj(self.probe) / np.max(np.abs(self.probe)) ** 2
         if update_probe:
             probe_update = beta * d_psi * np.conj(region) / np.max(np.abs(region)) ** 2
+            self.probe = self.probe * np.sqrt(self.probe_energy / np.sum(np.abs(self.probe) ** 2)) / self.data.shape[0]
+            self.probe = hf.center(self.probe)
         else:
             probe_update = 0
 

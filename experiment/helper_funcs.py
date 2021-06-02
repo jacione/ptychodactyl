@@ -3,8 +3,9 @@ from matplotlib import pyplot as plt
 from scipy import ndimage
 from scipy.misc import ascent, face
 from skimage.restoration import unwrap_phase
-from skimage import draw
+from skimage import draw, transform
 from time import perf_counter
+from scipy.ndimage import center_of_mass
 
 
 def fft(image):
@@ -27,7 +28,18 @@ def random(size, low=0.0, high=1.0):
     return low + (high-low)*rng.random(size)
 
 
-def init_probe(shape):
+def init_probe(data):
+    diff_array = np.mean(data, axis=0)
+    probe_array = ifft(diff_array)
+    plt.subplot(121)
+    plt.imshow(diff_array)
+    plt.subplot(122)
+    plt.imshow(np.abs(probe_array))
+    plt.show()
+    return probe_array
+
+
+def init_probe_alt(shape):
     probe_array = np.zeros(shape)
     probe_center = shape[0] / 2
     probe_radius = shape[0] / 4
@@ -61,18 +73,26 @@ def shift(arr, shift_amt, crop=None):
     return new_arr
 
 
-def demo_image():
-    x = 50
-    y = 400
-    f = face(gray=True)[x:x+512, y:y+512]
+def center(image):
+    ctr = np.asarray(image.shape) // 2
+    shift_amt = tuple(np.flip(ctr-np.around(center_of_mass(np.abs(image))).astype('int')))
+    ret_image = np.roll(image, shift_amt, axis=(1, 0))
+    return ret_image
+
+
+def demo_image(size):
+    x = (1024 - 768)
+    f = face(gray=True)[:, x:]
     f = f / np.max(f)
     a = ascent() / np.max(ascent())
-    img = f * np.exp(10j*np.pi*a)
+    f = transform.resize(f, (size, size), anti_aliasing=True, preserve_range=True)
+    a = transform.resize(a, (size, size), anti_aliasing=True, preserve_range=True)
+    img = f * np.exp(2j*np.pi*a)
     return img
 
 
 def demo_shift():
-    img = demo_image()
+    img = demo_image(512)
     sft1, err1, dt1 = test_shift(ndimage.shift)
     sft2, err2, dt2 = test_shift(shift)
     sft3, err3, dt3 = test_shift(alt_shift)
@@ -101,7 +121,7 @@ def demo_shift():
     plt.show()
 
 
-def detect(arr, saturation=1.0, bitdepth=0, seed=None):
+def detect(arr, saturation=1.0, bitdepth=0, noise=0, seed=None):
     arr = np.array(arr)
     signal_max = np.max(arr)
     pixel_max = 2 ** bitdepth - 1
@@ -127,7 +147,7 @@ def detect(arr, saturation=1.0, bitdepth=0, seed=None):
         # lam = len(np.unique(arr))
         # lam = 2**np.ceil(np.log2(lam))
         # arr = rng.poisson(arr*lam) / float(lam)
-        arr = rng.poisson(arr+10)
+        arr = rng.poisson(arr+noise)
 
         arr = np.clip(arr, None, pixel_max)
 
@@ -144,7 +164,7 @@ def calc_error(actual, altered, border=5):
 
 
 def test_shift(func):
-    img = demo_image()
+    img = demo_image(512)
     t0 = perf_counter()
     sft = func(img, 2.5)
     sft = func(sft, -4.2)
@@ -156,4 +176,12 @@ def test_shift(func):
 
 
 if __name__ == '__main__':
-    demo_shift()
+    probe = np.roll(init_probe_alt((128, 128)), (-30,0), axis=(0,1))
+    c = center_of_mass(np.abs(probe))
+    ctr_probe = center(probe)
+    plt.subplot(121)
+    plt.imshow(np.abs(probe))
+    plt.scatter(c[1], c[0], c='r')
+    plt.subplot(122)
+    plt.imshow(np.abs(ctr_probe))
+    plt.show()
