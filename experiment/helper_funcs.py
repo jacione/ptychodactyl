@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 from scipy import ndimage
 from scipy.misc import ascent, face
 from skimage.restoration import unwrap_phase
+from skimage import draw
 from time import perf_counter
 
 
@@ -24,6 +25,22 @@ def show(image):
 def random(size, low=0.0, high=1.0):
     rng = np.random.default_rng()
     return low + (high-low)*rng.random(size)
+
+
+def init_probe(shape):
+    probe_array = np.zeros(shape)
+    probe_center = shape[0] / 2
+    probe_radius = shape[0] / 4
+    rr, cc = draw.disk((probe_center, probe_center), probe_radius)
+    probe_array[rr, cc] = 1
+    probe_array = probe_array * np.exp(1j*random(probe_array.shape, 0, 2*np.pi))
+    return probe_array
+
+
+def init_object(shape):
+    object_array = np.zeros(shape) + 0.5 + 0j
+    object_array = object_array * np.exp(1j*random(object_array.shape, 0, 2*np.pi))
+    return object_array
 
 
 def alt_shift(arr, shift_amt, crop=None):

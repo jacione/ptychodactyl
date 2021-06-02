@@ -2,20 +2,20 @@
 Reconstruction code
 """
 
-import numpy as np
-from matplotlib import pyplot as plt
-import h5py
-import helper_funcs as hf
 import click
+from reconstruct_source import CXIData, Reconstruction
 
 
 @click.command()
-@click.option('-l', '--load', nargs=2, help='Must be a compatible CXI file')
+@click.option('-l', '--load', help='Must be a compatible CXI file')
 @click.option('-s', '--save', help='Save reconstruction in this location')
-def reconstruct(load, save):
-    print(load)
-    print(save)
-    pass
+@click.option('-alg', '--algorithm', default='epie', help='Algorithm to use in reconstruction')
+def reconstruct(load, save, algorithm):
+    if load is None:
+        load = 'libs/dummy_data/fake.cxi'
+    recon = Reconstruction(CXIData(load))
+    recon.run(5, algorithm, False)
+    recon.show_object_and_probe()
 
 
 if __name__ == '__main__':
