@@ -207,12 +207,14 @@ class MMC200:
         s = str(self.port.readline())
         s = s.replace(r'\n', '')
         s = s.replace(r'\r', '')
-        s = s.removeprefix("b'")
-        s = s.removesuffix("'")
+        if s.startswith("b'"):
+            s = s[2:]
+        if s.endswith("'"):
+            s = s[:-1]
         s = s[s.find('#') + 1:]
         return s
 
 
 if __name__ == '__main__':
     ctrl = MMC200(verbose=True)
-    ctrl.show_off()
+    ctrl.set_y(10)

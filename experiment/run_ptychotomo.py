@@ -85,7 +85,7 @@ def collect(title, directory, verbose, is3d, nx, ny, nq, rx, ry, rq, resolution,
     with counter(num_takes) as count:
         for i in count:
             stages.set_position((X[i], Y[i], 0, Q[i]))
-            diff_pattern = camera.get_frame()
+            diff_pattern = camera.get_frames()
             dataset.record_data(stages.get_position(), diff_pattern)
 
     stages.home_all()
