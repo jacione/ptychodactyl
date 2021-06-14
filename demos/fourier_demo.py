@@ -3,8 +3,11 @@ from matplotlib import pyplot as plt
 from matplotlib import colors
 from matplotlib.animation import ArtistAnimation
 from scipy import misc
-from skimage import draw
+from scipy.ndimage import center_of_mass
+from skimage import draw, transform
 import os
+from PIL import Image
+import h5py
 
 
 here = os.path.dirname(os.path.realpath(__file__))
@@ -119,4 +122,5 @@ def demo_double_pinhole():
 
 
 if __name__ == '__main__':
-    demo_double_pinhole()
+    pass
+

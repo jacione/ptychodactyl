@@ -20,12 +20,12 @@ This project must be run on **Python 3.8** (later versions are not yet supported
 Additionally, the device interfacing uses some proprietary (I assume) software development kits provided by Micronix, Mightex, and Thorlabs. This means some DLL and similar files, not created by me, are included in this repository. These files are used under the terms put forth by their respective owners, and all associated copyrights remain with said owners.
 
 ## Instructions
-There are two main scripts designed to be run from the command line, one for data collection (`run_ptychotomo.py`) and the other for data analysis (`reconstruct.py`).
+There are two main scripts designed to be run from the command line, one for data collection (`collect.py`) and the other for data analysis (`reconstruct.py`).
 
 ### Collecting data
 Make sure the camera, stages, and laser are all turned on and working properly. Open a commandline and navigate to the 3d-ptychography directory, then run
 ```
-python run_ptychotomo.py
+python collect.py
 ```
 to start the data collection. The commandline interface accepts options such as `-s <title>` to set the title which the data will be saved as or `--exposure <time_in_ms>` to set the exposure time. For a list of all options, run the script with the `-h` or `--help` flag.
 

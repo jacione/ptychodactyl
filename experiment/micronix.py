@@ -12,6 +12,8 @@ import time
 class MMC200:
     """
     Class to interface with a Micronix MMC-200 stage controller.
+
+    The vertical stage corresponds to the Y-AXIS!!
     """
     def __init__(self, verbose=False):
         self.verbose = verbose
@@ -85,7 +87,13 @@ class MMC200:
                    f'  Y    {self.y0:0.6f}\n'
                    f'  Z    {self.z0:0.6f}\n'
                    f'  Q    {self.q:0.6f}')
-        return np.array([self.x0, self.y0, self.z0, self.q])
+        return np.array([self.x0, self.y0, self.q])
+
+    def get_translation(self):
+        return np.array([self.x0, self.y0])
+
+    def get_rotation(self):
+        return self.q
 
     def set_x(self, x_pos):
         cmd = f'{self.x_ax}MVA{x_pos:0.6f}'
