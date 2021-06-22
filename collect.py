@@ -13,7 +13,7 @@ from experiment.scan import xy_scan, r_scan
 @click.command()
 @click.help_option('-h', '--help')
 @click.option('-v', '--verbose', is_flag=True, default=False, help='Print information at each step')
-@click.option('-s', '--title', default='test', help='Data will be saved by this name')
+@click.option('-s', '--saveas', default='test', help='Data will be saved by this name')
 @click.option('-w', '--width', default=10, help='Horizontal scanning range (mm)')
 @click.option('-h', '--height', default=10, help='Vertical scanning range (mm)')
 @click.option('-d', '--step_size', default=0.5, help='Step size (mm)')
@@ -26,7 +26,7 @@ from experiment.scan import xy_scan, r_scan
 @click.option('-gain', '--gain', help='Analog gain')
 @click.option('-dist', '--distance', default=0.075, help='Sample to detector (m)')
 @click.option('--energy', default=1.957346, help='Laser photon energy (eV)')
-def collect(title, verbose, width, height, step_size, pattern, num_rotations, frames_per_take, resolution, exposure,
+def collect(saveas, verbose, width, height, step_size, pattern, num_rotations, frames_per_take, resolution, exposure,
             gain, distance, energy):
     """
     CLI for collecting 3D or 2D ptychography data.
@@ -50,7 +50,7 @@ def collect(title, verbose, width, height, step_size, pattern, num_rotations, fr
     camera.set_gain(gain)
     if resolution is None:
         resolution = camera.im_shape
-    dataset = CollectData(num_translations=num_translations, num_rotations=num_rotations, title=title,
+    dataset = CollectData(num_translations=num_translations, num_rotations=num_rotations, title=saveas,
                           im_shape=resolution, pixel_size=camera.pixel_size, distance=distance, energy=energy,
                           verbose=verbose)
 
