@@ -6,12 +6,20 @@ from matplotlib.patches import Rectangle
 from matplotlib.animation import ArtistAnimation
 import progressbar
 from abc import ABC, abstractmethod
-from helper_funcs import ifft, random, shift
+from experiment.helper_funcs import ifft, random, shift
+from experiment.ptycho_data import LoadData
 
 
-class Reconstruction(ABC):
+def Reconstruction(data: LoadData):
+    if data.is3d:
+        return Recon3D(data)
+    else:
+        return Recon2D(data)
+
+
+class Recon(ABC):
     @abstractmethod
-    def __init__(self, data):
+    def __init__(self, data: LoadData):
         self.data = data
         print(self.data)
         self.probe = init_probe(self.data.im_data)
@@ -25,30 +33,63 @@ class Reconstruction(ABC):
         self.rng = np.random.default_rng()
         self.probe_energy = np.max(np.sum(self.data.im_data, axis=(1, 2)))
         self.ix, self.iy = np.indices(self.probe.shape)
+        self.__algs = {}
 
     @abstractmethod
-    def run(self, num_iterations, algorithm, show_progress):
+    def run(self, num_iterations, algorithm, animate):
+        pass
+
+    @abstractmethod
+    def show_object_and_probe(self):
+        pass
+
+    @abstractmethod
+    def __apply_update(self, x, y, object_update, probe_update):
+        pass
+
+    @abstractmethod
+    def __correct_probe(self):
         pass
 
 
-class Reconstruction2D(Reconstruction):
-    def __init__(self, data):
+class Recon3D(Recon):
+    def __init__(self, data: LoadData):
+        super().__init__(data)
+
+        self.__algs = {}
+        pass
+
+    def run(self, num_iterations, algorithm, animate=False):
+        pass
+
+    def show_object_and_probe(self):
+        pass
+
+    def __apply_update(self, x, y, object_update, probe_update):
+        pass
+
+    def __correct_probe(self):
+        pass
+
+
+class Recon2D(Recon):
+    def __init__(self, data: LoadData):
         super().__init__(data)
         assert not self.data.is3d, "Cannot reconstruct 3D data with 2D reconstruction algorithms"
 
         # This is the translation data IN UNITS OF PIXELS
         self.translation = self.data.position / self.pixel_size
-        self._correct_probe()
+        self.__correct_probe()
         self.shifted_im_data = np.sqrt(np.fft.ifftshift(self.data.im_data, axes=(1, 2)))
 
-        self._algs = {
-            'epie': self._epie,
-            'rpie': self._rpie
+        self.__algs = {
+            'epie': self.__epie,
+            'rpie': self.__rpie
         }
 
     def run(self, num_iterations, algorithm, apply_mask_at=(), animate=True):
         try:
-            update_function = self._algs[algorithm]
+            update_function = self.__algs[algorithm]
         except KeyError:
             print(f"Warning: '{algorithm}' is not a recognized reconstruction algorithm. Skipping...")
             return
@@ -62,7 +103,7 @@ class Reconstruction2D(Reconstruction):
                 update_probe = x > 0
                 update_function(i, update_param, update_probe)
             if x in apply_mask_at:
-                self.object = self.object * self._probe_mask()
+                self.object = self.object * self.__probe_mask()
             if animate:
                 frames.append([ax1.imshow(np.abs(self.object), cmap='bone'),
                                ax2.imshow(np.angle(self.object), cmap='hsv'),
@@ -72,7 +113,13 @@ class Reconstruction2D(Reconstruction):
             vid = ArtistAnimation(fig, frames, interval=100, repeat_delay=0)
         self.show_object_and_probe()
 
-    def _pre_pie(self, i):
+    def __apply_update(self, x, y, object_update, probe_update=None):
+        self.object[x + self.ix, y + self.iy] = self.object[x + self.ix, y + self.iy] + object_update
+        if probe_update is not None:
+            self.probe = self.probe + probe_update
+            self.__correct_probe()
+
+    def __pre_pie(self, i):
         # Take a slice of the object that's the same size as the probe
         x = int(self.translation[i, 0] + 0.5)
         y = int(self.translation[i, 1] + 0.5)
@@ -85,24 +132,18 @@ class Reconstruction2D(Reconstruction):
         d_psi = psi2 - psi1
         return x, y, region, d_psi
 
-    def _update_object_and_probe(self, x, y, object_update, probe_update=None):
-        self.object[x + self.ix, y + self.iy] = self.object[x + self.ix, y + self.iy] + object_update
-        if probe_update is not None:
-            self.probe = self.probe + probe_update
-            self._correct_probe()
-
-    def _epie(self, i, param, update_probe=True):
-        x, y, region, d_psi = self._pre_pie(i)
+    def __epie(self, i, param, update_probe=True):
+        x, y, region, d_psi = self.__pre_pie(i)
         alpha = np.sqrt(1.25-param)
         beta = 1-param
         object_update = alpha * d_psi * np.conj(self.probe) / np.max(np.abs(self.probe)) ** 2
         probe_update = None
         if update_probe:
             probe_update = beta * d_psi * np.conj(region) / np.max(np.abs(region)) ** 2
-        self._update_object_and_probe(x, y, object_update, probe_update)
+        self.__apply_update(x, y, object_update, probe_update)
 
-    def _rpie(self, i, param, update_probe=True):
-        x, y, region, d_psi = self._pre_pie(i)
+    def __rpie(self, i, param, update_probe=True):
+        x, y, region, d_psi = self.__pre_pie(i)
         alpha = 0.05 + 0.45 * param ** 2
         beta = 0.25 + 0.75 * param
         object_update = d_psi * np.conj(self.probe) / \
@@ -111,13 +152,13 @@ class Reconstruction2D(Reconstruction):
         if update_probe:
             probe_update = d_psi * np.conj(region) / \
                            (beta*np.max(np.abs(region))**2 + (1-beta)*np.abs(region)**2)
-        self._update_object_and_probe(x, y, object_update, probe_update)
+        self.__apply_update(x, y, object_update, probe_update)
 
-    def _correct_probe(self):
+    def __correct_probe(self):
         self.probe = self.probe * np.sqrt(self.probe_energy / np.sum(np.abs(self.probe) ** 2)) / self.data.shape[0]
         self.probe = center(self.probe)
 
-    def _probe_mask(self):
+    def __probe_mask(self):
         probe_mask = np.zeros(self.probe.shape)
         probe_mask[np.abs(self.probe) > np.abs(np.max(self.probe)) / 4] = 1
         object_mask = np.zeros(self.object.shape)

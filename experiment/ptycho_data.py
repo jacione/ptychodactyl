@@ -8,11 +8,14 @@ import h5py
 from datetime import date
 from skimage import draw, transform
 from scipy import ndimage
-import helper_funcs as hf
 from abc import ABC, abstractmethod
 from matplotlib.patches import Circle
 from matplotlib.animation import ArtistAnimation
 import progressbar
+import os
+
+import experiment.helper_funcs as hf
+from experiment.scan import xy_scan, r_scan
 
 
 class PtychoData(ABC):
@@ -134,6 +137,7 @@ class CollectData(PtychoData):
         self._i = 0  # Current rotation
         self._j = 0  # Current translation
         self._shape = im_shape  # image resolution
+        self._size = im_shape[0]
 
         # Pre-allocate memory for these arrays, as they can get quite large
         self._position = np.empty((self.num_rotations, self.num_translations, 3))
@@ -212,7 +216,8 @@ class CollectData(PtychoData):
         self.print(f'Saving data as {self.title}.pty')
 
         # Create file using HDF5 protocol.
-        f = h5py.File(f'Data/{self.title}.pty', 'w')
+        os.chdir('..')
+        f = h5py.File(f'data/{self.title}.pty', 'w')
 
         # Save collected data
         data = f.create_group('data')
@@ -233,37 +238,21 @@ class CollectData(PtychoData):
         return
 
 
-class GenerateData(CollectData):
-    def __init__(self, ims_per_line, max_shift, title, im_size=127, show=False):
+class GenerateData2D(CollectData):
+    def __init__(self, ims_per_line, max_shift, probe_radius, title, im_size=127, show=False):
         super().__init__(1, ims_per_line ** 2, title, (im_size, im_size), 5.5, 0.1, 2.0, verbose=show)
+
+        max_shift *= 1e3  # Convert shift from mm to microns
 
         self._im_data = np.empty((self.num_rotations, self.num_translations, self._shape[0], self._shape[1]))
 
         # Generate a probe
-        probe_pixel_size = self.distance * self.wavelength / (im_size * self.pixel_size)
-        probe_array = np.zeros((im_size, im_size))
-        probe_center = im_size / 2
-        probe_radius = 2000 / probe_pixel_size  # Probe radius is 1500 microns
-
-        # Generate the amplitude (blurred disk)
-        probe_array[draw.disk((probe_center, probe_center), probe_radius)] = 1
-        probe_array = ndimage.gaussian_filter(probe_array, 3)
-
-        # Generate the phase (2D quadratic)
-        # This phase should be consistent with a non-collimated beam.
-        X, Y = np.meshgrid(np.arange(im_size), np.arange(im_size))
-        probe_phase = ((X - probe_center) / 10) ** 2 + ((Y - probe_center) / 10) ** 2
-
-        # Generate the probe as the combined amplitude and phase
-        probe_array = probe_array * np.exp(1j * probe_phase)
+        probe_pixel_size = self.distance * self.wavelength / (im_size * self.pixel_size)  # microns
+        probe_radius = probe_radius * 1e3 / probe_pixel_size  # Convert from mm to pixels
+        probe_array = generate_probe(im_size, probe_radius, nophase=False)
 
         # Generate the translational array
-        shift_space = np.linspace(0, max_shift / probe_pixel_size, ims_per_line)
-        X, Y = np.meshgrid(shift_space, shift_space)
-        X = np.ravel(X) + hf.random(self.num_entries, -2, 2)
-        Y = np.ravel(Y) + hf.random(self.num_entries, -2, 2)
-
-        # TODO: Generate rotational array -- right now this only generates 2D datasets
+        X, Y, N = xy_scan('spiral', max_shift, max_shift, probe_radius*0.7)
 
         # Generate an object
         obj_size = im_size + int(max_shift / probe_pixel_size + 3.5)
@@ -291,9 +280,8 @@ class GenerateData(CollectData):
             ax = plt.subplot(111, xticks=[], yticks=[])
             ax.imshow(np.abs(object_array))
             for i in range(self.num_entries):
-                ax.add_artist(Circle((probe_center + X[i], probe_center + Y[i]), probe_radius, color='r', fill=False))
+                ax.add_artist(Circle((im_size/2 + X[i], im_size/2 + Y[i]), probe_radius, color='r', fill=False))
 
-        ix, iy = np.indices(probe_array.shape)
         if show:
             fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
         else:
@@ -302,16 +290,12 @@ class GenerateData(CollectData):
         for i in progressbar.progressbar(range(self.num_entries)):
             position = np.array([X[i], Y[i], 0])
             shifted_object = hf.shift(np.copy(object_array), -position[:2], crop=im_size)
-            # x = int(X[i] + 0.5)
-            # y = int(Y[i] + 0.5)
-            # position = np.array([x, y, 0])
-            # shifted_object = object_array[x + ix, y + iy]
             exit_wave = probe_array * shifted_object
             diffraction = np.abs(hf.fft(exit_wave)) ** 2
 
             if show:
                 frames.append([ax1.imshow(np.abs(object_array)),
-                               ax1.add_artist(Circle((probe_center + Y[i], probe_center + X[i]),
+                               ax1.add_artist(Circle((im_size/2 + Y[i], im_size/2 + X[i]),
                                                      probe_radius, color='r', fill=False)),
                                ax2.imshow(np.abs(exit_wave)),
                                ax3.imshow(np.log(diffraction))])
@@ -327,7 +311,7 @@ class GenerateData(CollectData):
             plt.imshow(np.log(self._im_data[0, 0]))
 
         # Simulate detection process (saturation, bitdepth, background, summed frames)
-        # self.detect(0.75, 14, 50, 10)
+        self.detect(0.75, 14, 50, 10)
 
         if show:
             # Plot diffraction after detection
@@ -375,5 +359,24 @@ class GenerateData(CollectData):
             self._im_data = np.sum(im_array, axis=0)
 
 
+def generate_probe(im_size, probe_radius, nophase=False):
+    probe_array = np.zeros((im_size, im_size))
+    probe_center = im_size / 2
+
+    # Generate the amplitude (blurred disk)
+    probe_array[draw.disk((probe_center, probe_center), probe_radius)] = 1
+    probe_array = ndimage.gaussian_filter(probe_array, 3)
+
+    if nophase:
+        return probe_array + 0j
+
+    # Generate the phase (2D quadratic to represent a diverging/converging beam)
+    X, Y = np.meshgrid(np.arange(im_size), np.arange(im_size))
+    probe_phase = ((X - probe_center) / 10) ** 2 + ((Y - probe_center) / 10) ** 2
+
+    # Generate the probe as the combined amplitude and phase
+    return probe_array * np.exp(1j * probe_phase)
+
+
 if __name__ == '__main__':
-    data = GenerateData(12, 10000, 'fake')
+    data = GenerateData2D(12, 10, 2, 'fake')

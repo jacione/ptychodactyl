@@ -9,10 +9,10 @@ from System import Array, Double, IntPtr, Random, Int64
 from System.Runtime.InteropServices import Marshal
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-clr.AddReference('libs/ThorCam/Thorlabs.TSI.TLCamera')
-clr.AddReference('libs/ThorCam/Thorlabs.TSI.TLCameraInterfaces')
-clr.AddReference('libs/ThorCam/Thorlabs.TSI.ImageData')
-clr.AddReference('libs/ThorCam/Thorlabs.TSI.ColorInterfaces')
+clr.AddReference('experiment/libs/ThorCam/Thorlabs.TSI.TLCamera')
+clr.AddReference('experiment/libs/ThorCam/Thorlabs.TSI.TLCameraInterfaces')
+clr.AddReference('experiment/libs/ThorCam/Thorlabs.TSI.ImageData')
+clr.AddReference('experiment/libs/ThorCam/Thorlabs.TSI.ColorInterfaces')
 
 import Thorlabs.TSI.ImageData as thorlabs_tsi_imagedata
 import Thorlabs.TSI.TLCamera as thorlabs_tsi_tlcamera
