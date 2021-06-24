@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from scipy.ndimage import center_of_mass
 from abc import ABC, abstractmethod
 import os
-from libs.ThorCam.tl_dotnet_wrapper import TL_SDK
+from experiment.libs.ThorCam.tl_dotnet_wrapper import TL_SDK
 
 """ Config constants """
 _STRING_MAX = 4096  # for functions that return strings built on C char arrays, this is the max number of characters
@@ -21,28 +21,22 @@ _frame_available_callback_type = CFUNCTYPE(None, c_void_p, POINTER(c_ushort), c_
 _3x3Matrix_float = (c_float * 9)
 
 
-# def c_cmd(cmd, handle, ctype):
-#     ret_val = ctype()
-#
-#
-#
-#
 MIGHTEX_DEFAULTS = {
     'width': 2560,
     'height': 1920,
-    'exposure': 0.05,
+    'exposure': 0.25,
     'gain': 8,
     'metadata': 128,
-    'dtype': 'i2',
+    'dtype': 'i4',
     'pixel_size': 2.2
 }
 THORCAM_DEFAULTS = {
     'width': 3296,
     'height': 2472,
-    'exposure': 20,
+    'exposure': 0.25,
     'gain': 1,
     'metadata': 128,
-    'dtype': 'i2',
+    'dtype': 'i4',
     'pixel_size': 5.5,
     'serial_number': '08949'
 }
@@ -417,8 +411,9 @@ class ThorCam(Camera):
             data = data + self._handle.frame_to_array(frame)  # copies image data from frame into a numpy array
         self._handle.disarm()
         if show:
-            self.imshow(data)
+            self.imshow(np.log(np.abs(data-np.median(data)) + 1))
             plt.hist(np.ravel(data), bins=100)
+            plt.yscale('log')
             plt.show()
         while self._handle.is_busy:
             pass
@@ -427,5 +422,5 @@ class ThorCam(Camera):
 
 if __name__ == '__main__':
     with ThorCam(False) as cam:
-        cam.get_frames(1, show=True)
-        cam.get_frames(5, show=True)
+        cam.set_exposure(0.25)
+        cam.get_frames(20, show=True)

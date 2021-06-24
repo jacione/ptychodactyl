@@ -48,6 +48,17 @@ class MMC200:
         self.measure()
         pass
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.port.flush()
+        self.port.close()
+
+    def __del__(self):
+        self.port.flush()
+        self.port.close()
+
     def zero(self):
         # TODO: Move to zero the sample on the beamline
         # TODO: Rotate to align the y-axis parallel to the beamline
@@ -149,7 +160,9 @@ class MMC200:
     def show_off(self):
         # Moves all the axes around simultaneously
         # ...just for fun
-        self.set_position((5, 5, 5, 10))
+        self.set_position((5, 2.5, 5, 10))
+        self.get_position()
+        self.set_position((-5, 5, -5, -10))
         self.get_position()
         self.set_position((0, 0, 0, 0))
         self.get_position()
@@ -210,6 +223,7 @@ class MMC200:
 
     def query(self, qry_str):
         # Sends a query string to the mightex stage and reads a response
+        self.port.flush()
         self.port.write(bytes(f'{qry_str}\n\r'.encode('utf-8')))
         time.sleep(0.1)
         s = str(self.port.readline())
@@ -225,4 +239,4 @@ class MMC200:
 
 if __name__ == '__main__':
     ctrl = MMC200(verbose=True)
-    ctrl.set_q(0)
+    ctrl.home_all()

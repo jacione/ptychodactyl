@@ -16,6 +16,7 @@ def rect_scan(width, height, step):
     dxy = 0.05*step
     X = np.ravel(X + hf.random(X.shape, -dxy, dxy))
     Y = np.ravel(Y + hf.random(Y.shape, -dxy, dxy))
+    Y = Y - np.min(Y) + 0.5
     N = len(X)
     return X, Y, N
 
@@ -30,6 +31,7 @@ def hex_scan(width, height, step):
     dxy = 0.05*step
     X = np.ravel(X + hf.random(X.shape, -dxy, dxy))
     Y = np.ravel(Y + hf.random(Y.shape, -dxy, dxy))
+    Y = Y - np.min(Y) + 0.5
     N = len(X)
     return X, Y, N
 
@@ -49,14 +51,14 @@ def spiral_scan(width, height, step):
     Y = coords[:, 1]
     bounds = (X < width/2) * (X > -width/2) * (Y < height/2) * (Y > -height/2)
     X = X[bounds]
-    Y = Y[bounds]
+    Y = Y[bounds] + height/2
     N = len(X)
     return X, Y, N
 
 
 def r_scan(num_steps=0, full_range=180):
     if num_steps == 0:
-        return np.array([0]), 1
+        return np.array([10]), 1
     else:
         return np.linspace(-full_range/2, full_range/2, num_steps), num_steps
 

@@ -9,7 +9,7 @@ from datetime import date
 from skimage import draw, transform
 from scipy import ndimage
 from abc import ABC, abstractmethod
-from matplotlib.patches import Circle
+from matplotlib.patches import Circle, Rectangle
 from matplotlib.animation import ArtistAnimation
 import progressbar
 import os
@@ -20,7 +20,7 @@ from experiment.scan import xy_scan, r_scan
 
 class PtychoData(ABC):
     @abstractmethod
-    def __init__(self, file):
+    def __init__(self):
         self._file = None
         self._im_data = None
         self._num_entries = None
@@ -89,10 +89,13 @@ class PtychoData(ABC):
 class LoadData(PtychoData):
     def __init__(self, pty_file):
 
+        super().__init__()
+
         self._file = pty_file
         f = h5py.File(self._file, 'r')
 
         self._im_data = np.array(f['data/data'])
+        # Basic background subtraction
         self._im_data = self.im_data - np.median(self.im_data)
         self._im_data[self.im_data < 0] = 0
         shape = self.im_data.shape
@@ -127,7 +130,10 @@ class LoadData(PtychoData):
 
 
 class CollectData(PtychoData):
-    def __init__(self, num_rotations, num_translations, title, im_shape, pixel_size, distance, energy, verbose=False):
+    def __init__(self, num_rotations, num_translations, title, im_shape, binning, pixel_size, distance, energy,
+                 verbose=False):
+        super().__init__()
+
         # General parameters
         self.verbose = verbose
         self._num_entries = num_translations * num_rotations  # Total number of takes (all translations and rotations)
@@ -137,11 +143,14 @@ class CollectData(PtychoData):
         self._i = 0  # Current rotation
         self._j = 0  # Current translation
         self._shape = im_shape  # image resolution
-        self._size = im_shape[0]
+        self._binned_shape = (im_shape[0]//binning, im_shape[1]//binning)
+        self._binning = binning
+        self._bkgd = None
 
         # Pre-allocate memory for these arrays, as they can get quite large
         self._position = np.empty((self.num_rotations, self.num_translations, 3))
-        self._im_data = np.empty((self.num_rotations, self.num_translations, self._shape[0], self._shape[1]))
+        self._im_data = np.empty((self.num_rotations, self.num_translations,
+                                  self._binned_shape[0], self._binned_shape[1]))
 
         # These parameters probably won't change
         self._energy = energy  # photon energy in eV
@@ -161,7 +170,7 @@ class CollectData(PtychoData):
     def record_data(self, position, im_data):
         # Record the position and image data
         self._position[self._i, self._j] = position  # Record in millimeters / degrees
-        self._im_data[self._i, self._j] = im_data
+        self._im_data[self._i, self._j] = transform.downscale_local_mean(im_data, (self._binning, self._binning))
 
         # This next bit is all about making sure the measurements from a given rotation all stay together.
         # Increment j until it fills up, then reset and increment i.
@@ -174,23 +183,42 @@ class CollectData(PtychoData):
         self.print(f'Take {self._n} of {self.num_entries} recorded!')
         return ret_code
 
+    def record_background(self, im_data):
+        self._bkgd = transform.downscale_local_mean(im_data, (self._binning, self._binning))
+
     def finalize(self, timestamp, cropto):
         if not self.is_finalized:
             # Translate all the positions so that the minimum is zero.
             self._position = self.position - np.min(self.position, axis=1)
+            print('Finalizing...')
+
+            print('Subtracting background...')
+            if self._bkgd is not None:
+                self._im_data[:, :] = self._im_data[:, :] - self._bkgd
+            else:
+                self._im_data = self._im_data - np.median(self._im_data)
+                self._im_data[self._im_data < 0] = 0
+
+            print('Cropping to square...')
+            if np.any(np.array(self._binned_shape) > cropto):
+                # If desired, crop the image down to save space.
+                d = cropto // 2
+                # Be careful with this... scipy doesn't always hit the center exactly.
+                cy, cx = ndimage.center_of_mass(np.sum(self._im_data, axis=(0, 1)))
+                cx = int(cx)
+                cy = int(cy)
+                # Check the cropping region to make sure the beam is centered
+                region = Rectangle((cx-d, cy-d), cropto, cropto, color='r', fill=False)
+                plt.imshow(np.log(np.sum(self._im_data, axis=(0, 1))+1), cmap='gray')
+                plt.gca().add_artist(region)
+                plt.show()
+                # Crop the image data down to the desired size.
+                self._im_data = self._im_data[:, :, cx - d:cx + d + 1, cy - d:cy + d + 1]
 
             if timestamp:
                 # Add the date to the end of the title. Optional for simulated data.
                 self.title = self.title + '-' + date.today().isoformat()
-            if np.any(np.array(self._shape) > cropto):
-                # If desired, crop the image down to save space.
-                d = cropto // 2
-                # Be careful with this... scipy doesn't always hit the center exactly.
-                cx, cy = ndimage.center_of_mass(np.sum(self._im_data, axis=(0, 1)))
-                cx = int(cx)
-                cy = int(cy)
-                # Crop the image data down to the desired size.
-                self._im_data = self._im_data[:, :, cx - d:cx + d + 1, cy - d:cy + d + 1]
+
             self.is_finalized = True
         return
 
@@ -216,6 +244,7 @@ class CollectData(PtychoData):
         self.print(f'Saving data as {self.title}.pty')
 
         # Create file using HDF5 protocol.
+        os.chdir(os.path.dirname(__file__))
         os.chdir('..')
         f = h5py.File(f'data/{self.title}.pty', 'w')
 
@@ -240,7 +269,7 @@ class CollectData(PtychoData):
 
 class GenerateData2D(CollectData):
     def __init__(self, ims_per_line, max_shift, probe_radius, title, im_size=127, show=False):
-        super().__init__(1, ims_per_line ** 2, title, (im_size, im_size), 5.5, 0.1, 2.0, verbose=show)
+        super().__init__(1, ims_per_line ** 2, title, (im_size, im_size), 1, 5.5, 0.1, 2.0, verbose=show)
 
         max_shift *= 1e3  # Convert shift from mm to microns
 
@@ -379,4 +408,5 @@ def generate_probe(im_size, probe_radius, nophase=False):
 
 
 if __name__ == '__main__':
-    data = GenerateData2D(12, 10, 2, 'fake')
+    data = LoadData('../data/test-2021-06-24.pty')
+    data.show_pattern(1)
