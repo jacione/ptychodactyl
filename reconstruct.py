@@ -11,10 +11,12 @@ from experiment.ptycho_data import LoadData, GenerateData2D
 @click.option('-l', '--load', help='Must be a compatible PTY file')
 @click.option('-s', '--save', help='Save reconstruction in this location')
 @click.option('-a', '--algorithm', type=(str, int), default=[['rpie', 30]], multiple=True,
-              help='Algorithm to use in reconstruction, and how many iterations to run (e.g. -a epie 10')
+              help='Algorithm to use in reconstruction, and how many iterations to run (e.g. -a epie 10)')
 def reconstruct(load, save, algorithm):
     if load is None:
-        load = 'Data/fake.pty'
+        load = 'data/fake.pty'
+    elif not load.endswith('.pty'):
+        load += '.pty'
     recon = Reconstruction(LoadData(load))
 
     for alg, n in algorithm:
@@ -22,5 +24,4 @@ def reconstruct(load, save, algorithm):
 
 
 if __name__ == '__main__':
-    data = GenerateData2D(12, 10000, 'fake', show=False)
     reconstruct()

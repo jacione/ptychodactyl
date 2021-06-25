@@ -91,6 +91,9 @@ class LoadData(PtychoData):
 
         super().__init__()
 
+        os.chdir(os.path.dirname(__file__))
+        os.chdir('../data')
+
         self._file = pty_file
         f = h5py.File(self._file, 'r')
 
@@ -98,6 +101,7 @@ class LoadData(PtychoData):
         # Basic background subtraction
         self._im_data = self.im_data - np.median(self.im_data)
         self._im_data[self.im_data < 0] = 0
+        self._im_data = np.flip(self._im_data, 2)
         shape = self.im_data.shape
         self._num_rotations = shape[0]
         self._num_translations = shape[1]
@@ -213,7 +217,7 @@ class CollectData(PtychoData):
                 plt.gca().add_artist(region)
                 plt.show()
                 # Crop the image data down to the desired size.
-                self._im_data = self._im_data[:, :, cx - d:cx + d + 1, cy - d:cy + d + 1]
+                self._im_data = self._im_data[:, :, cy - d:cy + d + 1, cx - d:cx + d + 1]
 
             if timestamp:
                 # Add the date to the end of the title. Optional for simulated data.
@@ -408,5 +412,15 @@ def generate_probe(im_size, probe_radius, nophase=False):
 
 
 if __name__ == '__main__':
-    data = LoadData('../data/test-2021-06-24.pty')
-    data.show_pattern(1)
+    data = LoadData('../data/test-2021-06-25.pty')
+    N = 100
+    fig = plt.figure()
+    ax1 = plt.subplot(121, xticks=[], yticks=[])
+    ax2 = plt.subplot(122, xticks=[], yticks=[], sharex=ax1, sharey=ax1)
+    frames = [[] for n in range(N)]
+    for n in progressbar.progressbar(range(N)):
+        f1 = ax1.imshow(data.im_data[n], cmap='gray')
+        f2 = ax2.imshow(np.log(data.im_data[n]+1), cmap='gray')
+        frames[n] = [f1, f2]
+    vid = ArtistAnimation(fig, frames, interval=100, repeat_delay=0)
+    plt.show()

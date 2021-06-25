@@ -44,11 +44,11 @@ class Recon(ABC):
         pass
 
     @abstractmethod
-    def __apply_update(self, x, y, object_update, probe_update):
+    def _apply_update(self, x, y, object_update, probe_update):
         pass
 
     @abstractmethod
-    def __correct_probe(self):
+    def _correct_probe(self):
         pass
 
 
@@ -65,10 +65,10 @@ class Recon3D(Recon):
     def show_object_and_probe(self):
         pass
 
-    def __apply_update(self, x, y, object_update, probe_update):
+    def _apply_update(self, x, y, object_update, probe_update):
         pass
 
-    def __correct_probe(self):
+    def _correct_probe(self):
         pass
 
 
@@ -79,7 +79,7 @@ class Recon2D(Recon):
 
         # This is the translation data IN UNITS OF PIXELS
         self.translation = self.data.position / self.pixel_size
-        self.__correct_probe()
+        self._correct_probe()
         self.shifted_im_data = np.sqrt(np.fft.ifftshift(self.data.im_data, axes=(1, 2)))
 
         self.__algs = {
@@ -113,11 +113,11 @@ class Recon2D(Recon):
             vid = ArtistAnimation(fig, frames, interval=100, repeat_delay=0)
         self.show_object_and_probe()
 
-    def __apply_update(self, x, y, object_update, probe_update=None):
+    def _apply_update(self, x, y, object_update, probe_update=None):
         self.object[x + self.ix, y + self.iy] = self.object[x + self.ix, y + self.iy] + object_update
         if probe_update is not None:
             self.probe = self.probe + probe_update
-            self.__correct_probe()
+            self._correct_probe()
 
     def __pre_pie(self, i):
         # Take a slice of the object that's the same size as the probe
@@ -140,7 +140,7 @@ class Recon2D(Recon):
         probe_update = None
         if update_probe:
             probe_update = beta * d_psi * np.conj(region) / np.max(np.abs(region)) ** 2
-        self.__apply_update(x, y, object_update, probe_update)
+        self._apply_update(x, y, object_update, probe_update)
 
     def __rpie(self, i, param, update_probe=True):
         x, y, region, d_psi = self.__pre_pie(i)
@@ -152,9 +152,9 @@ class Recon2D(Recon):
         if update_probe:
             probe_update = d_psi * np.conj(region) / \
                            (beta*np.max(np.abs(region))**2 + (1-beta)*np.abs(region)**2)
-        self.__apply_update(x, y, object_update, probe_update)
+        self._apply_update(x, y, object_update, probe_update)
 
-    def __correct_probe(self):
+    def _correct_probe(self):
         self.probe = self.probe * np.sqrt(self.probe_energy / np.sum(np.abs(self.probe) ** 2)) / self.data.shape[0]
         self.probe = center(self.probe)
 
