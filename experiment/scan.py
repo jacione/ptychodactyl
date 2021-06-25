@@ -4,8 +4,7 @@ import experiment.helper_funcs as hf
 
 
 def xy_scan(style, width, height, step):
-    style_dict = {'rect': rect_scan, 'hex': hex_scan, 'spiral': spiral_scan}
-    scan = style_dict[style]
+    scan = STYLE_DICT[style]
     return scan(width, height, step)
     
 
@@ -63,8 +62,15 @@ def r_scan(num_steps=0, full_range=180):
         return np.linspace(-full_range/2, full_range/2, num_steps), num_steps
 
 
+STYLE_DICT = {'rect': rect_scan, 'hex': hex_scan, 'spiral': spiral_scan}
+
+
 if __name__ == '__main__':
-    xx, yy, N = spiral_scan(1, 1, 0.025)
-    plt.scatter(xx, yy)
-    plt.gca().set_aspect('equal')
+    a = 0
+    for style in ['rect', 'hex', 'spiral']:
+        a += 1
+        plt.subplot(1, 3, a, title=style)
+        xx, yy, N = xy_scan(style, 1, 1, 0.06)
+        plt.scatter(xx, yy)
+        plt.gca().set_aspect('equal')
     plt.show()

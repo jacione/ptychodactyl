@@ -93,15 +93,15 @@ class MMC200:
 
     def get_position(self):
         """Returns a tuple of the relevant positional data for ptychography"""
-        self.print(f'AXIS   POS(mm)\n'
+        self.print(f'\nAXIS   POS(mm)\n'
                    f'  X    {self.x0:0.6f}\n'
                    f'  Y    {self.y0:0.6f}\n'
                    f'  Z    {self.z0:0.6f}\n'
                    f'  Q    {self.q:0.6f}')
-        return np.array([self.x0, self.y0, self.q])
+        return np.array([self.y0, self.x0, self.q])
 
     def get_translation(self):
-        return np.array([self.x0, self.y0])
+        return np.array([self.y0, self.x0])
 
     def get_rotation(self):
         return self.q

@@ -14,7 +14,7 @@ from experiment.ptycho_data import LoadData, GenerateData2D
               help='Algorithm to use in reconstruction, and how many iterations to run (e.g. -a epie 10)')
 def reconstruct(load, save, algorithm):
     if load is None:
-        load = 'data/fake.pty'
+        load = 'fake.pty'
     elif not load.endswith('.pty'):
         load += '.pty'
     recon = Reconstruction(LoadData(load))

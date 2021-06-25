@@ -32,7 +32,7 @@ class Recon(ABC):
         self.temp_object = np.zeros_like(self.object)
         self.rng = np.random.default_rng()
         self.probe_energy = np.max(np.sum(self.data.im_data, axis=(1, 2)))
-        self.ix, self.iy = np.indices(self.probe.shape)
+        self.iy, self.ix = np.indices(self.probe.shape)
         self.__algs = {}
 
     @abstractmethod
@@ -114,7 +114,7 @@ class Recon2D(Recon):
         self.show_object_and_probe()
 
     def _apply_update(self, x, y, object_update, probe_update=None):
-        self.object[x + self.ix, y + self.iy] = self.object[x + self.ix, y + self.iy] + object_update
+        self.object[y + self.iy, x + self.ix] = self.object[y + self.iy, x + self.ix] + object_update
         if probe_update is not None:
             self.probe = self.probe + probe_update
             self._correct_probe()
@@ -123,7 +123,7 @@ class Recon2D(Recon):
         # Take a slice of the object that's the same size as the probe
         x = int(self.translation[i, 0] + 0.5)
         y = int(self.translation[i, 1] + 0.5)
-        region = self.object[x + self.ix, y + self.iy]
+        region = self.object[y + self.iy, x + self.ix]
         # region = hf.shift(self.object, self.translation[i], crop=self.data.shape[0], subpixel=False)
         psi1 = self.probe * region
         PSI1 = np.fft.fft2(psi1)
@@ -165,7 +165,7 @@ class Recon2D(Recon):
         for t in self.translation:
             x = int(t[0] + 0.5)
             y = int(t[1] + 0.5)
-            object_mask[x+self.ix, y+self.ix] += probe_mask
+            object_mask[y + self.iy, x + self.ix] += probe_mask
         object_mask = object_mask + 0.1
         object_mask[object_mask > 0.5] = 1
         object_mask = ndimage.gaussian_filter(object_mask, 2)
