@@ -7,33 +7,45 @@ from matplotlib.animation import ArtistAnimation
 import progressbar
 from abc import ABC, abstractmethod
 from experiment.helper_funcs import ifft, random, shift
-from experiment.ptycho_data import LoadData
+from experiment.ptycho_data import LoadData, GenerateData2D
+from skimage.restoration import unwrap_phase
 
 
-def Reconstruction(data: LoadData):
+def Reconstruction(data: LoadData, **kwargs):
     if data.is3d:
-        return Recon3D(data)
+        return Recon3D(data, **kwargs)
     else:
-        return Recon2D(data)
+        return Recon2D(data, **kwargs)
 
 
 class Recon(ABC):
     @abstractmethod
-    def __init__(self, data: LoadData):
+    def __init__(self, data: LoadData, flip_images='', flip_positions=''):
         self.data = data
+        if 'x' in flip_positions:
+            self.data.invert_x_pos()
+        if 'y' in flip_positions:
+            self.data.invert_y_pos()
+        if 'x' in flip_images:
+            self.data.invert_x_ims()
+        if 'y' in flip_images:
+            self.data.invert_y_ims()
         print(self.data)
         self.probe = init_probe(self.data.im_data)
         # self.probe = init_probe_flat(self.data.shape)
         self.crop = self.data.shape[0]
-        self.pixel_size = data.distance * data.wavelength / (data.shape[0] * data.pixel_size)
+        self.pixel_size = self.data.obj_pixel_size
         max_translation = np.around(self.data.max_translation / self.pixel_size).astype('int')
         self.object = init_object(data.shape + max_translation)
         # print(self.object.shape)
         self.temp_object = np.zeros_like(self.object)
         self.rng = np.random.default_rng()
         self.probe_energy = np.max(np.sum(self.data.im_data, axis=(1, 2)))
-        self.iy, self.ix = np.indices(self.probe.shape)
-        self.__algs = {}
+        self.rows, self.cols = np.indices(self.probe.shape)
+        self._algs = {}
+        # plt.scatter(self.data.position[:, 1], self.data.position[:, 0])
+        # plt.gca().set_aspect('equal')
+        # plt.show()
 
     @abstractmethod
     def run(self, num_iterations, algorithm, animate):
@@ -53,10 +65,10 @@ class Recon(ABC):
 
 
 class Recon3D(Recon):
-    def __init__(self, data: LoadData):
-        super().__init__(data)
+    def __init__(self, data: LoadData, flip_images='', flip_positions=''):
+        super().__init__(data, flip_images, flip_positions)
 
-        self.__algs = {}
+        self._algs = {}
         pass
 
     def run(self, num_iterations, algorithm, animate=False):
@@ -73,8 +85,8 @@ class Recon3D(Recon):
 
 
 class Recon2D(Recon):
-    def __init__(self, data: LoadData):
-        super().__init__(data)
+    def __init__(self, data: LoadData, flip_images='', flip_positions=''):
+        super().__init__(data, flip_images, flip_positions)
         assert not self.data.is3d, "Cannot reconstruct 3D data with 2D reconstruction algorithms"
 
         # This is the translation data IN UNITS OF PIXELS
@@ -82,48 +94,49 @@ class Recon2D(Recon):
         self._correct_probe()
         self.shifted_im_data = np.sqrt(np.fft.ifftshift(self.data.im_data, axes=(1, 2)))
 
-        self.__algs = {
-            'epie': self.__epie,
-            'rpie': self.__rpie
+        self._algs = {
+            'epie': self._epie,
+            'rpie': self._rpie
         }
 
     def run(self, num_iterations, algorithm, apply_mask_at=(), animate=True):
         try:
-            update_function = self.__algs[algorithm]
+            update_function = self._algs[algorithm]
         except KeyError:
-            print(f"Warning: '{algorithm}' is not a recognized reconstruction algorithm. Skipping...")
+            print(f"Warning: '{algorithm}' is not a recognized reconstruction algorithm.")
             return
-        fig, ax1, ax2, ax3, ax4 = setup_figure()
+        fig, ax1, ax2, ax3, ax4 = setup_figure(animate)
         frames = []
-        for x in progressbar.progressbar(range(num_iterations)):
+        for j in progressbar.progressbar(range(num_iterations)):
             entries = np.arange(self.data.num_entries)
             self.rng.shuffle(entries)
-            update_param = x / num_iterations
+            update_param = j / num_iterations
             for i in entries:
-                update_probe = x > 0
+                update_probe = j > 0
                 update_function(i, update_param, update_probe)
-            if x in apply_mask_at:
-                self.object = self.object * self.__probe_mask()
+            self._correct_phase()
+            if j in apply_mask_at:
+                self.object = self.object * self._probe_mask()
             if animate:
                 frames.append([ax1.imshow(np.abs(self.object), cmap='bone'),
                                ax2.imshow(np.angle(self.object), cmap='hsv'),
                                ax3.imshow(np.abs(self.probe), cmap='bone'),
                                ax4.imshow(np.angle(self.probe), cmap='hsv')])
         if animate:
-            vid = ArtistAnimation(fig, frames, interval=100, repeat_delay=0)
+            vid = ArtistAnimation(fig, frames, interval=250, repeat_delay=0)
         self.show_object_and_probe()
 
     def _apply_update(self, x, y, object_update, probe_update=None):
-        self.object[y + self.iy, x + self.ix] = self.object[y + self.iy, x + self.ix] + object_update
+        self.object[y + self.rows, x + self.cols] = self.object[y + self.rows, x + self.cols] + object_update
         if probe_update is not None:
             self.probe = self.probe + probe_update
             self._correct_probe()
 
-    def __pre_pie(self, i):
+    def _pre_pie(self, i):
         # Take a slice of the object that's the same size as the probe
-        x = int(self.translation[i, 0] + 0.5)
-        y = int(self.translation[i, 1] + 0.5)
-        region = self.object[y + self.iy, x + self.ix]
+        y = int(self.translation[i, 0] + 0.5)
+        x = int(self.translation[i, 1] + 0.5)
+        region = self.object[y + self.rows, x + self.cols]
         # region = hf.shift(self.object, self.translation[i], crop=self.data.shape[0], subpixel=False)
         psi1 = self.probe * region
         PSI1 = np.fft.fft2(psi1)
@@ -132,8 +145,8 @@ class Recon2D(Recon):
         d_psi = psi2 - psi1
         return x, y, region, d_psi
 
-    def __epie(self, i, param, update_probe=True):
-        x, y, region, d_psi = self.__pre_pie(i)
+    def _epie(self, i, param, update_probe=True):
+        x, y, region, d_psi = self._pre_pie(i)
         alpha = np.sqrt(1.25-param)
         beta = 1-param
         object_update = alpha * d_psi * np.conj(self.probe) / np.max(np.abs(self.probe)) ** 2
@@ -142,8 +155,8 @@ class Recon2D(Recon):
             probe_update = beta * d_psi * np.conj(region) / np.max(np.abs(region)) ** 2
         self._apply_update(x, y, object_update, probe_update)
 
-    def __rpie(self, i, param, update_probe=True):
-        x, y, region, d_psi = self.__pre_pie(i)
+    def _rpie(self, i, param, update_probe=True):
+        x, y, region, d_psi = self._pre_pie(i)
         alpha = 0.05 + 0.45 * param ** 2
         beta = 0.25 + 0.75 * param
         object_update = d_psi * np.conj(self.probe) / \
@@ -158,14 +171,28 @@ class Recon2D(Recon):
         self.probe = self.probe * np.sqrt(self.probe_energy / np.sum(np.abs(self.probe) ** 2)) / self.data.shape[0]
         self.probe = center(self.probe)
 
-    def __probe_mask(self):
+    def _correct_phase(self):
+        phase = unwrap_phase(np.angle(self.probe))
+        cond = np.abs(self.probe) > np.max(np.abs(self.probe))/2
+        r_grad, c_grad = np.gradient(phase)
+        r_grad = np.mean(r_grad[cond])
+        c_grad = np.mean(c_grad[cond])
+        probe_ramp = r_grad*self.rows + c_grad*self.cols
+
+        obj_rows, obj_cols = np.indices(self.object.shape)
+        obj_ramp = r_grad*obj_rows + c_grad*obj_cols
+
+        self.probe = self.probe * np.exp(-1j*probe_ramp)
+        self.object = self.object * np.exp(1j*obj_ramp)
+
+    def _probe_mask(self):
         probe_mask = np.zeros(self.probe.shape)
         probe_mask[np.abs(self.probe) > np.abs(np.max(self.probe)) / 4] = 1
         object_mask = np.zeros(self.object.shape)
         for t in self.translation:
-            x = int(t[0] + 0.5)
-            y = int(t[1] + 0.5)
-            object_mask[y + self.iy, x + self.ix] += probe_mask
+            y = int(t[0] + 0.5)
+            x = int(t[1] + 0.5)
+            object_mask[y + self.rows, x + self.cols] += probe_mask
         object_mask = object_mask + 0.1
         object_mask[object_mask > 0.5] = 1
         object_mask = ndimage.gaussian_filter(object_mask, 2)
@@ -209,11 +236,11 @@ def init_probe(data):
     diff_array = np.mean(data, axis=0)
     probe_array = ifft(np.sqrt(diff_array))
     probe_array = ndimage.gaussian_filter(np.abs(probe_array), 3) * np.exp(1j*np.angle(probe_array))
-    ax = plt.subplot(121, title='Sum of diffraction patterns')
-    plt.imshow(diff_array)
-    plt.subplot(122, sharex=ax, sharey=ax, title='Initial probe guess')
-    plt.imshow(np.abs(probe_array))
-    plt.show()
+    # ax = plt.subplot(121, title='Sum of diffraction patterns')
+    # plt.imshow(diff_array)
+    # plt.subplot(122, sharex=ax, sharey=ax, title='Initial probe guess')
+    # plt.imshow(np.abs(probe_array))
+    # plt.show()
     return probe_array
 
 
@@ -227,15 +254,28 @@ def init_probe_flat(shape):
     return probe_array
 
 
-def setup_figure():
-    kw = {'xticks': [], 'yticks': []}
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex='row', sharey='row', tight_layout=True, subplot_kw=kw)
-    ax1.set_title('Amplitude')
-    ax2.set_title('Phase')
-    ax1.set_ylabel('Object')
-    ax3.set_ylabel('Probe')
-    return fig, ax1, ax2, ax3, ax4
+def setup_figure(actually_do_it=True):
+    if actually_do_it:
+        kw = {'xticks': [], 'yticks': []}
+        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex='row', sharey='row', tight_layout=True, subplot_kw=kw)
+        ax1.set_title('Amplitude')
+        ax2.set_title('Phase')
+        ax1.set_ylabel('Object')
+        ax3.set_ylabel('Probe')
+        return fig, ax1, ax2, ax3, ax4
+    else:
+        return None, None, None, None, None
 
 
 if __name__ == '__main__':
-    pass
+    GenerateData2D(10, 2.0, 0.75, 'fake', im_size=200, pattern='hex', show=False)
+    recon = Reconstruction(LoadData('fake.pty'))
+    recon.run(15, 'rpie', animate=False)
+    recon.run(15, 'epie', animate=False)
+
+    # for f_ims in ['', 'x', 'y', 'xy']:
+    #     for f_pos in ['', 'x', 'y', 'xy']:
+    #         print(f'Diffraction flip: {f_ims}')
+    #         print(f'Position flip: {f_pos}')
+    #         recon = Reconstruction(LoadData('fake.pty'), flip_images=f_ims, flip_positions=f_pos)
+    #         recon.run(15, 'rpie', animate=False)

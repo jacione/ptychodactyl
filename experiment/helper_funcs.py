@@ -2,7 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy import ndimage
 from scipy.misc import ascent, face
-from skimage import transform
+from skimage import transform, draw
+from skimage import data as skidata
 import h5py
 from PIL import Image
 
@@ -47,6 +48,37 @@ def demo_image(size):
     return img
 
 
+def demo_binary(size):
+    arr = np.zeros((size, size))+0j
+    # Draw the horizontal and vertical lines
+    num_bars = 7
+    b_start = 0.1*size
+    b_end = 0.45*size
+    bar, width = np.linspace(b_start, b_end, num_bars+1, retstep=True)
+    for i in range(num_bars):
+        rr, cc = np.array(draw.rectangle((bar[i], b_start), (bar[i]+0.6*width, b_end)), dtype='int')
+        arr[rr, cc] = 1 * np.exp(1j*np.pi*(i+1)/4)
+        arr = np.rot90(arr, k=2)
+        rr, cc = np.array(draw.rectangle((b_start, bar[i]), (b_end, bar[i]+0.6*width)), dtype='int')
+        arr[rr, cc] = 1 * np.exp(1j*np.pi*(i+1)/4)
+        arr = np.rot90(arr, k=2)
+
+    c_ctr = (0.3*size, 0.7*size)
+    c_radii, dr = np.linspace(0.2*size, 0, 9, retstep=True)
+    val = 1
+    for c_radius in c_radii:
+        arr[draw.disk(c_ctr, c_radius)] = val * np.exp(-4j*np.pi*c_radius/size)
+        val = int(not val)
+
+    h_size = int(0.4*size)
+    horse = transform.resize(np.logical_not(skidata.horse()), (h_size, h_size))
+    h_col = int(0.075*size)
+    h_row = int(0.525*size)
+    arr[h_row:h_row+h_size, h_col:h_col+h_size] = horse * np.exp(-1j*horse)
+
+    return arr
+
+
 def calc_error(actual, altered, border=5):
     # Calculate the difference between two complex images
     b = border
@@ -85,3 +117,12 @@ def shift(arr, shift_amt, crop=None, subpixel=False):
     if crop is not None:
         new_arr = new_arr[:crop, :crop]
     return new_arr
+
+
+if __name__ == '__main__':
+    a = demo_binary(512)
+    plt.subplot(121)
+    plt.imshow(np.abs(a), cmap='gray')
+    plt.subplot(122)
+    plt.imshow(np.angle(a), cmap='hsv', clim=[-np.pi, np.pi])
+    plt.show()
