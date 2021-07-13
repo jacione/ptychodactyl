@@ -19,15 +19,15 @@ from experiment.scan import xy_scan, r_scan
 @click.option('-d', '--step_size', default=0.2, help='Step size (mm)')
 @click.option('-p', '--pattern', default='rect', help='Geometric pattern for ptychography scan')
 @click.option('-r', '--num_rotations', default=0, help='Number of rotational steps (zero for no rotation)')
-@click.option('-b', '--background', default=0, help='Number of background images to take')
+@click.option('-bkd', '--background_frames', default=0, help='Number of background images to take')
 @click.option('-fpt', '--frames_per_take', default=1, help='Number of frames to sum for each measurement')
 @click.option('-res', '--resolution', nargs=2, help='Desired image side length (in pixels)')
 @click.option('-exp', '--exposure', help='Exposure time in milliseconds')
 @click.option('-gain', '--gain', help='Analog gain')
-@click.option('-dist', '--distance', default=0.075, help='Sample to detector (m)')
+@click.option('-dst', '--distance', default=0.075, help='Sample to detector (m)')
 @click.option('--energy', default=1.957346, help='Laser photon energy (eV)')
-def collect(saveas, verbose, width, height, step_size, pattern, num_rotations, background, frames_per_take, resolution,
-            exposure, gain, distance, energy):
+def collect(saveas, verbose, width, height, step_size, pattern, num_rotations, background_frames, frames_per_take,
+            resolution, exposure, gain, distance, energy):
     """
     CLI for collecting 3D or 2D ptychography data.
 
@@ -67,8 +67,9 @@ def collect(saveas, verbose, width, height, step_size, pattern, num_rotations, b
         print(f'\tRotations: {num_rotations}')
     print(f'Total: {num_total} takes\n')
 
-    input('Preparing to take background images. Turn laser OFF, then press ENTER to continue...')
-    dataset.record_background(camera.get_frames(frames_per_take))
+    if background_frames > 0:
+        input('Preparing to take background images. Turn laser OFF, then press ENTER to continue...')
+        dataset.record_background(camera.get_frames(frames_per_take))
 
     input('Preparing to take ptychography data. Turn laser ON, then press ENTER to continue...')
     for i in range(num_rotations):

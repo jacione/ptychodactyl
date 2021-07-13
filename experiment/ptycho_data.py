@@ -29,6 +29,7 @@ class PtychoData(ABC):
         self._shape = None
         self._position = None
         self._pixel_size = None
+        self._obj_pixel_size = None
         self._energy = None
         self._wavelength = None
         self._distance = None
@@ -36,7 +37,8 @@ class PtychoData(ABC):
     def __repr__(self):
         s = f'Ptycho data object:\n' \
             f'\tTotal entries: {self._num_entries}\n' \
-            f'\tPixel size: {self._pixel_size} um\n' \
+            f'\tImage pixel size: {self._pixel_size} um\n' \
+            f'\tObject pixel size: {self.obj_pixel_size} um\n' \
             f'\tEnergy: {self._energy} eV\n' \
             f'\tWavelength: {self._wavelength} um\n' \
             f'\tDistance: {self._distance} um'
@@ -71,6 +73,10 @@ class PtychoData(ABC):
         return self._pixel_size
 
     @property
+    def obj_pixel_size(self):
+        return self._obj_pixel_size
+
+    @property
     def energy(self):
         return self._energy
 
@@ -98,10 +104,6 @@ class LoadData(PtychoData):
         f = h5py.File(self._file, 'r')
 
         self._im_data = np.array(f['data/data'])
-        # Basic background subtraction
-        self._im_data = self.im_data - np.median(self.im_data)
-        self._im_data[self.im_data < 0] = 0
-        self._im_data = np.flip(self._im_data, 2)
         shape = self.im_data.shape
         self._num_rotations = shape[0]
         self._num_translations = shape[1]
@@ -116,6 +118,8 @@ class LoadData(PtychoData):
         self._energy = np.array(f['equipment/source/energy'])  # electron-volts
         self._wavelength = np.array(f['equipment/source/wavelength'])  # microns
 
+        self._obj_pixel_size = self.distance * self.wavelength / (self.shape[0] * self.pixel_size)
+
         self._is3d = self.num_rotations > 1
         if not self._is3d:
             self._im_data = np.squeeze(self._im_data)
@@ -124,6 +128,32 @@ class LoadData(PtychoData):
     @property
     def is3d(self):
         return self._is3d
+
+    def invert_x_pos(self):
+        if self.is3d:
+            self._position[:, :, 1] = np.max(self.position[:, :, 1]) - self.position[:, :, 1]
+
+        else:
+            self._position[:, 1] = np.max(self.position[:, 1]) - self.position[:, 1]
+
+    def invert_y_pos(self):
+        if self.is3d:
+            self._position[:, :, 0] = np.max(self.position[:, :, 0]) - self.position[:, :, 0]
+
+        else:
+            self._position[:, 0] = np.max(self.position[:, 0]) - self.position[:, 0]
+
+    def invert_x_ims(self):
+        ax = 2
+        if self.is3d:
+            ax += 1
+        self._im_data = np.flip(self.im_data, ax)
+
+    def invert_y_ims(self):
+        ax = 1
+        if self.is3d:
+            ax += 1
+        self._im_data = np.flip(self.im_data, ax)
 
     @property
     def max_translation(self):
@@ -146,7 +176,7 @@ class CollectData(PtychoData):
         self._n = 0  # Current take
         self._i = 0  # Current rotation
         self._j = 0  # Current translation
-        self._shape = im_shape  # image resolution
+        self._shape = im_shape  # full image resolution
         self._binned_shape = (im_shape[0]//binning, im_shape[1]//binning)
         self._binning = binning
         self._bkgd = None
@@ -159,7 +189,7 @@ class CollectData(PtychoData):
         # These parameters probably won't change
         self._energy = energy  # photon energy in eV
         self._wavelength = 1.240 / energy  # wavelength in microns
-        self._pixel_size = pixel_size  # pixel side length in microns
+        self._pixel_size = pixel_size * binning  # pixel side length in microns
         self._distance = distance * 1e6  # sample-to-detector distance in microns
 
         # Parameters for saving the data afterward
@@ -196,12 +226,13 @@ class CollectData(PtychoData):
             self._position = self.position - np.min(self.position, axis=1)
             print('Finalizing...')
 
-            print('Subtracting background...')
-            if self._bkgd is not None:
-                self._im_data[:, :] = self._im_data[:, :] - self._bkgd
-            else:
-                self._im_data = self._im_data - np.median(self._im_data)
-                self._im_data[self._im_data < 0] = 0
+            # print('Subtracting background...')
+            # if self._bkgd is not None:
+            #     self._im_data[:, :] = self._im_data[:, :] - self._bkgd
+            # else:
+            #     # self._im_data = self._im_data - np.median(self._im_data)
+            #     # self._im_data[self._im_data < 0] = 0
+            #     pass
 
             print('Cropping to square...')
             if np.any(np.array(self._binned_shape) > cropto):
@@ -245,7 +276,7 @@ class CollectData(PtychoData):
             else:
                 self.title = self.title + '-INCOMPLETE'
 
-        self.print(f'Saving data as {self.title}.pty')
+        print(f'Saving data as {self.title}.pty')
 
         # Create file using HDF5 protocol.
         os.chdir(os.path.dirname(__file__))
@@ -272,24 +303,26 @@ class CollectData(PtychoData):
 
 
 class GenerateData2D(CollectData):
-    def __init__(self, ims_per_line, max_shift, probe_radius, title, im_size=127, show=False):
-        super().__init__(1, ims_per_line ** 2, title, (im_size, im_size), 1, 5.5, 0.1, 2.0, verbose=show)
-
+    def __init__(self, max_shift, probe_radius, overlap, title, im_size=127, pattern='rect', flip=False, show=False):
+        X, Y, N = xy_scan(pattern, max_shift, max_shift, (1-overlap)*2*probe_radius)
         max_shift *= 1e3  # Convert shift from mm to microns
-
-        self._im_data = np.empty((self.num_rotations, self.num_translations, self._shape[0], self._shape[1]))
+        probe_radius *= 1e3  # Convert to microns
+        super().__init__(1, N, title, (im_size, im_size), 1, 5.5, 0.1, 2.0, verbose=show)
 
         # Generate a probe
-        probe_pixel_size = self.distance * self.wavelength / (im_size * self.pixel_size)  # microns
-        probe_radius = probe_radius * 1e3 / probe_pixel_size  # Convert from mm to pixels
-        probe_array = generate_probe(im_size, probe_radius, nophase=False)
+        probe_pixel_size = self.distance * self.wavelength / (im_size * self.pixel_size)  # microns per pixel
+        self._obj_pixel_size = probe_pixel_size
+        probe_radius = probe_radius / probe_pixel_size  # Convert from microns to pixels
+        probe_array = generate_probe(im_size, probe_radius, nophase=True)
 
-        # Generate the translational array
-        X, Y, N = xy_scan('spiral', max_shift, max_shift, probe_radius*0.7)
+        Xp = X * 1e3 / probe_pixel_size
+        Yp = Y * 1e3 / probe_pixel_size
+        Xp = Xp - np.min(Xp)
+        Yp = Yp - np.min(Yp)
 
         # Generate an object
-        obj_size = im_size + int(max_shift / probe_pixel_size + 3.5)
-        object_array = hf.demo_image(obj_size)
+        obj_size = im_size + int(max_shift / probe_pixel_size)
+        object_array = hf.demo_binary(obj_size)
         # The plus-one is in case the max shift has some extra decimal places, and would therefore try to sample past
         # the edge of the image.
 
@@ -306,37 +339,45 @@ class GenerateData2D(CollectData):
             plt.subplot(121)
             plt.imshow(np.abs(object_array), cmap='gray')
             plt.subplot(122)
-            plt.imshow(np.angle(object_array), cmap='hsv')
+            plt.imshow(np.angle(object_array), cmap='hsv', clim=[-np.pi, np.pi])
 
             # Show the overlay of all the probes on the object amplitude. Useful to check overlap.
             plt.figure()
-            ax = plt.subplot(111, xticks=[], yticks=[])
+            ax = plt.subplot(111)
             ax.imshow(np.abs(object_array))
             for i in range(self.num_entries):
-                ax.add_artist(Circle((im_size/2 + X[i], im_size/2 + Y[i]), probe_radius, color='r', fill=False))
+                ax.add_artist(Circle((im_size/2 + Yp[i], im_size/2 + Xp[i]), probe_radius, color='r', fill=False))
 
         if show:
             fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
         else:
             fig, ax1, ax2, ax3 = None, None, None, None
         frames = []
-        for i in progressbar.progressbar(range(self.num_entries)):
-            position = np.array([X[i], Y[i], 0])
-            shifted_object = hf.shift(np.copy(object_array), -position[:2], crop=im_size)
+        entries = range(self.num_entries)
+        if not show:
+            entries = progressbar.progressbar(entries)
+
+        # This for-loop is where the actual diffraction patterns are made!!
+        for i in entries:
+            shifted_object = hf.shift(np.copy(object_array), (-Yp[i], -Xp[i]), crop=im_size)
             exit_wave = probe_array * shifted_object
             diffraction = np.abs(hf.fft(exit_wave)) ** 2
 
             if show:
                 frames.append([ax1.imshow(np.abs(object_array)),
-                               ax1.add_artist(Circle((im_size/2 + Y[i], im_size/2 + X[i]),
-                                                     probe_radius, color='r', fill=False)),
+                               ax1.add_artist(
+                                   Circle((im_size/2 + Yp[i], im_size/2 + Xp[i]),
+                                          probe_radius, color='r', fill=False)),
                                ax2.imshow(np.abs(exit_wave)),
-                               ax3.imshow(np.log(diffraction))])
-            self.record_data(position * 1e-3 * probe_pixel_size, diffraction)
+                               ax3.imshow(diffraction)])
+            position = np.array([Y[i], X[i], 0])
+            if flip:
+                diffraction = np.flipud(diffraction)
+            self.record_data(position, diffraction)
 
         if show:
             # Animate the set of all the diffraction patterns
-            vid = ArtistAnimation(fig, frames, interval=50, repeat_delay=0)
+            vid = ArtistAnimation(fig, frames, interval=800, repeat_delay=0)
 
             # Plot diffraction before detection
             plt.figure()
@@ -344,7 +385,7 @@ class GenerateData2D(CollectData):
             plt.imshow(np.log(self._im_data[0, 0]))
 
         # Simulate detection process (saturation, bitdepth, background, summed frames)
-        self.detect(0.75, 14, 50, 10)
+        self.detect(0.75, 24, 50, 10)
 
         if show:
             # Plot diffraction after detection
@@ -398,29 +439,18 @@ def generate_probe(im_size, probe_radius, nophase=False):
 
     # Generate the amplitude (blurred disk)
     probe_array[draw.disk((probe_center, probe_center), probe_radius)] = 1
-    probe_array = ndimage.gaussian_filter(probe_array, 3)
+    probe_array = ndimage.gaussian_filter(probe_array, 2)
 
     if nophase:
         return probe_array + 0j
 
     # Generate the phase (2D quadratic to represent a diverging/converging beam)
     X, Y = np.meshgrid(np.arange(im_size), np.arange(im_size))
-    probe_phase = ((X - probe_center) / 10) ** 2 + ((Y - probe_center) / 10) ** 2
+    probe_phase = ((X - probe_center) / 20) ** 2 + ((Y - probe_center) / 20) ** 2
 
     # Generate the probe as the combined amplitude and phase
     return probe_array * np.exp(1j * probe_phase)
 
 
 if __name__ == '__main__':
-    data = LoadData('../data/test-2021-06-25.pty')
-    N = 100
-    fig = plt.figure()
-    ax1 = plt.subplot(121, xticks=[], yticks=[])
-    ax2 = plt.subplot(122, xticks=[], yticks=[], sharex=ax1, sharey=ax1)
-    frames = [[] for n in range(N)]
-    for n in progressbar.progressbar(range(N)):
-        f1 = ax1.imshow(data.im_data[n], cmap='gray')
-        f2 = ax2.imshow(np.log(data.im_data[n]+1), cmap='gray')
-        frames[n] = [f1, f2]
-    vid = ArtistAnimation(fig, frames, interval=100, repeat_delay=0)
-    plt.show()
+    data = GenerateData2D(10, 2.0, 0.75, 'fake', pattern='rect', show=False)

@@ -3,39 +3,43 @@ import matplotlib.pyplot as plt
 import experiment.helper_funcs as hf
 
 
-def xy_scan(style, width, height, step):
+def xy_scan(style, width, height, step, random=True):
     scan = STYLE_DICT[style]
-    return scan(width, height, step)
+    return scan(width, height, step, random)
     
 
-def rect_scan(width, height, step):
+def rect_scan(width, height, step, random):
     x = np.arange(-width/2, width/2, step)
     y = np.arange(-height/2, height/2, step)
     X, Y = np.meshgrid(x, y)
-    dxy = 0.05*step
-    X = np.ravel(X + hf.random(X.shape, -dxy, dxy))
-    Y = np.ravel(Y + hf.random(Y.shape, -dxy, dxy))
-    Y = Y - np.min(Y) + 0.5
+    if random:
+        dxy = 0.05*step
+        X = X + hf.random(X.shape, -dxy, dxy)
+        Y = Y + hf.random(Y.shape, -dxy, dxy)
+    X = np.ravel(X)
+    Y = np.ravel(Y) - np.min(Y) + 0.5
     N = len(X)
-    return X, Y, N
+    return np.round(X, 6), np.round(Y, 6), N
 
 
-def hex_scan(width, height, step):
+def hex_scan(width, height, step, random):
     x = np.arange(-width/2, width/2, step)
     y = np.arange(-height/2, height/2, step*np.sqrt(3)/2)
     X, Y = np.meshgrid(x, y)
     for i in range(X.shape[0]):
         if i % 2:
             X[i] = X[i] + step / 2
-    dxy = 0.05*step
-    X = np.ravel(X + hf.random(X.shape, -dxy, dxy))
-    Y = np.ravel(Y + hf.random(Y.shape, -dxy, dxy))
-    Y = Y - np.min(Y) + 0.5
+    if random:
+        dxy = 0.05*step
+        X = X + hf.random(X.shape, -dxy, dxy)
+        Y = Y + hf.random(Y.shape, -dxy, dxy)
+    X = np.ravel(X)
+    Y = np.ravel(Y) - np.min(Y) + 0.5
     N = len(X)
-    return X, Y, N
+    return np.round(X, 6), np.round(Y, 6), N
 
 
-def spiral_scan(width, height, step):
+def spiral_scan(width, height, step, random):
     r_max = np.sqrt(width**2 + height**2) / 2
     coords = np.array([-step/5, step/3.3])
     r = step/4
@@ -49,10 +53,14 @@ def spiral_scan(width, height, step):
     X = coords[:, 0]
     Y = coords[:, 1]
     bounds = (X < width/2) * (X > -width/2) * (Y < height/2) * (Y > -height/2)
+    if random:
+        dxy = 0.05*step
+        X = X + hf.random(X.shape, -dxy, dxy)
+        Y = Y + hf.random(Y.shape, -dxy, dxy)
     X = X[bounds]
-    Y = Y[bounds] + height/2
+    Y = Y[bounds] + height/2 + 0.5
     N = len(X)
-    return X, Y, N
+    return np.round(X, 6), np.round(Y, 6), N
 
 
 def r_scan(num_steps=0, full_range=180):
@@ -67,10 +75,5 @@ STYLE_DICT = {'rect': rect_scan, 'hex': hex_scan, 'spiral': spiral_scan}
 
 if __name__ == '__main__':
     a = 0
-    for style in ['rect', 'hex', 'spiral']:
-        a += 1
-        plt.subplot(1, 3, a, title=style)
-        xx, yy, N = xy_scan(style, 1, 1, 0.06)
-        plt.scatter(xx, yy)
-        plt.gca().set_aspect('equal')
-    plt.show()
+    xx, yy, _ = xy_scan('rect', 1, 1, 0.1)
+    print(np.transpose([xx, yy]))
