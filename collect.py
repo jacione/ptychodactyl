@@ -19,10 +19,10 @@ from experiment.scan import xy_scan, r_scan
 @click.option('-d', '--step_size', default=0.2, help='Step size (mm)')
 @click.option('-p', '--pattern', default='rect', help='Geometric pattern for ptychography scan')
 @click.option('-r', '--num_rotations', default=0, help='Number of rotational steps (zero for no rotation)')
-@click.option('-bkd', '--background_frames', default=0, help='Number of background images to take')
+@click.option('-bkd', '--background_frames', is_flag=True, default=False, help='Number of background images to take')
 @click.option('-fpt', '--frames_per_take', default=1, help='Number of frames to sum for each measurement')
-@click.option('-res', '--resolution', nargs=2, help='Desired image side length (in pixels)')
-@click.option('-exp', '--exposure', help='Exposure time in milliseconds')
+@click.option('-res', '--resolution', default=512, help='Desired image side length (in pixels)')
+@click.option('-exp', '--exposure', default=0.25, help='Exposure time in milliseconds')
 @click.option('-gain', '--gain', help='Analog gain')
 @click.option('-dst', '--distance', default=0.075, help='Sample to detector (m)')
 @click.option('--energy', default=1.957346, help='Laser photon energy (eV)')
@@ -48,10 +48,8 @@ def collect(saveas, verbose, width, height, step_size, pattern, num_rotations, b
     camera.set_resolution(resolution)
     camera.set_exposure(exposure)
     camera.set_gain(gain)
-    if resolution is None:
-        resolution = camera.im_shape
     dataset = CollectData(num_translations=num_translations, num_rotations=num_rotations, title=saveas,
-                          im_shape=resolution, binning=4, pixel_size=camera.pixel_size, distance=distance,
+                          im_shape=camera.im_shape, pixel_size=camera.pixel_size, distance=distance,
                           energy=energy, verbose=verbose)
 
     if is3d:
@@ -67,7 +65,7 @@ def collect(saveas, verbose, width, height, step_size, pattern, num_rotations, b
         print(f'\tRotations: {num_rotations}')
     print(f'Total: {num_total} takes\n')
 
-    if background_frames > 0:
+    if background_frames:
         input('Preparing to take background images. Turn laser OFF, then press ENTER to continue...')
         dataset.record_background(camera.get_frames(frames_per_take))
 
@@ -85,7 +83,7 @@ def collect(saveas, verbose, width, height, step_size, pattern, num_rotations, b
         assert rotation_complete, 'Ran out of translations before dataset was ready to rotate.'
 
     stages.home_all()
-    dataset.save_to_pty()
+    dataset.save_to_pty(cropto=resolution)
 
 
 if __name__ == '__main__':

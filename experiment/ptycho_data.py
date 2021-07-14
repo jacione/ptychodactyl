@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import h5py
 from datetime import date
-from skimage import draw, transform
+from skimage import draw
 from scipy import ndimage
 from abc import ABC, abstractmethod
 from matplotlib.patches import Circle, Rectangle
@@ -36,12 +36,12 @@ class PtychoData(ABC):
 
     def __repr__(self):
         s = f'Ptycho data object:\n' \
-            f'\tTotal entries: {self._num_entries}\n' \
-            f'\tImage pixel size: {self._pixel_size} um\n' \
-            f'\tObject pixel size: {self.obj_pixel_size} um\n' \
-            f'\tEnergy: {self._energy} eV\n' \
-            f'\tWavelength: {self._wavelength} um\n' \
-            f'\tDistance: {self._distance} um'
+            f'\tTotal entries: {self.num_entries}\n' \
+            f'\tF-plane pixel size: {self.pixel_size} um\n' \
+            f'\tR-plane pixel size: {self.obj_pixel_size} um\n' \
+            f'\tEnergy: {self.energy} eV\n' \
+            f'\tWavelength: {self.wavelength} um\n' \
+            f'\tDistance: {self.distance} um'
         return s
 
     @property
@@ -164,8 +164,7 @@ class LoadData(PtychoData):
 
 
 class CollectData(PtychoData):
-    def __init__(self, num_rotations, num_translations, title, im_shape, binning, pixel_size, distance, energy,
-                 verbose=False):
+    def __init__(self, num_rotations, num_translations, title, im_shape, pixel_size, distance, energy, verbose=False):
         super().__init__()
 
         # General parameters
@@ -177,19 +176,17 @@ class CollectData(PtychoData):
         self._i = 0  # Current rotation
         self._j = 0  # Current translation
         self._shape = im_shape  # full image resolution
-        self._binned_shape = (im_shape[0]//binning, im_shape[1]//binning)
-        self._binning = binning
         self._bkgd = None
 
         # Pre-allocate memory for these arrays, as they can get quite large
         self._position = np.empty((self.num_rotations, self.num_translations, 3))
         self._im_data = np.empty((self.num_rotations, self.num_translations,
-                                  self._binned_shape[0], self._binned_shape[1]))
+                                  self._shape[0], self._shape[1]))
 
         # These parameters probably won't change
         self._energy = energy  # photon energy in eV
         self._wavelength = 1.240 / energy  # wavelength in microns
-        self._pixel_size = pixel_size * binning  # pixel side length in microns
+        self._pixel_size = pixel_size  # pixel side length in microns
         self._distance = distance * 1e6  # sample-to-detector distance in microns
 
         # Parameters for saving the data afterward
@@ -204,7 +201,7 @@ class CollectData(PtychoData):
     def record_data(self, position, im_data):
         # Record the position and image data
         self._position[self._i, self._j] = position  # Record in millimeters / degrees
-        self._im_data[self._i, self._j] = transform.downscale_local_mean(im_data, (self._binning, self._binning))
+        self._im_data[self._i, self._j] = im_data
 
         # This next bit is all about making sure the measurements from a given rotation all stay together.
         # Increment j until it fills up, then reset and increment i.
@@ -218,7 +215,7 @@ class CollectData(PtychoData):
         return ret_code
 
     def record_background(self, im_data):
-        self._bkgd = transform.downscale_local_mean(im_data, (self._binning, self._binning))
+        self._bkgd = im_data
 
     def finalize(self, timestamp, cropto):
         if not self.is_finalized:
@@ -235,18 +232,13 @@ class CollectData(PtychoData):
             #     pass
 
             print('Cropping to square...')
-            if np.any(np.array(self._binned_shape) > cropto):
+            if np.any(np.array(self._shape) > cropto):
                 # If desired, crop the image down to save space.
                 d = cropto // 2
                 # Be careful with this... scipy doesn't always hit the center exactly.
                 cy, cx = ndimage.center_of_mass(np.sum(self._im_data, axis=(0, 1)))
                 cx = int(cx)
                 cy = int(cy)
-                # Check the cropping region to make sure the beam is centered
-                region = Rectangle((cx-d, cy-d), cropto, cropto, color='r', fill=False)
-                plt.imshow(np.log(np.sum(self._im_data, axis=(0, 1))+1), cmap='gray')
-                plt.gca().add_artist(region)
-                plt.show()
                 # Crop the image data down to the desired size.
                 self._im_data = self._im_data[:, :, cy - d:cy + d + 1, cx - d:cx + d + 1]
 
@@ -307,7 +299,7 @@ class GenerateData2D(CollectData):
         X, Y, N = xy_scan(pattern, max_shift, max_shift, (1-overlap)*2*probe_radius)
         max_shift *= 1e3  # Convert shift from mm to microns
         probe_radius *= 1e3  # Convert to microns
-        super().__init__(1, N, title, (im_size, im_size), 1, 5.5, 0.1, 2.0, verbose=show)
+        super().__init__(1, N, title, (im_size, im_size), 5.5, 0.1, 2.0, verbose=show)
 
         # Generate a probe
         probe_pixel_size = self.distance * self.wavelength / (im_size * self.pixel_size)  # microns per pixel

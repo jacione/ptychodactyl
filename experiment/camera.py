@@ -9,6 +9,7 @@ from scipy.ndimage import center_of_mass
 from abc import ABC, abstractmethod
 import os
 from experiment.libs.ThorCam.tl_dotnet_wrapper import TL_SDK
+from skimage.transform import downscale_local_mean
 
 """ Config constants """
 _STRING_MAX = 4096  # for functions that return strings built on C char arrays, this is the max number of characters
@@ -52,6 +53,9 @@ class Camera(ABC):
         self.verbose = verbose
         self.full_width = self.defaults['width']
         self.full_height = self.defaults['height']
+        self.full_shape = (self.full_height, self.full_width)
+        self.full_size = (self.full_height, self.full_width)
+        self.binning = 1
         self.width = self.defaults['width']
         self.height = self.defaults['height']
         self.im_shape = (self.height, self.width)
@@ -339,19 +343,13 @@ class Mightex(Camera):
 
 class ThorCam(Camera):
 
-    def __init__(self, verbose):
+    def __init__(self, verbose=True):
         super().__init__(THORCAM_DEFAULTS, verbose)
         self._sdk = TL_SDK()
         self._handle = None
         self.camera_on()
         self.set_defaults()
         return
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.camera_off()
-
-    def __del__(self):
-        self.camera_off()
 
     def camera_on(self):
         if self.is_on:
@@ -380,6 +378,13 @@ class ThorCam(Camera):
         return
 
     def set_resolution(self, resolution):
+        if resolution is not None:
+            self.binning = self.full_height // resolution
+        self.width = self.full_width // self.binning
+        self.height = self.full_height // self.binning
+        self.im_shape = (self.height, self.width)
+        self.im_size = self.width * self.height
+        self.pixel_size = self.defaults['pixel_size'] * self.binning
         pass
 
     def set_exposure(self, ms):
@@ -408,10 +413,11 @@ class ThorCam(Camera):
             frame = None
             while frame is None:
                 frame = self._handle.get_pending_frame_or_null()
-            data = data + self._handle.frame_to_array(frame)  # copies image data from frame into a numpy array
+            frame = self._handle.frame_to_array(frame)  # copies image data from frame into a numpy array
+            data = data + downscale_local_mean(frame, (self.binning, self.binning))
         self._handle.disarm()
         if show:
-            self.imshow(np.log(np.abs(data-np.median(data)) + 1))
+            self.imshow(np.log(data + 1))
             plt.hist(np.ravel(data), bins=100)
             plt.yscale('log')
             plt.show()
@@ -423,4 +429,5 @@ class ThorCam(Camera):
 if __name__ == '__main__':
     with ThorCam(False) as cam:
         cam.set_exposure(0.25)
-        cam.get_frames(20, show=True)
+        cam.set_resolution(512)
+        cam.get_frames(25, show=True)
