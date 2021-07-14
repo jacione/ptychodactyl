@@ -9,13 +9,13 @@ from datetime import date
 from skimage import draw
 from scipy import ndimage
 from abc import ABC, abstractmethod
-from matplotlib.patches import Circle, Rectangle
+from matplotlib.patches import Circle
 from matplotlib.animation import ArtistAnimation
 import progressbar
 import os
 
-import experiment.helper_funcs as hf
-from experiment.scan import xy_scan, r_scan
+import experiment.utils.helper_funcs as hf
+from experiment.scan import xy_scan
 
 
 class PtychoData(ABC):

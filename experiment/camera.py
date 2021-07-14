@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from scipy.ndimage import center_of_mass
 from abc import ABC, abstractmethod
 import os
-from experiment.libs.ThorCam.tl_dotnet_wrapper import TL_SDK
+from experiment.utils.ThorCam.tl_dotnet_wrapper import TL_SDK
 from skimage.transform import downscale_local_mean
 
 """ Config constants """
@@ -42,7 +42,7 @@ THORCAM_DEFAULTS = {
     'serial_number': '08949'
 }
 
-libs = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/libs'
+libs = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/utils'
 
 
 class Camera(ABC):

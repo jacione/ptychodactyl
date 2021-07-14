@@ -1,6 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import experiment.helper_funcs as hf
+import experiment.utils.helper_funcs as hf
 
 
 def xy_scan(style, width, height, step, random=True):

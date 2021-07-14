@@ -6,7 +6,7 @@ from matplotlib.patches import Rectangle
 from matplotlib.animation import ArtistAnimation
 import progressbar
 from abc import ABC, abstractmethod
-from experiment.helper_funcs import ifft, random, shift
+from experiment.utils.helper_funcs import ifft, random, shift
 from experiment.ptycho_data import LoadData, GenerateData2D
 from skimage.restoration import unwrap_phase
 
