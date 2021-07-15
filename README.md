@@ -34,6 +34,10 @@ Data will be saved as a `.cxi` file, which is based on HDF5 protocol. This has t
 ### Analyzing/reconstructing data
 Open a commandline and navigate to the 3d-ptychography directory, then run
 ```
-python reconstruct.py -f <datafile>
+python reconstruct.py -f <datafile> -a <reconstruction algorithm> <number of iterations>
 ```
-to start the reconstruction. Eventually, this will be set up so that the user can append flags like `-a 5 epie 5 rpie` to do five iterations of the ePIE reconstruction algorithm followed by 5 iterations of the rPIE algorithm. However, this has not yet been implemented. If no file is provided, it will reconstruct a simulated data set located in the /libs directory.
+to start the reconstruction. It currently only supports `epie` and `rpie` as algorithms. You can run multiple algorithms by repeating the `-a` option, for example:
+```
+python reconstruct.py -f my_data.pty -a rpie 20 -a epie 10
+```
+It will run the algorithms in the order they are given.
