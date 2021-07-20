@@ -134,12 +134,13 @@ class LoadData(PtychoData):
             self._position[:, :, 0] = np.max(self.position[:, :, 0]) - self.position[:, :, 0]
         if 'x' in flip_images:
             self._im_data = np.flip(self.im_data, 3)
-            self._bkgd = np.flip(self._bkgd, 3)
+            self._bkgd = np.flip(self._bkgd, 1)
         if 'y' in flip_images:
             self._im_data = np.flip(self.im_data, 2)
-            self._bkgd = np.flip(self._bkgd, 2)
+            self._bkgd = np.flip(self._bkgd, 0)
         if background_subtract:
             self._im_data[:, :] = self.im_data[:, :] - self.bkgd
+            self._im_data[self.im_data < 0] = 0
 
         self._is3d = self.num_rotations > 1
         if not self._is3d:

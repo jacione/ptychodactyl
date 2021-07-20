@@ -261,7 +261,7 @@ def setup_figure(actually_do_it=True):
 
 
 if __name__ == '__main__':
-    recon = Reconstruction(LoadData('test-2021-07-20.pty'), flip_images='y')
+    recon = Reconstruction('test-2021-07-20.pty', flip_images='y')
     recon.run(10, 'rpie', animate=False)
 
     # for f_ims in ['', 'x', 'y', 'xy']:

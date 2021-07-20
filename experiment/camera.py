@@ -430,4 +430,4 @@ if __name__ == '__main__':
     with ThorCam(False) as cam:
         cam.set_exposure(0.25)
         cam.set_resolution(512)
-        cam.get_frames(25, show=True)
+        cam.get_frames(10, show=True)
