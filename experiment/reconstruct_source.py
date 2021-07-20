@@ -11,25 +11,18 @@ from experiment.ptycho_data import LoadData, GenerateData2D
 from skimage.restoration import unwrap_phase
 
 
-def Reconstruction(data: LoadData, **kwargs):
+def Reconstruction(filename, **kwargs):
+    data = LoadData(filename, **kwargs)
     if data.is3d:
-        return Recon3D(data, **kwargs)
+        return Recon3D(data)
     else:
-        return Recon2D(data, **kwargs)
+        return Recon2D(data)
 
 
 class Recon(ABC):
     @abstractmethod
-    def __init__(self, data: LoadData, flip_images='', flip_positions=''):
+    def __init__(self, data: LoadData):
         self.data = data
-        if 'x' in flip_positions:
-            self.data.invert_x_pos()
-        if 'y' in flip_positions:
-            self.data.invert_y_pos()
-        if 'x' in flip_images:
-            self.data.invert_x_ims()
-        if 'y' in flip_images:
-            self.data.invert_y_ims()
         print(self.data)
         self.probe = init_probe(self.data.im_data)
         # self.probe = init_probe_flat(self.data.shape)
@@ -65,8 +58,8 @@ class Recon(ABC):
 
 
 class Recon3D(Recon):
-    def __init__(self, data: LoadData, flip_images='', flip_positions=''):
-        super().__init__(data, flip_images, flip_positions)
+    def __init__(self, data: LoadData):
+        super().__init__(data)
 
         self._algs = {}
         pass
@@ -85,8 +78,8 @@ class Recon3D(Recon):
 
 
 class Recon2D(Recon):
-    def __init__(self, data: LoadData, flip_images='', flip_positions=''):
-        super().__init__(data, flip_images, flip_positions)
+    def __init__(self, data: LoadData):
+        super().__init__(data)
         assert not self.data.is3d, "Cannot reconstruct 3D data with 2D reconstruction algorithms"
 
         # This is the translation data IN UNITS OF PIXELS
@@ -145,7 +138,7 @@ class Recon2D(Recon):
         d_psi = psi2 - psi1
         return x, y, region, d_psi
 
-    def _epie(self, i, param, update_probe=True):
+    def _epie(self, i: int, param: float, update_probe: bool):
         x, y, region, d_psi = self._pre_pie(i)
         alpha = np.sqrt(1.25-param)
         beta = 1-param
@@ -155,7 +148,7 @@ class Recon2D(Recon):
             probe_update = beta * d_psi * np.conj(region) / np.max(np.abs(region)) ** 2
         self._apply_update(x, y, object_update, probe_update)
 
-    def _rpie(self, i, param, update_probe=True):
+    def _rpie(self, i: int, param: float, update_probe: bool):
         x, y, region, d_psi = self._pre_pie(i)
         alpha = 0.05 + 0.45 * param ** 2
         beta = 0.25 + 0.75 * param
@@ -235,12 +228,12 @@ def init_object(shape):
 def init_probe(data):
     diff_array = np.mean(data, axis=0)
     probe_array = ifft(np.sqrt(diff_array))
-    probe_array = ndimage.gaussian_filter(np.abs(probe_array), 3) * np.exp(1j*np.angle(probe_array))
-    # ax = plt.subplot(121, title='Sum of diffraction patterns')
-    # plt.imshow(diff_array)
-    # plt.subplot(122, sharex=ax, sharey=ax, title='Initial probe guess')
-    # plt.imshow(np.abs(probe_array))
-    # plt.show()
+    probe_array = ndimage.gaussian_filter(np.abs(probe_array),10) * np.exp(1j*np.angle(probe_array))
+    ax = plt.subplot(121, title='Sum of diffraction patterns')
+    plt.imshow(diff_array)
+    plt.subplot(122, sharex=ax, sharey=ax, title='Initial probe guess')
+    plt.imshow(np.abs(probe_array))
+    plt.show()
     return probe_array
 
 
@@ -268,10 +261,8 @@ def setup_figure(actually_do_it=True):
 
 
 if __name__ == '__main__':
-    GenerateData2D(10, 2.0, 0.75, 'fake', im_size=200, pattern='hex', show=False)
-    recon = Reconstruction(LoadData('fake.pty'))
-    recon.run(15, 'rpie', animate=False)
-    recon.run(15, 'epie', animate=False)
+    recon = Reconstruction(LoadData('test-2021-07-20.pty'), flip_images='y')
+    recon.run(10, 'rpie', animate=False)
 
     # for f_ims in ['', 'x', 'y', 'xy']:
     #     for f_pos in ['', 'x', 'y', 'xy']:

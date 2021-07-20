@@ -23,6 +23,7 @@ class PtychoData(ABC):
     def __init__(self):
         self._file = None
         self._im_data = None
+        self._bkgd = None
         self._num_entries = None
         self._num_translations = None
         self._num_rotations = None
@@ -37,16 +38,21 @@ class PtychoData(ABC):
     def __repr__(self):
         s = f'Ptycho data object:\n' \
             f'\tTotal entries: {self.num_entries}\n' \
-            f'\tF-plane pixel size: {self.pixel_size} um\n' \
-            f'\tR-plane pixel size: {self.obj_pixel_size} um\n' \
-            f'\tEnergy: {self.energy} eV\n' \
-            f'\tWavelength: {self.wavelength} um\n' \
-            f'\tDistance: {self.distance} um'
+            f'\tImg pixel size: {np.round(self.pixel_size, 3)} um\n' \
+            f'\tObj pixel size: {np.round(self.obj_pixel_size, 3)} um\n' \
+            f'\tEnergy: {np.round(self.energy, 3)} eV\n' \
+            f'\tWavelength: {np.round(self.wavelength, 4)} um\n' \
+            f'\tDistance: {self.distance} um\n' \
+            f'\tMax probe size: {np.round(self.distance*self.wavelength/(2*self.pixel_size),0)} um'
         return s
 
     @property
     def im_data(self):
         return self._im_data
+
+    @property
+    def bkgd(self):
+        return self._bkgd
 
     @property
     def num_entries(self):
@@ -93,7 +99,7 @@ class PtychoData(ABC):
 
 
 class LoadData(PtychoData):
-    def __init__(self, pty_file):
+    def __init__(self, pty_file, flip_images='', flip_positions='', background_subtract=True):
 
         super().__init__()
 
@@ -110,6 +116,8 @@ class LoadData(PtychoData):
         self._num_entries = shape[0] * shape[1]
         self._shape = np.array((shape[2], shape[3]))
 
+        self._bkgd = np.array(f['data/background'])
+
         self._position = np.array(f['data/position'])  # millimeters / degrees
         self._position[:, :, :2] = self._position[:, :, :2] * 1e3  # Convert to microns / degrees
 
@@ -120,6 +128,19 @@ class LoadData(PtychoData):
 
         self._obj_pixel_size = self.distance * self.wavelength / (self.shape[0] * self.pixel_size)
 
+        if 'x' in flip_positions:
+            self._position[:, :, 1] = np.max(self.position[:, :, 1]) - self.position[:, :, 1]
+        if 'y' in flip_positions:
+            self._position[:, :, 0] = np.max(self.position[:, :, 0]) - self.position[:, :, 0]
+        if 'x' in flip_images:
+            self._im_data = np.flip(self.im_data, 3)
+            self._bkgd = np.flip(self._bkgd, 3)
+        if 'y' in flip_images:
+            self._im_data = np.flip(self.im_data, 2)
+            self._bkgd = np.flip(self._bkgd, 2)
+        if background_subtract:
+            self._im_data[:, :] = self.im_data[:, :] - self.bkgd
+
         self._is3d = self.num_rotations > 1
         if not self._is3d:
             self._im_data = np.squeeze(self._im_data)
@@ -128,32 +149,6 @@ class LoadData(PtychoData):
     @property
     def is3d(self):
         return self._is3d
-
-    def invert_x_pos(self):
-        if self.is3d:
-            self._position[:, :, 1] = np.max(self.position[:, :, 1]) - self.position[:, :, 1]
-
-        else:
-            self._position[:, 1] = np.max(self.position[:, 1]) - self.position[:, 1]
-
-    def invert_y_pos(self):
-        if self.is3d:
-            self._position[:, :, 0] = np.max(self.position[:, :, 0]) - self.position[:, :, 0]
-
-        else:
-            self._position[:, 0] = np.max(self.position[:, 0]) - self.position[:, 0]
-
-    def invert_x_ims(self):
-        ax = 2
-        if self.is3d:
-            ax += 1
-        self._im_data = np.flip(self.im_data, ax)
-
-    def invert_y_ims(self):
-        ax = 1
-        if self.is3d:
-            ax += 1
-        self._im_data = np.flip(self.im_data, ax)
 
     @property
     def max_translation(self):
@@ -175,8 +170,8 @@ class CollectData(PtychoData):
         self._n = 0  # Current take
         self._i = 0  # Current rotation
         self._j = 0  # Current translation
-        self._shape = im_shape  # full image resolution
-        self._bkgd = None
+        self._shape = im_shape  # image resolution
+        self._bkgd = np.zeros(im_shape)
 
         # Pre-allocate memory for these arrays, as they can get quite large
         self._position = np.empty((self.num_rotations, self.num_translations, 3))
@@ -241,6 +236,8 @@ class CollectData(PtychoData):
                 cy = int(cy)
                 # Crop the image data down to the desired size.
                 self._im_data = self._im_data[:, :, cy - d:cy + d + 1, cx - d:cx + d + 1]
+                self._bkgd = self._bkgd[cy - d:cy + d + 1, cx - d:cx + d + 1]
+                self._shape = (self.im_data.shape[-2], self.im_data.shape[-1])
 
             if timestamp:
                 # Add the date to the end of the title. Optional for simulated data.
@@ -278,6 +275,7 @@ class CollectData(PtychoData):
         # Save collected data
         data = f.create_group('data')
         data.create_dataset('data', data=self._im_data, dtype=dtype)
+        data.create_dataset('background', data=self._bkgd)
         data.create_dataset('position', data=self._position)
 
         # Save experimental parameters
