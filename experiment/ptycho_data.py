@@ -1,5 +1,7 @@
 """
-Class for ptycho data sets
+Class definitions for ptychographic datasets.
+
+Nick Porter, jacioneportier@gmail.com
 """
 
 import numpy as np
@@ -19,6 +21,9 @@ from experiment.scan import xy_scan
 
 
 class PtychoData(ABC):
+    """
+    Abstract parent class for all ptychographic datasets.
+    """
     @abstractmethod
     def __init__(self):
         self._file = None
@@ -99,16 +104,21 @@ class PtychoData(ABC):
 
 
 class LoadData(PtychoData):
-    def __init__(self, pty_file, flip_images='', flip_positions='', background_subtract=True):
-
+    """
+    PtychoData subclass for data loaded from a *.pty file.
+    """
+    def __init__(self, pty_file: str, flip_images='', flip_positions='', background_subtract=True, vbleed_correct=0.0,
+                 threshold=0.0):
         super().__init__()
 
+        # LOAD DATA FROM FILE #########################################################################################
+        # Open the .pty file
+        self._file = pty_file
         os.chdir(os.path.dirname(__file__))
         os.chdir('../data')
-
-        self._file = pty_file
         f = h5py.File(self._file, 'r')
 
+        # Load diffraction image data
         self._im_data = np.array(f['data/data'])
         shape = self.im_data.shape
         self._num_rotations = shape[0]
@@ -116,32 +126,52 @@ class LoadData(PtychoData):
         self._num_entries = shape[0] * shape[1]
         self._shape = np.array((shape[2], shape[3]))
 
+        # Load background image data
         self._bkgd = np.array(f['data/background'])
 
+        # Load position data
         self._position = np.array(f['data/position'])  # millimeters / degrees
         self._position[:, :, :2] = self._position[:, :, :2] * 1e3  # Convert to microns / degrees
 
-        self._pixel_size = np.array(f['equipment/detector/x_pixel_size'])  # microns
-        self._distance = np.array(f['equipment/detector/distance'])  # microns
+        # Load other experiment parameters
         self._energy = np.array(f['equipment/source/energy'])  # electron-volts
         self._wavelength = np.array(f['equipment/source/wavelength'])  # microns
-
+        self._distance = np.array(f['equipment/detector/distance'])  # microns
+        self._pixel_size = np.array(f['equipment/detector/x_pixel_size'])  # microns
         self._obj_pixel_size = self.distance * self.wavelength / (self.shape[0] * self.pixel_size)
 
+        f.close()
+
+        # IMAGE PRE-PROCESSING ########################################################################################
+        # Invert the probe positions
         if 'x' in flip_positions:
             self._position[:, :, 1] = np.max(self.position[:, :, 1]) - self.position[:, :, 1]
         if 'y' in flip_positions:
             self._position[:, :, 0] = np.max(self.position[:, :, 0]) - self.position[:, :, 0]
+
+        # Flip the diffraction images
         if 'x' in flip_images:
             self._im_data = np.flip(self.im_data, 3)
             self._bkgd = np.flip(self._bkgd, 1)
         if 'y' in flip_images:
             self._im_data = np.flip(self.im_data, 2)
             self._bkgd = np.flip(self._bkgd, 0)
+
+        # Perform background subtraction
         if background_subtract:
             self._im_data[:, :] = self.im_data[:, :] - self.bkgd
             self._im_data[self.im_data < 0] = 0
 
+        # Perform vertical bleed correction
+        vbleed = np.quantile(self.im_data, vbleed_correct, axis=2)
+        vbleed = np.reshape(np.tile(vbleed, self.shape[-2]), self.im_data.shape)
+        self._im_data = self.im_data - vbleed
+        self._im_data[self.im_data < 0] = 0
+
+        # Perform thresholding to further reduce noise
+        self._im_data[self.im_data < threshold*np.max(self.im_data)] = 0
+
+        # Squeeze rotation axis if necessary
         self._is3d = self.num_rotations > 1
         if not self._is3d:
             self._im_data = np.squeeze(self._im_data)
@@ -157,6 +187,9 @@ class LoadData(PtychoData):
             return np.max(np.abs(self.position[:, :, :2]), axis=0)
         else:
             return np.max(np.abs(self.position), axis=0)
+
+    def save_reconstruction(self):
+        pass
 
 
 class CollectData(PtychoData):
@@ -444,4 +477,20 @@ def generate_probe(im_size, probe_radius, nophase=False):
 
 
 if __name__ == '__main__':
-    data = GenerateData2D(10, 2.0, 0.75, 'fake', pattern='rect', show=False)
+    q = 0.35
+    t0 = 0.0
+    t1 = 2e-4
+    t2 = 5e-4
+    data0 = LoadData('test-2021-07-20.pty', vbleed_correct=q, threshold=t0)
+    data1 = LoadData('test-2021-07-20.pty', vbleed_correct=q, threshold=t1)
+    data2 = LoadData('test-2021-07-20.pty', vbleed_correct=q, threshold=t2)
+
+    i = 23
+    plt.figure(tight_layout=True)
+    plt.subplot(131, xticks=[], yticks=[], title='No thresholding')
+    plt.imshow(np.log(data0.im_data[i]+1), cmap='gray')
+    plt.subplot(132, xticks=[], yticks=[], title=f'Threshold = {t1}')
+    plt.imshow(np.log(data1.im_data[i]+1), cmap='gray')
+    plt.subplot(133, xticks=[], yticks=[], title=f'Threshold = {t2}')
+    plt.imshow(np.log(data2.im_data[i]+1), cmap='gray')
+    plt.show()

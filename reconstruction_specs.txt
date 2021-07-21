@@ -1,0 +1,5 @@
+flip_images = y
+flip_positions = none
+background_subtract = true
+vbleed_correct = 0.35
+threshold = 0.0002

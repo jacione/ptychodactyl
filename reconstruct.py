@@ -4,7 +4,6 @@ Reconstruction code
 
 import click
 from experiment.reconstruct_source import Reconstruction
-from experiment.ptycho_data import LoadData, GenerateData2D
 
 
 @click.command()
@@ -12,15 +11,18 @@ from experiment.ptycho_data import LoadData, GenerateData2D
 @click.option('-s', '--save', help='Save reconstruction in this location')
 @click.option('-a', '--algorithm', type=(str, int), default=[['rpie', 30]], multiple=True,
               help='Algorithm to use in reconstruction, and how many iterations to run (e.g. -a epie 10)')
-def reconstruct(load, save, algorithm):
+@click.option('-specs', '--spec_file', default='reconstruction_specs.txt')
+def reconstruct(load, save, algorithm, spec_file):
     if load is None:
         load = 'fake.pty'
     elif not load.endswith('.pty'):
         load += '.pty'
-    recon = Reconstruction(LoadData(load))
+    recon = Reconstruction(load, spec_file)
 
     for alg, n in algorithm:
-        recon.run(num_iterations=n, algorithm=alg.lower())
+        recon.run(num_iterations=n, algorithm=alg.lower(), animate=False)
+
+    recon.show_object_and_probe()
 
 
 if __name__ == '__main__':

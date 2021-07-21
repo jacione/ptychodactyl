@@ -11,8 +11,29 @@ from experiment.ptycho_data import LoadData, GenerateData2D
 from skimage.restoration import unwrap_phase
 
 
-def Reconstruction(filename, **kwargs):
-    data = LoadData(filename, **kwargs)
+def parse_specs(filename):
+    specs = {}
+    if filename is not None:
+        file = open(filename, 'r')
+        for line in file.readlines():
+            if "=" in line:
+                key, val = map(str.strip, line.split("="))
+                if 'true' in val.lower():
+                    val = True
+                elif 'false' in val.lower():
+                    val = False
+                else:
+                    try:
+                        val = float(val)
+                    except ValueError:
+                        pass
+                specs[key] = val
+    return specs
+
+
+def Reconstruction(filename, specfile):
+    specs = parse_specs(specfile)
+    data = LoadData(filename, **specs)
     if data.is3d:
         return Recon3D(data)
     else:
@@ -107,7 +128,6 @@ class Recon2D(Recon):
             for i in entries:
                 update_probe = j > 0
                 update_function(i, update_param, update_probe)
-            self._correct_phase()
             if j in apply_mask_at:
                 self.object = self.object * self._probe_mask()
             if animate:
@@ -117,7 +137,6 @@ class Recon2D(Recon):
                                ax4.imshow(np.angle(self.probe), cmap='hsv')])
         if animate:
             vid = ArtistAnimation(fig, frames, interval=250, repeat_delay=0)
-        self.show_object_and_probe()
 
     def _apply_update(self, x, y, object_update, probe_update=None):
         self.object[y + self.rows, x + self.cols] = self.object[y + self.rows, x + self.cols] + object_update
@@ -163,6 +182,8 @@ class Recon2D(Recon):
     def _correct_probe(self):
         self.probe = self.probe * np.sqrt(self.probe_energy / np.sum(np.abs(self.probe) ** 2)) / self.data.shape[0]
         self.probe = center(self.probe)
+        self.probe = np.clip(np.abs(self.probe), 0, np.sort(np.abs(self.probe), axis=None)[-2]) * \
+                     np.exp(1j * np.angle(self.probe))
 
     def _correct_phase(self):
         phase = unwrap_phase(np.angle(self.probe))
@@ -208,12 +229,21 @@ class Recon2D(Recon):
         ax2.imshow(np.angle(self.object), cmap='hsv')
         ax3.imshow(np.abs(self.probe), cmap='bone')
         ax4.imshow(np.angle(self.probe), cmap='hsv')
+
+        plt.figure()
+        obj_length = self.pixel_size * self.object.shape[0]
+        pro_length = self.pixel_size * self.probe.shape[0]
+        plt.subplot(121, title='Object', xlabel='[microns]', ylabel='[microns]')
+        plt.imshow(np.abs(self.object), cmap='bone', extent=(0, obj_length, 0, obj_length))
+        plt.subplot(122, title='Probe', xlabel='[microns]', ylabel='[microns]')
+        plt.imshow(np.abs(self.probe), cmap='bone', extent=(0, pro_length, 0, pro_length))
         plt.show()
 
 
 def center(image):
+    abs_image = np.abs(image)
     ctr = np.asarray(image.shape) / 2 - 0.5
-    c_mass = np.array(ndimage.center_of_mass(np.abs(image)))
+    c_mass = np.array(ndimage.center_of_mass(abs_image > 0.5*np.max(abs_image)))
     shift_amt = ctr - c_mass
     ret_image = shift(image, shift_amt, subpixel=True)
     return ret_image
@@ -229,11 +259,11 @@ def init_probe(data):
     diff_array = np.mean(data, axis=0)
     probe_array = ifft(np.sqrt(diff_array))
     probe_array = ndimage.gaussian_filter(np.abs(probe_array),10) * np.exp(1j*np.angle(probe_array))
-    ax = plt.subplot(121, title='Sum of diffraction patterns')
-    plt.imshow(diff_array)
-    plt.subplot(122, sharex=ax, sharey=ax, title='Initial probe guess')
-    plt.imshow(np.abs(probe_array))
-    plt.show()
+    # ax = plt.subplot(121, title='Sum of diffraction patterns')
+    # plt.imshow(diff_array)
+    # plt.subplot(122, sharex=ax, sharey=ax, title='Initial probe guess')
+    # plt.imshow(np.abs(probe_array))
+    # plt.show()
     return probe_array
 
 
