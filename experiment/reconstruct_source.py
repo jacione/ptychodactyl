@@ -1,38 +1,21 @@
+import h5py
+import os
+from abc import ABC, abstractmethod
+
 import numpy as np
+import progressbar
 from matplotlib import pyplot as plt
+from matplotlib.animation import ArtistAnimation
+from matplotlib.patches import Rectangle
 from scipy import ndimage
 from skimage import draw
-from matplotlib.patches import Rectangle
-from matplotlib.animation import ArtistAnimation
-import progressbar
-from abc import ABC, abstractmethod
-from experiment.utils.helper_funcs import ifft, random, shift
-from experiment.ptycho_data import LoadData, GenerateData2D
 from skimage.restoration import unwrap_phase
 
-
-def parse_specs(filename):
-    specs = {}
-    if filename is not None:
-        file = open(filename, 'r')
-        for line in file.readlines():
-            if "=" in line:
-                key, val = map(str.strip, line.split("="))
-                if 'true' in val.lower():
-                    val = True
-                elif 'false' in val.lower():
-                    val = False
-                else:
-                    try:
-                        val = float(val)
-                    except ValueError:
-                        pass
-                specs[key] = val
-    return specs
+from experiment.ptycho_data import LoadData
+from experiment.utils.helper_funcs import ifft, random, shift
 
 
-def Reconstruction(filename, specfile):
-    specs = parse_specs(specfile)
+def Reconstruction(filename, **specs):
     data = LoadData(filename, **specs)
     if data.is3d:
         return Recon3D(data)
@@ -76,6 +59,17 @@ class Recon(ABC):
     @abstractmethod
     def _correct_probe(self):
         pass
+
+    def save(self):
+        os.chdir(os.path.dirname(__file__))
+        os.chdir('../data')
+        f = h5py.File(self.data.file, 'r+')
+        group = f.create_group('reconstruction')
+        group.create_dataset('object_amplitude', data=np.abs(self.object))
+        group.create_dataset('object_phase', data=np.angle(self.object))
+        group.create_dataset('probe_amplitude', data=np.abs(self.probe))
+        group.create_dataset('probe_phase', data=np.angle(self.probe))
+        f.close()
 
 
 class Recon3D(Recon):

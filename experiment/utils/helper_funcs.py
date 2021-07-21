@@ -8,6 +8,26 @@ import h5py
 from PIL import Image
 
 
+def parse_specs(filename):
+    specs = {}  # create an empty dictionary
+    file = open(filename, 'r')
+    for line in file.readlines():
+        line, _, _ = line.partition('#')  # Separate the comments from the actual values
+        if "=" in line:
+            key, val = map(str.strip, line.split("="))
+            if 'true' in val.lower():
+                val = True
+            elif 'false' in val.lower():
+                val = False
+            else:
+                try:
+                    val = float(val)
+                except ValueError:
+                    pass
+            specs[key] = val
+    return specs
+
+
 def fft(image):
     return np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(image)))
 

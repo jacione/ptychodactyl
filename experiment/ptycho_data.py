@@ -52,6 +52,10 @@ class PtychoData(ABC):
         return s
 
     @property
+    def file(self):
+        return self._file
+
+    @property
     def im_data(self):
         return self._im_data
 
@@ -144,16 +148,16 @@ class LoadData(PtychoData):
 
         # IMAGE PRE-PROCESSING ########################################################################################
         # Invert the probe positions
-        if 'x' in flip_positions:
+        if 'h' in flip_positions:
             self._position[:, :, 1] = np.max(self.position[:, :, 1]) - self.position[:, :, 1]
-        if 'y' in flip_positions:
+        if 'v' in flip_positions:
             self._position[:, :, 0] = np.max(self.position[:, :, 0]) - self.position[:, :, 0]
 
         # Flip the diffraction images
-        if 'x' in flip_images:
+        if 'h' in flip_images:
             self._im_data = np.flip(self.im_data, 3)
             self._bkgd = np.flip(self._bkgd, 1)
-        if 'y' in flip_images:
+        if 'v' in flip_images:
             self._im_data = np.flip(self.im_data, 2)
             self._bkgd = np.flip(self._bkgd, 0)
 
@@ -187,9 +191,6 @@ class LoadData(PtychoData):
             return np.max(np.abs(self.position[:, :, :2]), axis=0)
         else:
             return np.max(np.abs(self.position), axis=0)
-
-    def save_reconstruction(self):
-        pass
 
 
 class CollectData(PtychoData):

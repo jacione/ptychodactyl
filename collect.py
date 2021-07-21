@@ -8,32 +8,34 @@ from experiment.ptycho_data import CollectData
 from experiment.camera import ThorCam
 from experiment.micronix import MMC200
 from experiment.scan import xy_scan, r_scan
+from experiment.utils.helper_funcs import parse_specs
 
 
 @click.command()
 @click.help_option('-h', '--help')
 @click.option('-v', '--verbose', is_flag=True, default=False, help='Print information at each step')
-@click.option('-s', '--saveas', default='test', help='Data will be saved by this name')
-@click.option('-w', '--width', default=1.0, help='Horizontal scanning range (mm)')
-@click.option('-h', '--height', default=1.0, help='Vertical scanning range (mm)')
-@click.option('-d', '--step_size', default=0.1, help='Step size (mm)')
-@click.option('-p', '--pattern', default='spiral',
-              help='Geometric pattern for ptychography scan (rect, hex, or spiral)')
-@click.option('-r', '--num_rotations', default=0, help='Number of rotational steps (zero for no rotation)')
-@click.option('-bkd', '--background_frames', is_flag=True, default=False, help='Number of background images to take')
-@click.option('-fpt', '--frames_per_take', default=1, help='Number of frames to sum for each measurement')
-@click.option('-res', '--resolution', default=512, help='Desired image side length (in pixels)')
-@click.option('-exp', '--exposure', default=0.25, help='Exposure time in milliseconds')
-@click.option('-gain', '--gain', default=1, help='Analog gain')
-@click.option('-dst', '--distance', default=0.075, help='Sample to detector (m)')
-@click.option('--energy', default=1.957346, help='Laser photon energy (eV)')
-def collect(saveas, verbose, width, height, step_size, pattern, num_rotations, background_frames, frames_per_take,
-            resolution, exposure, gain, distance, energy):
+@click.option('--spec_file', default='collection_specs.txt')
+def collect(verbose, spec_file):
     """
     CLI for collecting 3D or 2D ptychography data.
 
     Nick Porter, jacioneportier@gmail.com
     """
+
+    specs = parse_specs(spec_file)
+    title = specs['title']
+    pattern = specs['pattern']
+    width = specs['width']
+    height = specs['height']
+    step_size = specs['step_size']
+    num_rotations = specs['num_rotations']
+    background_frames = specs['background_frames']
+    frames_per_take = specs['frames_per_take']
+    resolution = specs['resolution']
+    exposure = specs['exposure']
+    gain = specs['gain']
+    distance = specs['distance']
+    energy = specs['energy']
 
     print('Beginning ptychography data collection!')
 
@@ -49,9 +51,9 @@ def collect(saveas, verbose, width, height, step_size, pattern, num_rotations, b
     camera.set_resolution(resolution)
     camera.set_exposure(exposure)
     camera.set_gain(gain)
-    dataset = CollectData(num_translations=num_translations, num_rotations=num_rotations, title=saveas,
-                          im_shape=camera.im_shape, pixel_size=camera.pixel_size, distance=distance,
-                          energy=energy, verbose=verbose)
+    dataset = CollectData(num_translations=num_translations, num_rotations=num_rotations, title=title,
+                          im_shape=camera.im_shape, pixel_size=camera.pixel_size, distance=distance, energy=energy,
+                          verbose=verbose)
 
     if is3d:
         print(f'Run type: 3D ptychography')
