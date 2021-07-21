@@ -5,7 +5,7 @@ This script is for collecting ptychography data.
 
 import click
 from experiment.ptycho_data import CollectData
-from experiment.camera import Mightex, ThorCam
+from experiment.camera import ThorCam
 from experiment.micronix import MMC200
 from experiment.scan import xy_scan, r_scan
 
@@ -17,7 +17,8 @@ from experiment.scan import xy_scan, r_scan
 @click.option('-w', '--width', default=1.0, help='Horizontal scanning range (mm)')
 @click.option('-h', '--height', default=1.0, help='Vertical scanning range (mm)')
 @click.option('-d', '--step_size', default=0.1, help='Step size (mm)')
-@click.option('-p', '--pattern', default='rect', help='Geometric pattern for ptychography scan')
+@click.option('-p', '--pattern', default='spiral',
+              help='Geometric pattern for ptychography scan (rect, hex, or spiral)')
 @click.option('-r', '--num_rotations', default=0, help='Number of rotational steps (zero for no rotation)')
 @click.option('-bkd', '--background_frames', is_flag=True, default=False, help='Number of background images to take')
 @click.option('-fpt', '--frames_per_take', default=1, help='Number of frames to sum for each measurement')
