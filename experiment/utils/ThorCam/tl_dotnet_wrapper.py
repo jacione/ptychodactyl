@@ -1,14 +1,13 @@
 import numpy as np
 import traceback
 import ctypes
-import sys
 import os
 import clr
 from clr import *
 from System import Array, Double, IntPtr, Random, Int64
 from System.Runtime.InteropServices import Marshal
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(os.path.dirname(__file__))
 clr.AddReference('experiment/utils/ThorCam/Thorlabs.TSI.TLCamera')
 clr.AddReference('experiment/utils/ThorCam/Thorlabs.TSI.TLCameraInterfaces')
 clr.AddReference('experiment/utils/ThorCam/Thorlabs.TSI.ImageData')
@@ -48,6 +47,7 @@ class TL_SDK(object):
 
     # assign sdk variable to a new TLCameraSDK
     def open(self):
+        os.chdir(os.path.dirname(__file__))
         try:
             self.connect_delegates = {}
             self.disconnect_delegates = {}

@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy import ndimage
@@ -9,6 +12,9 @@ from PIL import Image
 
 
 def parse_specs(filename):
+    p = Path(__file__).parents[2]
+    os.chdir(p)
+    print(os.getcwd())
     specs = {}  # create an empty dictionary
     file = open(filename, 'r')
     for line in file.readlines():

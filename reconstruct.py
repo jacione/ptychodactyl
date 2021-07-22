@@ -22,7 +22,6 @@ def reconstruct(algorithm, spec_file):
     load = specs['load']
     if not load.endswith('.pty'):
         load = load + '.pty'
-    saveas = specs['saveas']
 
     recon = Reconstruction(load, **{kw: specs[kw] for kw in LOADATA_KW})
 

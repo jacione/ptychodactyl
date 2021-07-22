@@ -22,18 +22,19 @@ def collect(verbose, spec_file):
     Nick Porter, jacioneportier@gmail.com
     """
 
-    specs = parse_specs(spec_file)
+
+    specs = parse_specs(f'{spec_file}')
     title = specs['title']
     pattern = specs['pattern']
     width = specs['width']
     height = specs['height']
     step_size = specs['step_size']
-    num_rotations = specs['num_rotations']
+    num_rotations = int(specs['num_rotations'])
     background_frames = specs['background_frames']
-    frames_per_take = specs['frames_per_take']
-    resolution = specs['resolution']
+    frames_per_take = int(specs['frames_per_take'])
+    resolution = int(specs['resolution'])
     exposure = specs['exposure']
-    gain = specs['gain']
+    gain = int(specs['gain'])
     distance = specs['distance']
     energy = specs['energy']
 

@@ -1,6 +1,5 @@
 #### Title
-load = test-2021-07-20
-saveas = test
+load = test-2021-07-22
 
 #### Pre-processing parameters
 flip_images = v                     # 'h' to flip horizontal, 'v' for vertical, 'hv' for both, 'n' for neither.
