@@ -15,6 +15,7 @@ from matplotlib.patches import Circle
 from matplotlib.animation import ArtistAnimation
 import progressbar
 import os
+from time import perf_counter
 
 import experiment.utils.helper_funcs as hf
 from experiment.scan import xy_scan
@@ -291,7 +292,7 @@ class CollectData(PtychoData):
         plt.tight_layout()
         plt.show()
 
-    def save_to_pty(self, timestamp=True, cropto=512, dtype=None):
+    def save_to_pty(self, timestamp=True, cropto=512):
         if self._n == self.num_entries:
             self.finalize(timestamp, cropto)
         else:
@@ -300,7 +301,7 @@ class CollectData(PtychoData):
             else:
                 self.title = self.title + '-INCOMPLETE'
 
-        print(f'Saving data as {self.title}.pty')
+        print(f'Compressing and saving data...')
 
         # Create file using HDF5 protocol.
         os.chdir(os.path.dirname(__file__))
@@ -308,10 +309,11 @@ class CollectData(PtychoData):
         f = h5py.File(f'data/{self.title}.pty', 'w')
 
         # Save collected data
+        t0 = perf_counter()
         data = f.create_group('data')
-        data.create_dataset('data', data=self._im_data, dtype=dtype)
-        data.create_dataset('background', data=self._bkgd)
-        data.create_dataset('position', data=self._position)
+        data.create_dataset('data', data=self._im_data, compression='gzip')
+        data.create_dataset('background', data=self._bkgd, compression='gzip')
+        data.create_dataset('position', data=self._position, compression='gzip')
 
         # Save experimental parameters
         equip = f.create_group('equipment')
@@ -323,12 +325,18 @@ class CollectData(PtychoData):
         detector.create_dataset('x_pixel_size', data=self.pixel_size)
         detector.create_dataset('y_pixel_size', data=self.pixel_size)
 
+        t1 = perf_counter()
         f.close()
+
+        print(f'Data saved as {self.title}.pty')
+        print(f'Save time: {np.round(t1-t0, 4)} seconds')
+        print(f'Data size: {np.round(os.path.getsize(f"data/{self.title}.pty")/1024/1024, 3)} MB')
         return
 
 
 class GenerateData2D(CollectData):
-    def __init__(self, max_shift, probe_radius, overlap, title, im_size=127, pattern='rect', flip=False, show=False):
+    def __init__(self, max_shift, probe_radius, overlap, title='fake', im_size=127, pattern='rect', flip=False,
+                 show=False):
         X, Y, N = xy_scan(pattern, max_shift, max_shift, (1-overlap)*2*probe_radius)
         max_shift *= 1e3  # Convert shift from mm to microns
         probe_radius *= 1e3  # Convert to microns
@@ -477,7 +485,7 @@ def generate_probe(im_size, probe_radius, nophase=False):
     return probe_array * np.exp(1j * probe_phase)
 
 
-if __name__ == '__main__':
+def demo_vbleed_correct():
     q = 0.35
     t0 = 0.0
     t1 = 2e-4
@@ -495,3 +503,7 @@ if __name__ == '__main__':
     plt.subplot(133, xticks=[], yticks=[], title=f'Threshold = {t2}')
     plt.imshow(np.log(data2.im_data[i]+1), cmap='gray')
     plt.show()
+
+
+if __name__ == '__main__':
+    data = GenerateData2D(10.0, 2.0, 0.75, im_size=256, flip=True)
