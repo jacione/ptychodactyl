@@ -64,11 +64,19 @@ class Recon(ABC):
         os.chdir(os.path.dirname(__file__))
         os.chdir('../data')
         f = h5py.File(self.data.file, 'r+')
-        group = f.create_group('reconstruction')
-        group.create_dataset('object_amplitude', data=np.abs(self.object))
-        group.create_dataset('object_phase', data=np.angle(self.object))
-        group.create_dataset('probe_amplitude', data=np.abs(self.probe))
-        group.create_dataset('probe_phase', data=np.angle(self.probe))
+        try:
+            group = f.create_group('reconstruction')
+            group.create_dataset('object_amplitude', data=np.abs(self.object))
+            group.create_dataset('object_phase', data=np.angle(self.object))
+            group.create_dataset('probe_amplitude', data=np.abs(self.probe))
+            group.create_dataset('probe_phase', data=np.angle(self.probe))
+        except ValueError:
+            group = f['reconstruction']
+            group['object_amplitude'] = np.abs(self.object)
+            group['object_phase'] = np.angle(self.object)
+            group['probe_amplitude'] = np.abs(self.probe)
+            group['probe_phase'] = np.angle(self.probe)
+
         f.close()
 
 
