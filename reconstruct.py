@@ -5,17 +5,15 @@ Reconstruction code
 import click
 from experiment.reconstruct_source import Reconstruction
 from experiment.utils.helper_funcs import parse_specs
-from experiment.ptycho_data import LoadData
 
 
 LOADATA_KW = ['flip_images', 'flip_positions', 'background_subtract', 'vbleed_correct', 'threshold']
+RUN_KW = ['algorithm', 'num_iterations', 'obj_up_initial', 'obj_up_final', 'pro_up_initial', 'pro_up_final']
 
 
 @click.command()
-@click.option('-a', '--algorithm', type=(str, int), default=[['rpie', 30]], multiple=True,
-              help='Algorithm to use in reconstruction, and how many iterations to run (e.g. -a epie 10)')
-@click.option('-specs', '--spec_file', default='reconstruction_specs.txt')
-def reconstruct(algorithm, spec_file):
+@click.option('--spec_file', default='reconstruction_specs.txt')
+def reconstruct(spec_file):
 
     specs = parse_specs(spec_file)
 
@@ -25,8 +23,8 @@ def reconstruct(algorithm, spec_file):
 
     recon = Reconstruction(load, **{kw: specs[kw] for kw in LOADATA_KW})
 
-    for alg, n in algorithm:
-        recon.run(num_iterations=n, algorithm=alg.lower(), animate=False)
+    for n in range(specs['num_stages']):
+        recon.run({kw: specs[kw][n] for kw in RUN_KW}, animate=specs['animate'])
 
     recon.save()
 

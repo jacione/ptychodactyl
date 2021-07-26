@@ -45,7 +45,7 @@ class Recon(ABC):
         # plt.show()
 
     @abstractmethod
-    def run(self, num_iterations, algorithm, animate):
+    def run(self, run_specs, animate):
         pass
 
     @abstractmethod
@@ -72,10 +72,10 @@ class Recon(ABC):
             group.create_dataset('probe_phase', data=np.angle(self.probe))
         except ValueError:
             group = f['reconstruction']
-            group['object_amplitude'] = np.abs(self.object)
-            group['object_phase'] = np.angle(self.object)
-            group['probe_amplitude'] = np.abs(self.probe)
-            group['probe_phase'] = np.angle(self.probe)
+            group['object_amplitude'].write_direct(np.abs(self.object))
+            group['object_phase'].write_direct(np.angle(self.object))
+            group['probe_amplitude'].write_direct(np.abs(self.probe))
+            group['probe_phase'].write_direct(np.angle(self.probe))
 
         f.close()
 
@@ -115,7 +115,13 @@ class Recon2D(Recon):
             'rpie': self._rpie
         }
 
-    def run(self, num_iterations, algorithm, apply_mask_at=(), animate=True):
+    def run(self, run_specs, animate=False):
+        algorithm = run_specs['algorithm']
+        num_iterations = run_specs['num_iterations']
+        o_i = run_specs['obj_up_initial']
+        o_f = run_specs['obj_up_final']
+        p_i = run_specs['pro_up_initial']
+        p_f = run_specs['pro_up_final']
         try:
             update_function = self._algs[algorithm]
         except KeyError:
@@ -126,12 +132,11 @@ class Recon2D(Recon):
         for j in progressbar.progressbar(range(num_iterations)):
             entries = np.arange(self.data.num_entries)
             self.rng.shuffle(entries)
-            update_param = j / num_iterations
+            completed = j / num_iterations
+            o_param = o_i + (o_f-o_i)*completed
+            p_param = p_i + (p_f-p_i)*completed
             for i in entries:
-                update_probe = j > 0
-                update_function(i, update_param, update_probe)
-            if j in apply_mask_at:
-                self.object = self.object * self._probe_mask()
+                update_function(i, o_param, p_param, j > 0)
             if animate:
                 frames.append([ax1.imshow(np.abs(self.object), cmap='bone'),
                                ax2.imshow(np.angle(self.object), cmap='hsv'),
@@ -147,11 +152,15 @@ class Recon2D(Recon):
             self._correct_probe()
 
     def _pre_pie(self, i):
+        """
+        Performs the initial Fourier constraints common to all PIE algorithms
+        :param i: int, image data index to use
+        :return:
+        """
         # Take a slice of the object that's the same size as the probe
         y = int(self.translation[i, 0] + 0.5)
         x = int(self.translation[i, 1] + 0.5)
         region = self.object[y + self.rows, x + self.cols]
-        # region = hf.shift(self.object, self.translation[i], crop=self.data.shape[0], subpixel=False)
         psi1 = self.probe * region
         PSI1 = np.fft.fft2(psi1)
         PSI2 = self.shifted_im_data[i] * PSI1 / np.abs(PSI1)
@@ -159,20 +168,27 @@ class Recon2D(Recon):
         d_psi = psi2 - psi1
         return x, y, region, d_psi
 
-    def _epie(self, i: int, param: float, update_probe: bool):
+    def _epie(self, i, o_param, p_param, update_probe):
+        """
+
+        :param i:
+        :param param:
+        :param update_probe:
+        :return:
+        """
         x, y, region, d_psi = self._pre_pie(i)
-        alpha = np.sqrt(1.25-param)
-        beta = 1-param
+        alpha = o_param
+        beta = p_param
         object_update = alpha * d_psi * np.conj(self.probe) / np.max(np.abs(self.probe)) ** 2
         probe_update = None
         if update_probe:
             probe_update = beta * d_psi * np.conj(region) / np.max(np.abs(region)) ** 2
         self._apply_update(x, y, object_update, probe_update)
 
-    def _rpie(self, i: int, param: float, update_probe: bool):
+    def _rpie(self, i, o_param, p_param, update_probe):
         x, y, region, d_psi = self._pre_pie(i)
-        alpha = 0.05 + 0.45 * param ** 2
-        beta = 0.25 + 0.75 * param
+        alpha = (1 - o_param) ** 2
+        beta = (1 - p_param) ** 2
         object_update = d_psi * np.conj(self.probe) / \
                         (alpha*np.max(np.abs(self.probe))**2 + (1-alpha)*np.abs(self.probe)**2)
         probe_update = None
@@ -182,6 +198,9 @@ class Recon2D(Recon):
         self._apply_update(x, y, object_update, probe_update)
 
     def _correct_probe(self):
+        """
+        Corrects the amplitude and position of the probe to prevent runaway.
+        """
         self.probe = self.probe * np.sqrt(self.probe_energy / np.sum(np.abs(self.probe) ** 2)) / self.data.shape[0]
         self.probe = center(self.probe)
         self.probe = np.clip(np.abs(self.probe), 0, np.sort(np.abs(self.probe), axis=None)[-2]) * \
@@ -217,9 +236,8 @@ class Recon2D(Recon):
     def show_probe_positions(self):
         coords = -self.translation + self.probe.shape[0] / 2
         x, y = coords[:, 1], coords[:, 0]
-        plt.scatter(x, y)
-        plt.xlim(0, self.object.shape[0])
-        plt.ylim(0, self.object.shape[1])
+        plt.imshow(self.object)
+        plt.scatter(x, y, c='r')
         plt.show()
 
     def show_object_and_probe(self, i=None):
@@ -257,10 +275,10 @@ def init_object(shape):
     return object_array
 
 
-def init_probe(data):
+def init_probe(data, sigma=10):
     diff_array = np.mean(data, axis=0)
     probe_array = ifft(np.sqrt(diff_array))
-    probe_array = ndimage.gaussian_filter(np.abs(probe_array),10) * np.exp(1j*np.angle(probe_array))
+    probe_array = ndimage.gaussian_filter(np.abs(probe_array), sigma) * np.exp(1j*np.angle(probe_array))
     # ax = plt.subplot(121, title='Sum of diffraction patterns')
     # plt.imshow(diff_array)
     # plt.subplot(122, sharex=ax, sharey=ax, title='Initial probe guess')

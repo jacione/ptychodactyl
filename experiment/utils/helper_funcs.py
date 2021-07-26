@@ -11,6 +11,23 @@ import h5py
 from PIL import Image
 
 
+def sub_parse(val):
+    val = val.strip()
+    if 'true' in val.lower():
+        val = True
+    elif 'false' in val.lower():
+        val = False
+    else:
+        try:
+            if '.' in val:
+                val = float(val)
+            else:
+                val = int(val)
+        except ValueError:
+            pass
+    return val
+
+
 def parse_specs(filename):
     p = Path(__file__).parents[2]
     os.chdir(p)
@@ -21,16 +38,15 @@ def parse_specs(filename):
         line, _, _ = line.partition('#')  # Separate the comments from the actual values
         if "=" in line:
             key, val = map(str.strip, line.split("="))
-            if 'true' in val.lower():
-                val = True
-            elif 'false' in val.lower():
-                val = False
+            if ';' in val:
+                val = tuple(map(sub_parse, val.split(';')))
             else:
-                try:
-                    val = float(val)
-                except ValueError:
-                    pass
+                val = sub_parse(val)
             specs[key] = val
+    try:
+        specs['num_stages'] = len(specs['algorithm'])
+    except KeyError:
+        pass
     return specs
 
 
