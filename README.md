@@ -5,6 +5,8 @@
 ## Overview
 This repository contains code for collecting and analyzing 2- or 3D ptychography data.
 
+*Currently only 2D data is supported! 3D support is planned, but may not happen for a while.*
+
 ## Dependencies
 This project must be run on **Python 3.8** (later versions are not yet supported by all dependencies). It requires the following packages, all available via `pip install`:
 *  click (>=8.0.1)
@@ -30,12 +32,8 @@ python collect.py
 to start the data collection. Data will be saved as a `.pty` file, which is based on HDF5 protocol. This has the benefit of being able to record all the data (diffraction patterns, positions, pixel size, etc.) in a single file.
 
 ### Analyzing/reconstructing data
-Open a commandline and navigate to the 3d-ptychography directory, then run
+Fill out the associated spec file, then run
 ```
-python reconstruct.py -a <reconstruction algorithm> <number of iterations>
+python reconstruct.py
 ```
-to start the reconstruction. It currently only supports `epie` and `rpie` as algorithms. You can run multiple algorithms by repeating the `-a` option, for example:
-```
-python reconstruct.py -a rpie 20 -a epie 10
-```
-It will run the algorithms in the order they are given.
+to start the reconstruction. The reconstructed image (probe and object, amplitude and phase) will be saved directly into the `.pty` file, overwriting any previous reconstruction.
