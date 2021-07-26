@@ -20,24 +20,22 @@ This project must be run on **Python 3.8** (later versions are not yet supported
 Additionally, the device interfacing uses some proprietary (I assume) software development kits provided by Micronix, Mightex, and Thorlabs. This means some DLL and similar files, not created by me, are included in this repository. These files are used under the terms put forth by their respective owners, and all associated copyrights remain with said owners.
 
 ## Instructions
-There are two main scripts designed to be run from the command line, one for data collection (`collect.py`) and the other for data analysis (`reconstruct.py`).
+There are two main scripts designed to be run from the command line, one for data collection (`collect.py`) and the other for data analysis (`reconstruct.py`). These each use an associated text file (`collection_specs.txt` and `reconstruction_specs.txt`) to define the needed parameters. Before running either, double-check the spec file and make sure that it's set up the way you want. Both scripts can be run with a `--spec_file <filename>` option if you want to define a specific set of parameters in a different place.
 
 ### Collecting data
 Make sure the camera, stages, and laser are all turned on and working properly. Open a commandline and navigate to the 3d-ptychography directory, then run
 ```
 python collect.py
 ```
-to start the data collection. The commandline interface accepts options such as `-s <title>` to set the title which the data will be saved as or `--exposure <time_in_ms>` to set the exposure time. For a list of all options, run the script with the `-h` or `--help` flag.
-
-Data will be saved as a `.cxi` file, which is based on HDF5 protocol. This has the benefit of being able to record all the data (diffraction patterns, positions, pixel size, etc.) in a single file.
+to start the data collection. Data will be saved as a `.pty` file, which is based on HDF5 protocol. This has the benefit of being able to record all the data (diffraction patterns, positions, pixel size, etc.) in a single file.
 
 ### Analyzing/reconstructing data
 Open a commandline and navigate to the 3d-ptychography directory, then run
 ```
-python reconstruct.py -f <datafile> -a <reconstruction algorithm> <number of iterations>
+python reconstruct.py -a <reconstruction algorithm> <number of iterations>
 ```
 to start the reconstruction. It currently only supports `epie` and `rpie` as algorithms. You can run multiple algorithms by repeating the `-a` option, for example:
 ```
-python reconstruct.py -f my_data.pty -a rpie 20 -a epie 10
+python reconstruct.py -a rpie 20 -a epie 10
 ```
 It will run the algorithms in the order they are given.
