@@ -1,10 +1,15 @@
 """
-Reconstruction code
+Main script for reconstructing ptychography data.
+
+2D: stable
+3D: unfinished
+
+Nick Porter, jacioneportier@gmail.com
 """
 
 import click
-from experiment.reconstruct_source import Reconstruction
-from experiment.utils.helper_funcs import parse_specs
+from experiment.recon import Reconstruction
+from experiment.utils.general import parse_specs
 
 
 LOADATA_KW = ['flip_images', 'flip_positions', 'background_subtract', 'vbleed_correct', 'threshold']
@@ -14,6 +19,10 @@ RUN_KW = ['algorithm', 'num_iterations', 'obj_up_initial', 'obj_up_final', 'pro_
 @click.command()
 @click.option('--spec_file', default='reconstruction_specs.txt')
 def reconstruct(spec_file):
+    """
+    CLI for reconstructing ptychography data. If the whole repository is downloaded, you can just fill out the desired
+    parameters in "reconstruction_specs.txt" and run this script from the command line.
+    """
 
     specs = parse_specs(spec_file)
 

@@ -1,5 +1,11 @@
 """
-Script to control the mightex camera
+Controller classes for cameras in a ptychography experiment.
+
+Currently implemented:
+    - Mightex  SME-B050-U  (works, but very buggy) FIXME
+    - Thorlabs  S805MU1  (preferred)
+
+Nick Porter, jacioneportier@gmail.com
 """
 
 from ctypes import *
@@ -46,6 +52,9 @@ libs = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/utils'
 
 
 class Camera(ABC):
+    """
+    Abstract parent class for camera devices
+    """
     @abstractmethod
     def __init__(self, defaults, verbose):
         self.defaults = defaults
@@ -102,53 +111,71 @@ class Camera(ABC):
 
     @staticmethod
     def imshow(image):
+        """A compact wrapper for pyplot's imshow with some commonly desired parameters preloaded"""
         plt.subplot(111, xticks=[], yticks=[])
         plt.imshow(image, cmap='plasma')
         plt.tight_layout()
         plt.show()
 
     def print(self, text):
+        """A wrapper for print() that checks whether the instance is set to verbose"""
         if self.verbose:
             print(text)
 
     def set_defaults(self):
+        """Sets the basic camera features to their basic values."""
         self.set_resolution((self.defaults['width'], self.defaults['height']))
         self.set_exposure(self.defaults['exposure'])
         self.set_gain(self.defaults['gain'])
         return
 
     def find_center(self):
+        """
+        Finds and returns the "center of mass" for the camera's image sensor. Useful for finding the center of a
+        beam or diffraction pattern.
+        """
         img = self.get_frames()
-        # img = np.roll(img, (300, 300), (0, 1))
         img = img - 2 * np.median(img)
         img[img < 0] = 0
         return center_of_mass(img)
 
     def analyze_frame(self):
+        """
+        Take an image, then show the image, the center of brightness, and the centered horizontal and vertical line
+        readouts.
+        """
         img = self.get_frames()
-        # img = np.roll(img, (300, 300), (0, 1))
-        img = img - 2 * np.median(img)
-        img[img < 0] = 0
-        cy, cx = center_of_mass(img)
-        if self.verbose:
-            x = img[int(np.round(cy, 0))]
-            y = img[:, int(np.round(cx, 0))]
-            plt.figure(tight_layout=True)
-            plt.subplot2grid((4, 4), (0, 0), rowspan=3, colspan=3, xticks=[], yticks=[])
-            plt.imshow(img, cmap='bone')
-            plt.axhline(cy, c='g')
-            plt.axvline(cx, c='r')
-            plt.subplot2grid((4, 4), (3, 0), colspan=3)
-            plt.plot(x, c='g')
-            plt.subplot2grid((4, 4), (0, 3), rowspan=3)
-            plt.plot(y, np.arange(self.height), c='r')
-            plt.show()
+        cy, cx = self.find_center()
+        x = img[int(np.round(cy, 0))]
+        y = img[:, int(np.round(cx, 0))]
+        plt.figure(tight_layout=True)
+        plt.subplot2grid((4, 4), (0, 0), rowspan=3, colspan=3, xticks=[], yticks=[])
+        plt.imshow(img, cmap='bone')
+        plt.axhline(cy, c='g')
+        plt.axvline(cx, c='r')
+        plt.subplot2grid((4, 4), (3, 0), colspan=3)
+        plt.plot(x, c='g')
+        plt.subplot2grid((4, 4), (0, 3), rowspan=3)
+        plt.plot(y, np.arange(self.height), c='r')
+        plt.show()
 
 
 class Mightex(Camera):
+    """
+    Camera subclass that can interface with a Mightex camera.
+
+    This subclass only implements a few basic functions which are relevant to ptychography data collection. A more
+    complete control can be achieved by using the officially provided SDK.
+    """
     _dll = CDLL(f'{libs}/Mightex/SSClassic_USBCamera_SDK.dll')
 
-    def __init__(self, verbose=False):
+    def __init__(self, verbose=True):
+        """
+        Create a Mightex object.
+
+        :param verbose: if True, this instance will print information about most processes as it runs. Default is True.
+        :type verbose: bool
+        """
         super().__init__(MIGHTEX_DEFAULTS, verbose)
 
         # Basic IO functions for connecting/disconnecting with the camera
@@ -219,6 +246,7 @@ class Mightex(Camera):
         return
 
     def camera_on(self):
+        """Start the camera engine"""
         if self.is_on:
             self.print('Camera engine already started!')
             return
@@ -250,6 +278,7 @@ class Mightex(Camera):
         return
 
     def camera_off(self):
+        """Stop the camera engine"""
         if not self.is_on:
             self.print('Camera engine not started!')
             return
@@ -269,6 +298,12 @@ class Mightex(Camera):
         return
 
     def set_resolution(self, resolution):
+        """
+        Set camera resolution.
+
+        :param resolution: Desired camera resolution (width, height)
+        :type resolution: (int, int)
+        """
         if resolution is not None:
             width = resolution[0]
             height = resolution[1]
@@ -284,6 +319,12 @@ class Mightex(Camera):
         return
 
     def set_exposure(self, ms):
+        """
+        Set camera exposure time.
+
+        :param ms: exposure time in milliseconds
+        :type ms: float
+        """
         if ms is not None:
             # Give a value in milliseconds;
             us50 = int(ms * 200)
@@ -297,6 +338,12 @@ class Mightex(Camera):
         return
 
     def set_gain(self, gain: int):
+        """
+        Set camera gain.
+
+        :param gain: gain factor in eighths (e.g. gain of 8 corresponds to 1x gain)
+        :type gain: int
+        """
         if gain is not None:
             # Gain is given in integer steps from 1-64, corresponding to a gain factor of 0.125x - 8x.
             # A gain of 8 corresponds to 1x gain.
@@ -310,16 +357,26 @@ class Mightex(Camera):
         return
 
     def get_frames(self, num_frames=1, show=False):
+        """
+        Collect images from the camera.
+
+        :param num_frames: number of frames to collect. *Currently has no effect*
+        :type num_frames: int
+        :param show: if True, show the image before returning it
+        :type show: bool
+        :return: 2D image array
+        :rtype: np.ndarray
+        """
         if not self.is_on:
             self.print('Camera is not initialized!')
             self.camera_on()
         data = np.empty(self.data_size, dtype=self.dtype)
         trycount = 0
         while True:
-            # For some reason this doesn't always read the whole image data on the lab computer.
+            # FIXME: For some reason this doesn't always read the whole image data on the lab computer.
             # It would be better to figure out why this happens and fix it at the root, but in the meantime I've added
             # some error handling to detect and discard incomplete measurements.
-            # Figure out how to prevent failure in the first place.
+            # TODO: Figure out how to prevent failure in the first place.
             trycount += 1
             if trycount > 10:
                 raise IOError('Camera API refuses to cooperate and refuses to explain why...')
@@ -342,8 +399,20 @@ class Mightex(Camera):
 
 
 class ThorCam(Camera):
+    """
+    Camera subclass that can interface with a Thorlabs camera.
+
+    This subclass only implements a few basic functions which are relevant to ptychography data collection. A more
+    complete control can be achieved by using the officially provided SDK.
+    """
 
     def __init__(self, verbose=True):
+        """
+        Create a ThorCam object
+
+        :param verbose: if True, this instance will print information about most processes as it runs. Default is True.
+        :type verbose: bool
+        """
         super().__init__(THORCAM_DEFAULTS, verbose)
         self._sdk = TL_SDK()
         self._handle = None
@@ -352,6 +421,7 @@ class ThorCam(Camera):
         return
 
     def camera_on(self):
+        """Turns on the camera"""
         if self.is_on:
             self.print('Camera engine already started!')
             return
@@ -363,6 +433,7 @@ class ThorCam(Camera):
         return
 
     def camera_off(self):
+        """Turns off the camera"""
         if not self.is_on:
             self.print('Camera engine not started!')
             return
@@ -372,12 +443,23 @@ class ThorCam(Camera):
         return
 
     def set_defaults(self):
+        """Sets the exposure time and gain to their default values."""
         self.set_exposure(self.defaults['exposure'])
         self.set_gain(self.defaults['gain'])
         self.set_frames_per_trigger(0)
         return
 
     def set_resolution(self, resolution):
+        """
+        Set camera resolution. The functionality of this is a little counter-intuitive. The :resolution: parameter is
+        the side-length of the desired diffraction data. This method will set the camera to bin each image as much as
+        possible without reducing the height or width below :resolution:. The data will be cropped to the right size in
+        CollectData.finalize() before saving. The binning happens here to reduce runtime memory usage, but the cropping
+        has to happen there because it tries to center the diffraction pattern.
+
+        :param resolution: Desired side length of diffraction data.
+        :type resolution: int
+        """
         if resolution is not None:
             self.binning = self.full_height // resolution
         self.width = self.full_width // self.binning
@@ -385,25 +467,53 @@ class ThorCam(Camera):
         self.im_shape = (self.height, self.width)
         self.im_size = self.width * self.height
         self.pixel_size = self.defaults['pixel_size'] * self.binning
-        pass
 
     def set_exposure(self, ms):
+        """
+        Set the camera exposure time in milliseconds.
+
+        :param ms: exposure time in milliseconds
+        :tyoe ms: int
+        """
         if ms is not None:
             us = int(ms * 1000)
             self._handle.set_exposure_time_us(us)
         return
 
     def set_gain(self, gain):
+        """
+        Set the camera analog gain
+
+        :param gain: analog gain
+        :type gain: int
+        """
         if gain is not None:
             self._handle.set_gain(gain)
         return
 
     def set_frames_per_trigger(self, fpt):
+        """
+        Set the camera "frames_per_trigger" parameter. This is not necessary, since fpt=0 sets the camera to read out
+        indefinitely, but it may help it run faster.
+
+        :param fpt: number of frames per camera trigger.
+        :type fpt: int
+        """
         if fpt is not None:
             self._handle.set_frames_per_trigger_zero_for_unlimited(fpt)
         return
 
     def get_frames(self, num_frames=1, show=False):
+        """
+        Collect a composite image from the camera.
+
+        :param num_frames: Camera will sum this many frames into the composite image
+        :type num_frames: int
+        :param show: If True, show the image (log scale) and a histogram of the image data.
+        :type show: bool
+        :return: 2D image array
+        :rtype: np.ndarray
+        """
         if not self.is_on:
             self.camera_on()
         self._handle.arm()

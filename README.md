@@ -1,6 +1,6 @@
 # 3D Ptychography
 
-*Maintained by Nick Porter, jacione@physics.byu.edu*
+*Maintained by Nick Porter, jacioneportier@gmail.com*
 
 ## Overview
 This repository contains code for collecting and analyzing 2- or 3D ptychography data.
@@ -13,6 +13,7 @@ This project must be run on **Python 3.8** (later versions are not yet supported
 *  h5py (>=3.2.1)
 *  matplotlib (>=3.4.2)
 *  numpy (>=1.20.3)
+*  pillow (>=8.2.0)
 *  progressbar2 (>=3.53.1)
 *  pyserial (>=3.5)
 *  pythonnet (>=2.5.2)

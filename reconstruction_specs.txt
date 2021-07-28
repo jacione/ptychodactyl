@@ -5,7 +5,7 @@ load = test-2021-07-22
 flip_images = v                     # 'h' to flip horizontal, 'v' for vertical, 'hv' for both, 'n' for neither
 flip_positions = n                  # 'h' to flip horizontal, 'v' for vertical, 'hv' for both, 'n' for neither
 background_subtract = true          # Set to true to perform background subtraction
-vbleed_correct = 0.35               # Vertical bleeding reduction factor (quantile of each column)
+vbleed_correct = 0.35               # Vertical bleeding reduction factor (must be between 0 and 1)
 threshold = 0.0001                  # Pixel values below this fraction of the maximum will be set to zero
 
 #### Reconstruction parameters

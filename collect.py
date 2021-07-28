@@ -1,5 +1,10 @@
 """
-This script is for collecting ptychography data.
+Main script for collecting ptychography data.
+
+2D: stable
+3D: unfinished
+
+Nick Porter, jacioneportier@gmail.com
 """
 
 
@@ -8,7 +13,7 @@ from experiment.ptycho_data import CollectData
 from experiment.camera import ThorCam
 from experiment.micronix import MMC200
 from experiment.scan import xy_scan, r_scan
-from experiment.utils.helper_funcs import parse_specs
+from experiment.utils.general import parse_specs
 
 
 @click.command()
@@ -17,11 +22,11 @@ from experiment.utils.helper_funcs import parse_specs
 @click.option('--spec_file', default='collection_specs.txt')
 def collect(verbose, spec_file):
     """
-    CLI for collecting 3D or 2D ptychography data.
-
-    Nick Porter, jacioneportier@gmail.com
+    CLI for collecting ptychography data. If the whole repository is downloaded, you can just fill out the desired
+    parameters in "collection_specs.txt" and run this script from the command line.
     """
 
+    # Load collection parameters from spec file
     specs = parse_specs(f'{spec_file}')
     title = specs['title']
     pattern = specs['pattern']
@@ -55,10 +60,8 @@ def collect(verbose, spec_file):
                           im_shape=camera.im_shape, pixel_size=camera.pixel_size, distance=distance, energy=energy,
                           verbose=verbose)
 
-    if is3d:
-        print(f'Run type: 3D ptychography')
-    else:
-        print('Run type: 2D ptychography')
+    # Print the most important run parameters
+    print(f'Run type: {2+is3d}D ptychography')
     print(f'Scan area:')
     print(f'\tPattern:   {pattern.upper()}')
     print(f'\tWidth:     {width:0.4} mm')
@@ -68,13 +71,15 @@ def collect(verbose, spec_file):
         print(f'\tRotations: {num_rotations}')
     print(f'Total: {num_total} takes\n')
 
+    # Record frames for background subtraction
     if background_frames:
         input('Preparing to take background images. Turn laser OFF, then press ENTER to continue...')
         dataset.record_background(camera.get_frames(frames_per_take))
 
     input('Preparing to take ptychography data. Turn laser ON, then press ENTER to continue...')
     for i in range(num_rotations):
-        print(f'Rotation 1: {Q[i]} deg')
+        # This is
+        print(f'Rotation {i+1}: {Q[i]} deg')
         rotation_complete = False
         with click.progressbar(range(num_translations)) as count:
             for j in count:
@@ -83,9 +88,14 @@ def collect(verbose, spec_file):
                 stages.set_position((X[j], Y[j], 0, Q[i]))
                 diff_pattern = camera.get_frames(frames_per_take)
                 rotation_complete = dataset.record_data(stages.get_position(), diff_pattern)
+                # The CollectData.record_data() method should return True only after taking num_translations images.
+                # This ensures that the data from each rotation angle stays together.
         assert rotation_complete, 'Ran out of translations before dataset was ready to rotate.'
 
+    # Return the stages to zero
     stages.home_all()
+
+    # Save the data as a .pty (H5) file
     dataset.save_to_pty(cropto=resolution)
 
 

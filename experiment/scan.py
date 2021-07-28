@@ -1,14 +1,51 @@
+"""
+Functions to generate an array of positions for ptychographic scans
+
+Nick Porter, jacioneportier@gmail.com
+"""
+
 import numpy as np
-import experiment.utils.helper_funcs as hf
+import experiment.utils.general as hf
 from matplotlib import pyplot as plt
 
 
-def xy_scan(style, width, height, step, random=True):
-    scan = STYLE_DICT[style]
+def xy_scan(pattern, width, height, step, random=True):
+    """
+    Generates a set of positions used for a ptychographic scan.
+
+    :param pattern: 'rect' for rectangular, 'hex' for hexagonal, 'spiral' for spiral/orchestral
+    :type pattern: str
+    :param width: scan width in millimeters
+    :type width: float
+    :param height: scan height in millimeters
+    :type height: float
+    :param step: distance between nearest-neighbor positions
+    :type step: float
+    :param random: if True (default), assigns a small random shift to each position
+    :type random: bool
+    :return: X and Y scan positions, and number of total positions
+    :rtype: (np.ndarray, np.ndarray, int)
+    """
+    scan = STYLE_DICT[pattern]
     return scan(width, height, step, random)
     
 
 def rect_scan(width, height, step, random):
+    """
+    Generates a rectangular ptychographic scan. Positions are aligned into rows and columns, such that the four nearest
+    neighbors of each position are directly above, below, and to either side.
+
+    :param width: scan width in millimeters
+    :type width: float
+    :param height: scan height in millimeters
+    :type height: float
+    :param step: distance between nearest-neighbor positions
+    :type step: float
+    :param random: if True (default), assigns a small random shift to each position
+    :type random: bool
+    :return: X and Y scan positions, and number of total positions
+    :rtype: (np.ndarray, np.ndarray, int)
+    """
     x = np.arange(-width/2, width/2, step)
     y = np.arange(-height/2, height/2, step)
     X, Y = np.meshgrid(x, y)
@@ -23,10 +60,26 @@ def rect_scan(width, height, step, random):
 
 
 def hex_scan(width, height, step, random):
+    """
+    Generates a hexagonal ptychographic scan. Positions are aligned into rows and (loosely) columns, such that the six
+    nearest neighbors of each position form a regular hexagon.
+
+    :param width: scan width in millimeters
+    :type width: float
+    :param height: scan height in millimeters
+    :type height: float
+    :param step: distance between nearest-neighbor positions
+    :type step: float
+    :param random: if True (default), assigns a small random shift to each position
+    :type random: bool
+    :return: X and Y scan positions, and number of total positions
+    :rtype: (np.ndarray, np.ndarray, int)
+    """
     x = np.arange(-width/2, width/2, step)
-    y = np.arange(-height/2, height/2, step*np.sqrt(3)/2)
+    y = np.arange(-height/2, height/2, step*np.sqrt(3)/2)  # The spacing between rows takes the shifting into account
     X, Y = np.meshgrid(x, y)
     for i in range(X.shape[0]):
+        # This shifts every other row by a half step to make the hexagonal pattern
         if i % 2:
             X[i] = X[i] + step / 2
     if random:
@@ -40,6 +93,21 @@ def hex_scan(width, height, step, random):
 
 
 def spiral_scan(width, height, step, random):
+    """
+    Generates a spiral ptychographic scan. Positions are arranged spiraling out such that the points are spaced evenly
+    along the path and the loops are spaced evenly from each other.
+
+    :param width: scan width in millimeters
+    :type width: float
+    :param height: scan height in millimeters
+    :type height: float
+    :param step: distance between nearest-neighbor positions
+    :type step: float
+    :param random: if True (default), assigns a small random shift to each position
+    :type random: bool
+    :return: X and Y scan positions, and number of total positions
+    :rtype: (np.ndarray, np.ndarray, int)
+    """
     r_max = np.sqrt(width**2 + height**2) / 2
     coords = np.array([-step/5, step/3.3])
     r = step/4
@@ -64,6 +132,18 @@ def spiral_scan(width, height, step, random):
 
 
 def r_scan(num_steps=0, full_range=180):
+    """
+    Generates an array of rotational positions. This is basically just a fancy wrapper for np.linspace, but it includes
+    a special case for non-rotational ptychographic scans.
+
+    :param num_steps: Number of rotational positions. If zero, the return value will allow for a non-rotational
+    (2D) ptychography dataset.
+    :type num_steps: int
+    :param full_range: Full range of angles to sweep through.
+    :type full_range: float
+    :return: 1D array of angles
+    :rtype: np.ndarray
+    """
     if num_steps == 0:
         return np.array([0]), 1
     else:

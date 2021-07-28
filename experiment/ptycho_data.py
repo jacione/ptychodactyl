@@ -17,7 +17,8 @@ import progressbar
 import os
 from time import perf_counter
 
-import experiment.utils.helper_funcs as hf
+import experiment.utils.general as utils
+import experiment.utils.plotting as plotting
 from experiment.scan import xy_scan
 
 
@@ -105,15 +106,33 @@ class PtychoData(ABC):
         return self._distance
 
     def show_pattern(self, n):
-        hf.show(self._im_data[n])
+        plotting.show(self._im_data[n])
 
 
 class LoadData(PtychoData):
     """
-    PtychoData subclass for data loaded from a *.pty file.
+    PtychoData subclass for data loaded from a PTY file. The LoadData class is the preferred way to work with PTY files
+    because it prevents the actual data in the file from being edited accidentally. It is dynamically able to handle
+    both 2D and 3D datasets.
     """
-    def __init__(self, pty_file: str, flip_images='', flip_positions='', background_subtract=True, vbleed_correct=0.0,
+    def __init__(self, pty_file, flip_images='', flip_positions='', background_subtract=True, vbleed_correct=0.0,
                  threshold=0.0):
+        """
+        Create a LoadData object.
+
+        :param pty_file: must be the name of a PTY file
+        :type pty_file: str
+        :param flip_images: 'h' for horizontal, 'v' for vertical, 'hv' for both, '' for neither
+        :type flip_images: str
+        :param flip_positions: 'h' for horizontal, 'v' for vertical, 'hv' for both, '' for neither
+        :type flip_positions: str
+        :param background_subtract: if True, subtracts the file's background image from the rest of the images.
+        :type background_subtract: bool
+        :param vbleed_correct: strength of vertical-bleed correction, must be between 0 and 1
+        :type vbleed_correct: float
+        :param threshold: pixel values below this fraction of the maximum will be set to zero
+        :type threshold: float
+        """
         super().__init__()
 
         # LOAD DATA FROM FILE #########################################################################################
@@ -188,6 +207,13 @@ class LoadData(PtychoData):
 
     @property
     def max_translation(self):
+        """
+        Returns the maximum translation along the x and y axes. This is useful for generating an initial object array
+        of the correct size.
+
+        :return: 1D array of coordinates
+        :rtype: np.ndarray
+        """
         if self.is3d:
             return np.max(np.abs(self.position[:, :, :2]), axis=0)
         else:
@@ -195,7 +221,30 @@ class LoadData(PtychoData):
 
 
 class CollectData(PtychoData):
+    """
+    PtychoData subclass for collecting, organizing, and saving ptychography data during an experiment
+    """
     def __init__(self, num_rotations, num_translations, title, im_shape, pixel_size, distance, energy, verbose=False):
+        """
+        Create a CollectData object for collecting, organizing, and saving ptychography data during an experiment.
+
+        :param num_rotations: number of rotational positions
+        :type num_rotations: int
+        :param num_translations: number of translational probe positions
+        :type num_translations: int
+        :param title: data will be saved in a PTY file under this name
+        :type title: str
+        :param im_shape: dimensions of the images being collected
+        :type im_shape: (int, int)
+        :param pixel_size: camera pixel size in microns (affected by binning)
+        :type pixel_size: float
+        :param distance: propagation distance in meters
+        :type distance: float
+        :param energy: photon energy in eV
+        :type energy: float
+        :param verbose: if True, this instance will print information about most processes as it runs. Default is False.
+        :type verbose: bool
+        """
         super().__init__()
 
         # General parameters
@@ -226,10 +275,23 @@ class CollectData(PtychoData):
         return
 
     def print(self, text):
+        """A wrapper for print() that checks whether the instance is set to verbose"""
         if self.verbose:
             print(text)
 
     def record_data(self, position, im_data):
+        """
+        Record the incoming measurement in the next available index. This method increments one of two internal counters
+        each time it is called: one for the rotational position and the other for the probe position at that rotation.
+
+        :param position: 1D array, The measured position of the sample. Should have length 3, corresponding to the
+            vertical, horizontal, and rotational positions respectively.
+        :type position: np.ndarray
+        :param im_data: 2D array, The measured diffraction pattern.
+        :type im_data: np.ndarray
+        :return: True if this measurement was the last of a given rotation. False otherwise
+        :rtype: bool
+        """
         # Record the position and image data
         self._position[self._i, self._j] = position  # Record in millimeters / degrees
         self._im_data[self._i, self._j] = im_data
@@ -246,33 +308,43 @@ class CollectData(PtychoData):
         return ret_code
 
     def record_background(self, im_data):
+        """
+        Record a background image without any associated positional data. This should be called when the beam is turned
+        off or otherwise blocked.
+
+        :param im_data: 2D array, The measured background image.
+        :type im_data: np.ndarray
+        """
         self._bkgd = im_data
 
     def finalize(self, timestamp, cropto):
+        """
+        Prepare collected data for saving as a PTY file. The CollectData.save_to_pty method calls this automatically.
+
+        :param timestamp: if True, appends the current date to the end of self.title
+        :type timestamp: bool
+        :param cropto: ALL images will be cropped to a square with this side length. Some steps are taken to
+            ensure the cropped area is centered on the diffraction pattern.
+        :type cropto: int
+        """
         if not self.is_finalized:
+            print('Finalizing...')
             # Translate all the positions so that the minimum is zero.
             self._position = self.position - np.min(self.position, axis=1)
-            print('Finalizing...')
 
-            # print('Subtracting background...')
-            # if self._bkgd is not None:
-            #     self._im_data[:, :] = self._im_data[:, :] - self._bkgd
-            # else:
-            #     # self._im_data = self._im_data - np.median(self._im_data)
-            #     # self._im_data[self._im_data < 0] = 0
-            #     pass
-
-            print('Cropping to square...')
+            self.print('Cropping to square...')
             if np.any(np.array(self._shape) > cropto):
-                # If desired, crop the image down to save space.
+                # Crops the image down to save space.
                 d = cropto // 2
                 # Be careful with this... scipy doesn't always hit the center exactly.
-                cy, cx = ndimage.center_of_mass(np.sum(self._im_data, axis=(0, 1)))
+                im_sum = np.sum(self._im_data, axis=(0, 1))
+                im_sum[im_sum < np.quantile(im_sum, 0.9)] = 0
+                cy, cx = ndimage.center_of_mass(im_sum)
                 cx = int(cx)
                 cy = int(cy)
                 # Crop the image data down to the desired size.
-                self._im_data = self._im_data[:, :, cy - d:cy + d + 1, cx - d:cx + d + 1]
-                self._bkgd = self._bkgd[cy - d:cy + d + 1, cx - d:cx + d + 1]
+                self._im_data = self._im_data[:, :, cy - d:cy + d, cx - d:cx + d]
+                self._bkgd = self._bkgd[cy - d:cy + d, cx - d:cx + d]
                 self._shape = (self.im_data.shape[-2], self.im_data.shape[-1])
 
             if timestamp:
@@ -283,8 +355,13 @@ class CollectData(PtychoData):
         return
 
     def show(self, ij=(0, 0)):
-        i = ij[0]
-        j = ij[1]
+        """
+        Display an image of the collected diffraction data at a certain rotation (i) and position (j)
+
+        :param ij: position indeces to display
+        :type ij: (int, int)
+        """
+        i, j = ij
         plt.subplot(121, xticks=[], yticks=[], title='Linear')
         plt.imshow(self._im_data[i, j], cmap='plasma')
         plt.subplot(122, xticks=[], yticks=[], title='Logarithmic')
@@ -293,6 +370,18 @@ class CollectData(PtychoData):
         plt.show()
 
     def save_to_pty(self, timestamp=True, cropto=512):
+        """
+        Save collected data as a PTY (HDF5) file. Data is saved using gzip lossless compression, which reduces file
+        size by about a factor of 4. The file is saved in the *data* directory.
+
+        :param timestamp: if True, appends the current date to the end of self.title
+        :type timestamp: bool
+        :param cropto: ALL images will be cropped to a square with this side length. Some steps are taken to
+            ensure the cropped area is centered on the diffraction pattern.
+        :type cropto: int
+        """
+
+        # Check first to avoid accidentally saving unfinished data.
         if self._n == self.num_entries:
             self.finalize(timestamp, cropto)
         else:
@@ -335,8 +424,31 @@ class CollectData(PtychoData):
 
 
 class GenerateData2D(CollectData):
+    """
+    CollectData subclass that generates data from a simulated experiment. Useful for testing reconstruction techniques.
+    """
     def __init__(self, max_shift, probe_radius, overlap, title='fake', im_size=127, pattern='rect', flip=False,
                  show=False):
+        """
+        Generate a simulated data set that behaves like a CollectData object.
+
+        :param max_shift: size of the probe scan in millimeters
+        :type max_shift: float
+        :param probe_radius: probe radius in millimeters
+        :type probe_radius: float
+        :param overlap: 1 minus the ratio of scan step size to probe diameter
+        :type overlap: float
+        :param title: data will be saved under this name
+        :type title: str
+        :param im_size: diffraction image side length
+        :type im_size: int
+        :param pattern: scan pattern ('rect', 'hex', or 'spiral')
+        :type pattern: str
+        :param flip: if True, flip the diffraction images vertically. Default is False.
+        :type flip: bool
+        :param show: if True, display a bunch of figures related to this data. Default is False.
+        :type show: bool
+        """
         X, Y, N = xy_scan(pattern, max_shift, max_shift, (1-overlap)*2*probe_radius)
         max_shift *= 1e3  # Convert shift from mm to microns
         probe_radius *= 1e3  # Convert to microns
@@ -355,7 +467,7 @@ class GenerateData2D(CollectData):
 
         # Generate an object
         obj_size = im_size + int(max_shift / probe_pixel_size)
-        object_array = hf.demo_binary(obj_size)
+        object_array = utils.demo_binary(obj_size)
         # The plus-one is in case the max shift has some extra decimal places, and would therefore try to sample past
         # the edge of the image.
 
@@ -374,7 +486,7 @@ class GenerateData2D(CollectData):
             plt.subplot(122)
             plt.imshow(np.angle(object_array), cmap='hsv', clim=[-np.pi, np.pi])
 
-            # Show the overlay of all the probes on the object amplitude. Useful to check overlap.
+            # Show the overlay of all the probes on the object amplitude. Useful to check_errors overlap.
             plt.figure()
             ax = plt.subplot(111)
             ax.imshow(np.abs(object_array))
@@ -392,9 +504,9 @@ class GenerateData2D(CollectData):
 
         # This for-loop is where the actual diffraction patterns are made!!
         for i in entries:
-            shifted_object = hf.shift(np.copy(object_array), (-Yp[i], -Xp[i]), crop=im_size)
+            shifted_object = utils.shift(np.copy(object_array), (-Yp[i], -Xp[i]), crop=im_size)
             exit_wave = probe_array * shifted_object
-            diffraction = np.abs(hf.fft(exit_wave)) ** 2
+            diffraction = np.abs(utils.fft(exit_wave)) ** 2
 
             if show:
                 frames.append([ax1.imshow(np.abs(object_array)),
@@ -435,10 +547,15 @@ class GenerateData2D(CollectData):
         Simulate the process of detection on a set of ptychography data
 
         :param saturation: Fraction of the dynamic range reached by the brightest pixel
+        :type saturation: float
         :param bitdepth: Number of bits given to each pixel.
+        :type bitdepth: int
         :param bkgd: Average number of counts per pixel not attributed to the measured signal (dark signal)
+        :type bkgd: int
         :param frames: Number of frames summed for each "take"
+        :type frames: int
         :param seed: random seed to use for noise
+        :type seed: int or None
         """
         signal_max = np.max(self._im_data)
         pixel_max = 2 ** bitdepth - 1
@@ -467,6 +584,19 @@ class GenerateData2D(CollectData):
 
 
 def generate_probe(im_size, probe_radius, nophase=False):
+    """
+    Generates a simple probe array to use for simulated data.
+
+    :param im_size: int, Side-length of the square probe array (in pixels)
+    :type im_size: int
+    :param probe_radius: int, Probe radius (in pixels)
+    :type probe_radius: int
+    :param nophase: bool, If True, the probe will have a uniform phase of zero. If False, the probe will have a
+        radially quadratic phase. Default is False.
+    :type nophase: bool
+    :return: 2D complex array, a simple probe.
+    :rtype: np.ndarray
+    """
     probe_array = np.zeros((im_size, im_size))
     probe_center = im_size / 2
 
@@ -486,6 +616,7 @@ def generate_probe(im_size, probe_radius, nophase=False):
 
 
 def demo_vbleed_correct():
+    """Demonstration of various image enhancements"""
     q = 0.35
     t0 = 0.0
     t1 = 2e-4
@@ -506,4 +637,4 @@ def demo_vbleed_correct():
 
 
 if __name__ == '__main__':
-    data = GenerateData2D(10.0, 2.0, 0.75, im_size=256, flip=True)
+    datums = GenerateData2D(10.0, 2.0, 0.75, im_size=256, flip=True)
