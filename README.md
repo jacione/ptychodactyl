@@ -1,15 +1,15 @@
 # PtychoDactyl
-A ptychography experimental pipeline written in Python
+A simple, approachable ptychography experimental pipeline written in Python
 
 *Maintained by Nick Porter, jacioneportier@gmail.com*
 
 ## Overview
-This repository contains code for collecting and analyzing 2- or 3D ptychography data.
+There are some really robust software packages out there for doing ptychography--PtyPy, PyNX, and PtychoShelves, to name just a few. However, while these all deliver incredible performance, they come with an unfortunately necessary tradeoff in readability and approachability. This software is an attempt to do the opposite. It's written with a people-over-performance philosophy, which I think will be helpful for ptychography newcomers (like myself, not too long ago).
 
-*Currently only 2D data is supported! 3D support is planned, but may not happen for a while.*
+This repository contains code for collecting and analyzing 2D ptychography data, with 3D hopefully supported soon. 
 
 ## Dependencies
-This project must be run on **Python 3.8** (later versions are not yet supported by all dependencies). It requires the following packages, all available via `pip install`:
+This project must be run on **Python 3.8** (later versions are not yet supported by pythonnet). It requires the following packages, all available via `conda install`:
 *  click (>=8.0.1)
 *  h5py (>=3.2.1)
 *  matplotlib (>=3.4.2)
