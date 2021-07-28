@@ -1,4 +1,5 @@
-# 3D Ptychography
+# PtychoDactyl
+A ptychography experimental pipeline written in Python
 
 *Maintained by Nick Porter, jacioneportier@gmail.com*
 
