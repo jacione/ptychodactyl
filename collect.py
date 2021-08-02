@@ -9,11 +9,11 @@ Nick Porter, jacioneportier@gmail.com
 
 
 import click
-from experiment.ptycho_data import CollectData
-from experiment.camera import ThorCam
-from experiment.micronix import MMC200
-from experiment.scan import xy_scan, r_scan
-from experiment.utils.general import parse_specs
+from ptycho_data import CollectData
+from camera import ThorCam
+from micronix import MMC200
+from scan import xy_scan, r_scan
+from utils.general import parse_specs
 
 
 @click.command()

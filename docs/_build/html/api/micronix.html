@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>ptychodactyl.micronix &mdash; PtychoDactyl  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ptychodactyl.ptycho_data" href="ptycho_data.html" />
+    <link rel="prev" title="ptychodactyl.camera" href="camera.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PtychoDactyl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation &amp; Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="camera.html">ptychodactyl.camera</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ptychodactyl.micronix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ptycho_data.html">ptychodactyl.ptycho_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recon.html">ptychodactyl.recon</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scan.html">ptychodactyl.scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">ptychodactyl.utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PtychoDactyl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api.html">API Reference</a> &raquo;</li>
+        
+      <li>ptychodactyl.micronix</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/micronix.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-micronix">
+<span id="ptychodactyl-micronix"></span><span id="micronix"></span><h1>ptychodactyl.micronix<a class="headerlink" href="#module-micronix" title="Permalink to this headline">¶</a></h1>
+<p>Controller classes for motorized stages.</p>
+<p><em>TODO: missing an abstract base class</em></p>
+<dl class="simple">
+<dt>Currently implemented:</dt><dd><ul class="simple">
+<li><p>Micronix MMC-200 (stable)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="micronix.MMC200">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">micronix.</span></span><span class="sig-name descname"><span class="pre">MMC200</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'COM3'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Object-oriented interface for a Micronix MMC-200 stage controller. Axes are defined <strong>in terms of the beamline</strong>
+which means that the y-axis in this class corresponds to the vertical stage, and the z-axis is horizontal and
+parallel to the beam. This is different from how the axes are defined in the stages themselves, where z is assumed
+to be vertical.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This class only implements a few basic functions
+which are relevant to ptychography data collection. For more advanced functionality, you can use the <code class="docutils literal notranslate"><span class="pre">command</span></code>
+method to send specific serial commands using the supported command line syntax
+(<a class="reference external" href="https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR">https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR</a>)</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'COM3'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an MMC200 object to interface with a Micronix MMC-200 stage controller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>verbose</strong> (<em>bool</em>) – if True, this instance will print information about most processes as it runs. Default is False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.set_position">
+<span class="sig-name descname"><span class="pre">set_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">laser_frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.set_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the stages to a desired position.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xyzq</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>)</em>) – Desired position for each axis.</p></li>
+<li><p><strong>laser_frame</strong> (<em>bool</em>) – if True, convert positions to be in the laser’s reference frame. Default is True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.get_position">
+<span class="sig-name descname"><span class="pre">get_position</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.get_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current position of the stages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Stage positions in the beam’s reference frame (vertical, horizontal, rotational)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.home_all">
+<span class="sig-name descname"><span class="pre">home_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.home_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>A quick command to reset all stage positions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.show_off">
+<span class="sig-name descname"><span class="pre">show_off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.show_off" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves all the axes around simultaneously…just for fun :)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.command">
+<span class="sig-name descname"><span class="pre">command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends a command string to the mightex stage without checking for a response. This can be used for more advanced
+features using the command line syntax provided by Micronix:
+<a class="reference external" href="https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR">https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cmd_str</strong> (<em>str</em>) – ASCII command</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qry_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends a query string to the mightex stage and returns its response. This can be used for more advanced
+features using the command line syntax provided by Micronix:
+<a class="reference external" href="https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR">https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>qry_str</strong> (<em>str</em>) – ASCII command</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Response string</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.set_x0">
+<span class="sig-name descname"><span class="pre">set_x0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x0_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.set_x0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the sample to a desired position along the x0-axis (horizontal, orthogonal to the beamline)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.set_y0">
+<span class="sig-name descname"><span class="pre">set_y0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.set_y0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the sample to a desired position along the y0-axis (vertical, orthogonal to the beamline)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.set_z0">
+<span class="sig-name descname"><span class="pre">set_z0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z0_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.set_z0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the sample to a desired position along the x0-axis (horizontal, parallel to the beamline)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.set_q">
+<span class="sig-name descname"><span class="pre">set_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.set_q" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate the stack to a desired angle</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.set_x">
+<span class="sig-name descname"><span class="pre">set_x</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.set_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the x-stage to a desired position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.set_y">
+<span class="sig-name descname"><span class="pre">set_y</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.set_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the y-stage to a desired position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.set_z">
+<span class="sig-name descname"><span class="pre">set_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.set_z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the z-stage to a desired position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.home_horizontal">
+<span class="sig-name descname"><span class="pre">home_horizontal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.home_horizontal" title="Permalink to this definition">¶</a></dt>
+<dd><p>A quick command to reset horizontal stage positions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.get_translation">
+<span class="sig-name descname"><span class="pre">get_translation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.get_translation" title="Permalink to this definition">¶</a></dt>
+<dd><p>A quick command to get only the positions orthogonal to the beam</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.get_rotation">
+<span class="sig-name descname"><span class="pre">get_rotation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.get_rotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>A quick command to get only the rotational position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.measure">
+<span class="sig-name descname"><span class="pre">measure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.measure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the encoder on each axis and update the attributes within the class instance. This is run automatically
+immediately after any motion command, so that the attributes should always have the correct values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.check_errors">
+<span class="sig-name descname"><span class="pre">check_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.check_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check each axis for errors</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.get_status">
+<span class="sig-name descname"><span class="pre">get_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.get_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the status byte for a given axis</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.is_moving">
+<span class="sig-name descname"><span class="pre">is_moving</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.is_moving" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check each axis’ status byte to see if any of them are moving</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="micronix.MMC200.print">
+<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#micronix.MMC200.print" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for print() that checks whether the instance is set to verbose</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="ptycho_data.html" class="btn btn-neutral float-right" title="ptychodactyl.ptycho_data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="camera.html" class="btn btn-neutral float-left" title="ptychodactyl.camera" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Nick Porter.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

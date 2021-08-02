@@ -1,0 +1,448 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>ptychodactyl.recon &mdash; PtychoDactyl  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ptychodactyl.scan" href="scan.html" />
+    <link rel="prev" title="ptychodactyl.ptycho_data" href="ptycho_data.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PtychoDactyl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation &amp; Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Using PtychoDactyl…</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="camera.html">ptychodactyl.camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="micronix.html">ptychodactyl.micronix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ptycho_data.html">ptychodactyl.ptycho_data</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ptychodactyl.recon</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scan.html">ptychodactyl.scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">ptychodactyl.utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PtychoDactyl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api.html">API Reference</a> &raquo;</li>
+        
+      <li>ptychodactyl.recon</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/recon.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-recon">
+<span id="ptychodactyl-recon"></span><span id="recon"></span><h1>ptychodactyl.recon<a class="headerlink" href="#module-recon" title="Permalink to this headline">¶</a></h1>
+<p>Classes for ptychographic image reconstruction.</p>
+<dl class="simple">
+<dt>Currently implemented:</dt><dd><ul class="simple">
+<li><p>2D ePIE (<a class="reference external" href="https://doi.org/10.1016/j.ultramic.2009.05.012">https://doi.org/10.1016/j.ultramic.2009.05.012</a>)</p></li>
+<li><p>2D rPIE (<a class="reference external" href="https://doi.org/10.1364/OPTICA.4.000736">https://doi.org/10.1364/OPTICA.4.000736</a>)</p></li>
+</ul>
+</dd>
+<dt>Planned:</dt><dd><ul class="simple">
+<li><p>3D CPT (<a class="reference external" href="https://doi.org/10.1364/OL.42.003169">https://doi.org/10.1364/OL.42.003169</a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="recon.Reconstruction">
+<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">Reconstruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Reconstruction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a PTY file and construct the appropriate Recon subclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – name of the datafile</p></li>
+<li><p><strong>specs</strong> – keyword arguments to pass to LoadData</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Recon2D or Recon3D instance</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#recon.Recon" title="recon.Recon">Recon</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="recon.Recon">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">Recon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="ptycho_data.html#ptycho_data.LoadData" title="ptycho_data.LoadData"><span class="pre">ptycho_data.LoadData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="recon.Recon.__init__">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="ptycho_data.html#ptycho_data.LoadData" title="ptycho_data.LoadData"><span class="pre">ptycho_data.LoadData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract parent class for ptychographic reconstructions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="ptycho_data.html#ptycho_data.LoadData" title="ptycho_data.LoadData"><em>LoadData</em></a>) – Data set that will be reconstructed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="recon.Recon.run">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="recon.Recon.show_object_and_probe">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">show_object_and_probe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon.show_object_and_probe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="recon.Recon.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the reconstruction to the original PTY file</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="recon.Recon2D">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">Recon2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#recon.Recon" title="recon.Recon"><code class="xref py py-class docutils literal notranslate"><span class="pre">recon.Recon</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="recon.Recon2D.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon2D.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a 2D ptychographic reconstructor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="ptycho_data.html#ptycho_data.LoadData" title="ptycho_data.LoadData"><em>LoadData</em></a>) – Data set that will be reconstructed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="recon.Recon2D.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon2D.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a reconstruction using the provided parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_specs</strong> (<em>dict</em>) – parameters for this reconstruction</p></li>
+<li><p><strong>animate</strong> (<em>bool</em>) – if True, saves a frame after each iteration and animates them all at the end. Default is False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="recon.Recon2D.show_probe_positions">
+<span class="sig-name descname"><span class="pre">show_probe_positions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon2D.show_probe_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show a scatter plot of all of the probe positions in the scan.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="recon.Recon2D.show_object_and_probe">
+<span class="sig-name descname"><span class="pre">show_object_and_probe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon2D.show_object_and_probe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the object and probe in their current state of reconstruction.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="recon.Recon3D">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">Recon3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon3D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#recon.Recon" title="recon.Recon"><code class="xref py py-class docutils literal notranslate"><span class="pre">recon.Recon</span></code></a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Not yet implemented.</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="recon.Recon3D.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon3D.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract parent class for ptychographic reconstructions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="ptycho_data.html#ptycho_data.LoadData" title="ptycho_data.LoadData"><em>LoadData</em></a>) – Data set that will be reconstructed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="recon.Recon3D.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon3D.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="recon.Recon3D.show_object_and_probe">
+<span class="sig-name descname"><span class="pre">show_object_and_probe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon3D.show_object_and_probe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="recon.center">
+<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.center" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shift an image so that the center of brightness is in the center of the image. This is intended for use with a
+probe array to help keep the reconstruction centered in the frame</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>image</strong> (<em>np.ndarray</em>) – Any 2D image</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Centered image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="recon.init_object">
+<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">init_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.init_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an object to have everywhere a small nonzero amplitude and a random phase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>shape</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – Shape of the object array</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Initialized object array</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="recon.init_probe">
+<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">init_probe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.init_probe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a probe for a set of diffraction patterns. The probe is generated by taking the average of all
+diffraction patterns, inverse Fourier transforming it, and passing the resulting amplitude through a gaussian
+filter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>np.ndarray</em>) – Set of all diffraction patterns</p></li>
+<li><p><strong>sigma</strong> (<em>float</em>) – Width of gaussian filter in pixels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Initialized probe array</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="recon.init_probe_flat">
+<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">init_probe_flat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.init_probe_flat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a generic probe using a top-hat function and random phase</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>shape</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – Shape of the probe array</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Generic probe array</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="recon.setup_figure">
+<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">setup_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actually_do_it</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.setup_figure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a figure and 4 axes for plotting. This is really just a shortcut for the Recon subclasses</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>actually_do_it</strong> (<em>bool</em>) – If False, returns all Nones. Default is True.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="scan.html" class="btn btn-neutral float-right" title="ptychodactyl.scan" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ptycho_data.html" class="btn btn-neutral float-left" title="ptychodactyl.ptycho_data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Nick Porter.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

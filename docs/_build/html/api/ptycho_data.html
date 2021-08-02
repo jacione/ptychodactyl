@@ -1,0 +1,546 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>ptychodactyl.ptycho_data &mdash; PtychoDactyl  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ptychodactyl.recon" href="recon.html" />
+    <link rel="prev" title="ptychodactyl.micronix" href="micronix.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PtychoDactyl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation &amp; Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Using PtychoDactyl…</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="camera.html">ptychodactyl.camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="micronix.html">ptychodactyl.micronix</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ptychodactyl.ptycho_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recon.html">ptychodactyl.recon</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scan.html">ptychodactyl.scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">ptychodactyl.utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PtychoDactyl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api.html">API Reference</a> &raquo;</li>
+        
+      <li>ptychodactyl.ptycho_data</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/ptycho_data.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-ptycho_data">
+<span id="ptychodactyl-ptycho-data"></span><span id="ptycho-data"></span><h1>ptychodactyl.ptycho_data<a class="headerlink" href="#module-ptycho_data" title="Permalink to this headline">¶</a></h1>
+<p>Class definitions for ptychographic datasets.</p>
+<p>Nick Porter, <a class="reference external" href="mailto:jacioneportier&#37;&#52;&#48;gmail&#46;com">jacioneportier<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ptycho_data.</span></span><span class="sig-name descname"><span class="pre">PtychoData</span></span><a class="headerlink" href="#ptycho_data.PtychoData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Abstract parent class for all ptychographic datasets.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.__init__">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.PtychoData.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.file">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">file</span></span><a class="headerlink" href="#ptycho_data.PtychoData.file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.im_data">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">im_data</span></span><a class="headerlink" href="#ptycho_data.PtychoData.im_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.bkgd">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">bkgd</span></span><a class="headerlink" href="#ptycho_data.PtychoData.bkgd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.num_entries">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">num_entries</span></span><a class="headerlink" href="#ptycho_data.PtychoData.num_entries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.num_translations">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">num_translations</span></span><a class="headerlink" href="#ptycho_data.PtychoData.num_translations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.num_rotations">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">num_rotations</span></span><a class="headerlink" href="#ptycho_data.PtychoData.num_rotations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.shape">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#ptycho_data.PtychoData.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.position">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">position</span></span><a class="headerlink" href="#ptycho_data.PtychoData.position" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.pixel_size">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">pixel_size</span></span><a class="headerlink" href="#ptycho_data.PtychoData.pixel_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.obj_pixel_size">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">obj_pixel_size</span></span><a class="headerlink" href="#ptycho_data.PtychoData.obj_pixel_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.energy">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">energy</span></span><a class="headerlink" href="#ptycho_data.PtychoData.energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.wavelength">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">wavelength</span></span><a class="headerlink" href="#ptycho_data.PtychoData.wavelength" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.distance">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">distance</span></span><a class="headerlink" href="#ptycho_data.PtychoData.distance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptycho_data.PtychoData.show_pattern">
+<span class="sig-name descname"><span class="pre">show_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.PtychoData.show_pattern" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptycho_data.LoadData">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ptycho_data.</span></span><span class="sig-name descname"><span class="pre">LoadData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pty_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_subtract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vbleed_correct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.LoadData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptycho_data.PtychoData" title="ptycho_data.PtychoData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ptycho_data.PtychoData</span></code></a></p>
+<p>PtychoData subclass for data loaded from a PTY file. The LoadData class is the preferred way to work with PTY files
+because it prevents the actual data in the file from being edited accidentally. It is dynamically able to handle
+both 2D and 3D datasets.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptycho_data.LoadData.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pty_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_subtract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vbleed_correct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.LoadData.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a LoadData object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pty_file</strong> (<em>str</em>) – must be the name of a PTY file</p></li>
+<li><p><strong>flip_images</strong> (<em>str</em>) – ‘h’ for horizontal, ‘v’ for vertical, ‘hv’ for both, ‘’ for neither</p></li>
+<li><p><strong>flip_positions</strong> (<em>str</em>) – ‘h’ for horizontal, ‘v’ for vertical, ‘hv’ for both, ‘’ for neither</p></li>
+<li><p><strong>background_subtract</strong> (<em>bool</em>) – if True, subtracts the file’s background image from the rest of the images.</p></li>
+<li><p><strong>vbleed_correct</strong> (<em>float</em>) – strength of vertical-bleed correction, must be between 0 and 1</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – pixel values below this fraction of the maximum will be set to zero</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.LoadData.is3d">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is3d</span></span><a class="headerlink" href="#ptycho_data.LoadData.is3d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ptycho_data.LoadData.max_translation">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">max_translation</span></span><a class="headerlink" href="#ptycho_data.LoadData.max_translation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the maximum translation along the x and y axes. This is useful for generating an initial object array
+of the correct size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>1D array of coordinates</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptycho_data.CollectData">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ptycho_data.</span></span><span class="sig-name descname"><span class="pre">CollectData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_translations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">im_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.CollectData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptycho_data.PtychoData" title="ptycho_data.PtychoData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ptycho_data.PtychoData</span></code></a></p>
+<p>PtychoData subclass for collecting, organizing, and saving ptychography data during an experiment</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptycho_data.CollectData.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_translations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">im_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.CollectData.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a CollectData object for collecting, organizing, and saving ptychography data during an experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_rotations</strong> (<em>int</em>) – number of rotational positions</p></li>
+<li><p><strong>num_translations</strong> (<em>int</em>) – number of translational probe positions</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – data will be saved in a PTY file under this name</p></li>
+<li><p><strong>im_shape</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – dimensions of the images being collected</p></li>
+<li><p><strong>pixel_size</strong> (<em>float</em>) – camera pixel size in microns (affected by binning)</p></li>
+<li><p><strong>distance</strong> (<em>float</em>) – propagation distance in meters</p></li>
+<li><p><strong>energy</strong> (<em>float</em>) – photon energy in eV</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – if True, this instance will print information about most processes as it runs. Default is False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptycho_data.CollectData.print">
+<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.CollectData.print" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for print() that checks whether the instance is set to verbose</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptycho_data.CollectData.record_data">
+<span class="sig-name descname"><span class="pre">record_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">im_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.CollectData.record_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record the incoming measurement in the next available index. This method increments one of two internal counters
+each time it is called: one for the rotational position and the other for the probe position at that rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>np.ndarray</em>) – 1D array, The measured position of the sample. Should have length 3, corresponding to the
+vertical, horizontal, and rotational positions respectively.</p></li>
+<li><p><strong>im_data</strong> (<em>np.ndarray</em>) – 2D array, The measured diffraction pattern.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if this measurement was the last of a given rotation. False otherwise</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptycho_data.CollectData.record_background">
+<span class="sig-name descname"><span class="pre">record_background</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">im_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.CollectData.record_background" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record a background image without any associated positional data. This should be called when the beam is turned
+off or otherwise blocked.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>im_data</strong> (<em>np.ndarray</em>) – 2D array, The measured background image.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptycho_data.CollectData.finalize">
+<span class="sig-name descname"><span class="pre">finalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cropto</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.CollectData.finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare collected data for saving as a PTY file. The CollectData.save_to_pty method calls this automatically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>timestamp</strong> (<em>bool</em>) – if True, appends the current date to the end of self.title</p></li>
+<li><p><strong>cropto</strong> (<em>int</em>) – ALL images will be cropped to a square with this side length. Some steps are taken to
+ensure the cropped area is centered on the diffraction pattern.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptycho_data.CollectData.show">
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ij</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.CollectData.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display an image of the collected diffraction data at a certain rotation (i) and position (j)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ij</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – position indeces to display</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptycho_data.CollectData.save_to_pty">
+<span class="sig-name descname"><span class="pre">save_to_pty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cropto</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.CollectData.save_to_pty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save collected data as a PTY (HDF5) file. Data is saved using gzip lossless compression, which reduces file
+size by about a factor of 4. The file is saved in the <em>data</em> directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>timestamp</strong> (<em>bool</em>) – if True, appends the current date to the end of self.title</p></li>
+<li><p><strong>cropto</strong> (<em>int</em>) – ALL images will be cropped to a square with this side length. Some steps are taken to
+ensure the cropped area is centered on the diffraction pattern.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptycho_data.GenerateData2D">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ptycho_data.</span></span><span class="sig-name descname"><span class="pre">GenerateData2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_shift</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fake'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">im_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">127</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rect'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.GenerateData2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptycho_data.CollectData" title="ptycho_data.CollectData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ptycho_data.CollectData</span></code></a></p>
+<p>CollectData subclass that generates data from a simulated experiment. Useful for testing reconstruction techniques.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptycho_data.GenerateData2D.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_shift</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fake'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">im_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">127</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rect'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.GenerateData2D.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a simulated data set that behaves like a CollectData object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_shift</strong> (<em>float</em>) – size of the probe scan in millimeters</p></li>
+<li><p><strong>probe_radius</strong> (<em>float</em>) – probe radius in millimeters</p></li>
+<li><p><strong>overlap</strong> (<em>float</em>) – 1 minus the ratio of scan step size to probe diameter</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – data will be saved under this name</p></li>
+<li><p><strong>im_size</strong> (<em>int</em>) – diffraction image side length</p></li>
+<li><p><strong>pattern</strong> (<em>str</em>) – scan pattern (‘rect’, ‘hex’, or ‘spiral’)</p></li>
+<li><p><strong>flip</strong> (<em>bool</em>) – if True, flip the diffraction images vertically. Default is False.</p></li>
+<li><p><strong>show</strong> (<em>bool</em>) – if True, display a bunch of figures related to this data. Default is False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptycho_data.GenerateData2D.detect">
+<span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">saturation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitdepth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bkgd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.GenerateData2D.detect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate the process of detection on a set of ptychography data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>saturation</strong> (<em>float</em>) – Fraction of the dynamic range reached by the brightest pixel</p></li>
+<li><p><strong>bitdepth</strong> (<em>int</em>) – Number of bits given to each pixel.</p></li>
+<li><p><strong>bkgd</strong> (<em>int</em>) – Average number of counts per pixel not attributed to the measured signal (dark signal)</p></li>
+<li><p><strong>frames</strong> (<em>int</em>) – Number of frames summed for each “take”</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em> or </em><em>None</em>) – random seed to use for noise</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptycho_data.GenerateData3D">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ptycho_data.</span></span><span class="sig-name descname"><span class="pre">GenerateData3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_rotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_translations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">im_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.GenerateData3D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptycho_data.CollectData" title="ptycho_data.CollectData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ptycho_data.CollectData</span></code></a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Not yet implemented.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ptycho_data.generate_probe">
+<span class="sig-prename descclassname"><span class="pre">ptycho_data.</span></span><span class="sig-name descname"><span class="pre">generate_probe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">im_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nophase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.generate_probe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a simple probe array to use for simulated data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>im_size</strong> (<em>int</em>) – int, Side-length of the square probe array (in pixels)</p></li>
+<li><p><strong>probe_radius</strong> (<em>int</em>) – int, Probe radius (in pixels)</p></li>
+<li><p><strong>nophase</strong> (<em>bool</em>) – bool, If True, the probe will have a uniform phase of zero. If False, the probe will have a
+radially quadratic phase. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>2D complex array, a simple probe.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ptycho_data.demo_vbleed_correct">
+<span class="sig-prename descclassname"><span class="pre">ptycho_data.</span></span><span class="sig-name descname"><span class="pre">demo_vbleed_correct</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho_data.demo_vbleed_correct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Demonstration of various image enhancements</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="recon.html" class="btn btn-neutral float-right" title="ptychodactyl.recon" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="micronix.html" class="btn btn-neutral float-left" title="ptychodactyl.micronix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Nick Porter.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

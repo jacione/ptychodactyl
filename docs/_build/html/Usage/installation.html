@@ -1,0 +1,255 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Installation &amp; Setup &mdash; PtychoDactyl  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using PtychoDactyl…" href="quickstart.html" />
+    <link rel="prev" title="Welcome to PtychoDactyl’s documentation!" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PtychoDactyl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation &amp; Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installing-ptychodactyl">Installing PtychoDactyl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#experimental-setup">Experimental setup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Using PtychoDactyl…</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PtychoDactyl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Installation &amp; Setup</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/usage/installation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="installation-setup">
+<span id="install-setup"></span><h1>Installation &amp; Setup<a class="headerlink" href="#installation-setup" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installing-ptychodactyl">
+<span id="install"></span><h2>Installing PtychoDactyl<a class="headerlink" href="#installing-ptychodactyl" title="Permalink to this headline">¶</a></h2>
+<p>Download the PtychoDactyl source code from my git repository.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>PtychoDactyl has only been tested on Windows 10.</p>
+</div>
+<p>This project must be run on <strong>Python 3.8</strong> (later versions are not yet supported by pythonnet). It requires the following packages, all available via <code class="docutils literal notranslate"><span class="pre">conda</span></code> (recommended) or <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<ul class="simple">
+<li><p>click (&gt;=8.0.1)</p></li>
+<li><p>h5py (&gt;=3.2.1)</p></li>
+<li><p>matplotlib (&gt;=3.4.2)</p></li>
+<li><p>numpy (&gt;=1.20.3)</p></li>
+<li><p>pillow (&gt;=8.2.0)</p></li>
+<li><p>progressbar2 (&gt;=3.53.1)</p></li>
+<li><p>pyserial (&gt;=3.5)</p></li>
+<li><p>pythonnet (&gt;=2.5.2)</p></li>
+<li><p>scikit-image (&gt;=0.18.1)</p></li>
+<li><p>scipy (&gt;=1.6.3)</p></li>
+</ul>
+</div>
+<div class="section" id="experimental-setup">
+<span id="setup"></span><h2>Experimental setup<a class="headerlink" href="#experimental-setup" title="Permalink to this headline">¶</a></h2>
+<p>If you want to run a real ptychography experiment, you’ll obviously need more than just a code library. This  means that, in addition to software dependencies, there are hardware dependencies. In order to properly perform a ptychography experiment with this code, you will need at least four things:</p>
+<ul class="simple">
+<li><p>A laser</p></li>
+<li><p>A sample</p></li>
+<li><p>A motorized stage mount</p></li>
+<li><p>A lensless camera</p></li>
+</ul>
+<p>PtychoDactyl doesn’t care about the laser or the sample, but it does care (quite a bit, actually) about the stages and the camera.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Unless you are using the same stages/camera I did, you will need to write your own controller classes for your devices. For full functionality, your classes should inherit the abstract base classes provided in <a class="reference internal" href="../api/camera.html#camera"><span class="std std-ref">ptychodactyl.camera</span></a> and <a class="reference internal" href="../api/micronix.html#micronix"><span class="std std-ref">ptychodactyl.micronix</span></a>.</p>
+</div>
+<p>Additionally, the device interfacing uses some proprietary software development kits provided by Micronix, Mightex, and Thorlabs. This means some DLL and similar files, not created by me, are included in this repository. These files are used under the terms put forth by their respective owners, and all associated copyrights remain with said owners.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Using PtychoDactyl…" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to PtychoDactyl’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Nick Porter.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

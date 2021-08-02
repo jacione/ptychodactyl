@@ -8,8 +8,8 @@ Nick Porter, jacioneportier@gmail.com
 """
 
 import click
-from experiment.recon import Reconstruction
-from experiment.utils.general import parse_specs
+from recon import Reconstruction
+from utils.general import parse_specs
 
 
 LOADATA_KW = ['flip_images', 'flip_positions', 'background_subtract', 'vbleed_correct', 'threshold']

@@ -9,7 +9,7 @@ There are some really robust software packages out there for doing ptychography-
 This repository contains code for collecting and analyzing 2D ptychography data, with 3D hopefully supported soon. 
 
 ## Dependencies
-This project must be run on **Python 3.8** (later versions are not yet supported by pythonnet). It requires the following packages, all available via `conda install`:
+This project must be run on **Python 3.8** (later versions are not yet supported by pythonNET). It requires the following packages, all available via `conda install`:
 *  click (>=8.0.1)
 *  h5py (>=3.2.1)
 *  matplotlib (>=3.4.2)
@@ -27,7 +27,7 @@ Additionally, the device interfacing uses some proprietary (I assume) software d
 There are two main scripts designed to be run from the command line, one for data collection (`collect.py`) and the other for data analysis (`reconstruct.py`). These each use an associated text file (`collection_specs.txt` and `reconstruction_specs.txt`) to define the needed parameters. Before running either, double-check the spec file and make sure that it's set up the way you want. Both scripts can be run with a `--spec_file <filename>` option if you want to define a specific set of parameters in a different place.
 
 ### Collecting data
-Make sure the camera, stages, and laser are all turned on and working properly. Open a commandline and navigate to the 3d-ptychography directory, then run
+Make sure the camera, stages, and laser are all turned on and working properly. Open a commandline and navigate to the ptychodactyl directory, then run
 ```
 python collect.py
 ```
