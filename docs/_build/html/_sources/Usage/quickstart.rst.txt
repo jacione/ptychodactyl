@@ -1,12 +1,12 @@
 .. _quickstart:
 
-Using PtychoDactyl...
-=====================
+Using PtychoDactyl
+==================
 
 .. _quickstart-auto:
 
-For fully automated ptychography
---------------------------------
+Fully automated ptychography
+----------------------------
 
 If you have working classes for the devices you're using, then running PtychoDactyl is as easy as pie! There are two main scripts designed to be run from the command line, one for data collection (``collect.py``) and the other for data analysis (``reconstruct.py``). These each use an associated text file (``collection_specs.txt`` and ``reconstruction_specs.txt``) to define the needed parameters. Before running either, double-check the spec file and make sure that it's set up the way you want. Both scripts can be run with a ``--spec_file <filename>`` option if you want to define a specific set of parameters in a different place.
 
@@ -31,15 +31,14 @@ to start the reconstruction. The reconstructed image (probe and object, amplitud
 
 .. _quickstart-custom:
 
-As a ptychography toolkit
--------------------------
+Ptychography toolkit
+--------------------
 
-If you want a more customizable experience, you can also use PtychoDactyl to create your own pipeline. The :ref:`ptycho_data` module contains very useful classes for managing ptychographic data, and the :ref:`recon` module contains several options for reconstructing that data. For example, say you want to do manual 2D ptychography---that is, without motorized stages or an automated camera capture.
+If you want a more customizable experience, you can also use PtychoDactyl to create your own pipeline. The :ref:`ptycho_data` module contains very useful classes for managing ptychographic data, and the :ref:`recon` module contains several options for reconstructing that data. For example, say you want to do manual 2D ptychography---that is, without motorized stages or an automated camera capture. You could do something like the following example:
 
 .. code-block:: python
 
     import ptycho_data
-    import recon
     from skimage.io import imread
 
     num_positions = 16  # It could be any number here
@@ -61,10 +60,10 @@ If you want a more customizable experience, you can also use PtychoDactyl to cre
         position = np.array([y, x, theta])
 
         input('Take picture, then press enter...')
-        image = imread(f'{path_to_images}{image_name}{i}{image_fmt}')
+        image = imread(f'{path_to_images}{image_name}{i}{image_fmt}', as_gray=True)
 
         data.record_data(position, image)
 
     data.save_to_pty(timestamp=False)
 
-And there you have it.
+And there you have it! All of the images and their associated positions will be stored in a file called ``ptyceratops.pty`` in the ``data`` directory.

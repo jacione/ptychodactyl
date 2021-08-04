@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Using PtychoDactyl… &mdash; PtychoDactyl  documentation</title>
+  <title>Using PtychoDactyl &mdash; PtychoDactyl  documentation</title>
   
 
   
@@ -90,9 +90,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation &amp; Setup</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Using PtychoDactyl…</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#for-fully-automated-ptychography">For fully automated ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#as-a-ptychography-toolkit">As a ptychography toolkit</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using PtychoDactyl</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#fully-automated-ptychography">Fully automated ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ptychography-toolkit">Ptychography toolkit</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api/api.html">API Reference</a></li>
@@ -144,7 +144,7 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Using PtychoDactyl…</li>
+      <li>Using PtychoDactyl</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -164,9 +164,9 @@
            <div itemprop="articleBody">
             
   <div class="section" id="using-ptychodactyl">
-<span id="quickstart"></span><h1>Using PtychoDactyl…<a class="headerlink" href="#using-ptychodactyl" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="for-fully-automated-ptychography">
-<span id="quickstart-auto"></span><h2>For fully automated ptychography<a class="headerlink" href="#for-fully-automated-ptychography" title="Permalink to this headline">¶</a></h2>
+<span id="quickstart"></span><h1>Using PtychoDactyl<a class="headerlink" href="#using-ptychodactyl" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="fully-automated-ptychography">
+<span id="quickstart-auto"></span><h2>Fully automated ptychography<a class="headerlink" href="#fully-automated-ptychography" title="Permalink to this headline">¶</a></h2>
 <p>If you have working classes for the devices you’re using, then running PtychoDactyl is as easy as pie! There are two main scripts designed to be run from the command line, one for data collection (<code class="docutils literal notranslate"><span class="pre">collect.py</span></code>) and the other for data analysis (<code class="docutils literal notranslate"><span class="pre">reconstruct.py</span></code>). These each use an associated text file (<code class="docutils literal notranslate"><span class="pre">collection_specs.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">reconstruction_specs.txt</span></code>) to define the needed parameters. Before running either, double-check the spec file and make sure that it’s set up the way you want. Both scripts can be run with a <code class="docutils literal notranslate"><span class="pre">--spec_file</span> <span class="pre">&lt;filename&gt;</span></code> option if you want to define a specific set of parameters in a different place.</p>
 <p>Make sure the camera, stages, and laser are all turned on and working properly. Open a commandline and navigate to the ptychodactyl directory, then run</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python collect.py
@@ -183,11 +183,10 @@
 <p>Running reconstruct.py with default options <em>will overwrite</em> any previous reconstructions within the <code class="docutils literal notranslate"><span class="pre">.pty</span></code> file!</p>
 </div>
 </div>
-<div class="section" id="as-a-ptychography-toolkit">
-<span id="quickstart-custom"></span><h2>As a ptychography toolkit<a class="headerlink" href="#as-a-ptychography-toolkit" title="Permalink to this headline">¶</a></h2>
-<p>If you want a more customizable experience, you can also use PtychoDactyl to create your own pipeline. The <a class="reference internal" href="../api/ptycho_data.html#ptycho-data"><span class="std std-ref">ptychodactyl.ptycho_data</span></a> module contains very useful classes for managing ptychographic data, and the <a class="reference internal" href="../api/recon.html#recon"><span class="std std-ref">ptychodactyl.recon</span></a> module contains several options for reconstructing that data. For example, say you want to do manual 2D ptychography—that is, without motorized stages or an automated camera capture.</p>
+<div class="section" id="ptychography-toolkit">
+<span id="quickstart-custom"></span><h2>Ptychography toolkit<a class="headerlink" href="#ptychography-toolkit" title="Permalink to this headline">¶</a></h2>
+<p>If you want a more customizable experience, you can also use PtychoDactyl to create your own pipeline. The <a class="reference internal" href="../api/ptycho_data.html#ptycho-data"><span class="std std-ref">ptychodactyl.ptycho_data</span></a> module contains very useful classes for managing ptychographic data, and the <a class="reference internal" href="../api/recon.html#recon"><span class="std std-ref">ptychodactyl.recon</span></a> module contains several options for reconstructing that data. For example, say you want to do manual 2D ptychography—that is, without motorized stages or an automated camera capture. You could do something like the following example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ptycho_data</span>
-<span class="kn">import</span> <span class="nn">recon</span>
 <span class="kn">from</span> <span class="nn">skimage.io</span> <span class="kn">import</span> <span class="n">imread</span>
 
 <span class="n">num_positions</span> <span class="o">=</span> <span class="mi">16</span>  <span class="c1"># It could be any number here</span>
@@ -209,14 +208,14 @@
     <span class="n">position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">theta</span><span class="p">])</span>
 
     <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Take picture, then press enter...&#39;</span><span class="p">)</span>
-    <span class="n">image</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">path_to_images</span><span class="si">}{</span><span class="n">image_name</span><span class="si">}{</span><span class="n">i</span><span class="si">}{</span><span class="n">image_fmt</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">path_to_images</span><span class="si">}{</span><span class="n">image_name</span><span class="si">}{</span><span class="n">i</span><span class="si">}{</span><span class="n">image_fmt</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">as_gray</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">data</span><span class="o">.</span><span class="n">record_data</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
 
 <span class="n">data</span><span class="o">.</span><span class="n">save_to_pty</span><span class="p">(</span><span class="n">timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>And there you have it.</p>
+<p>And there you have it! All of the images and their associated positions will be stored in a file called <code class="docutils literal notranslate"><span class="pre">ptyceratops.pty</span></code> in the <code class="docutils literal notranslate"><span class="pre">data</span></code> directory.</p>
 </div>
 </div>
 

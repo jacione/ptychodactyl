@@ -2,10 +2,10 @@
 Classes for ptychographic image reconstruction.
 
 Currently implemented:
-    - 2D ePIE (https://doi.org/10.1016/j.ultramic.2009.05.012)
-    - 2D rPIE (https://doi.org/10.1364/OPTICA.4.000736)
+    - `Extended Ptychographic Iterative Engine (ePIE) <https://doi.org/10.1016/j.ultramic.2009.05.012>`_, 2D
+    - `Regularized Ptychographic Iterative Engine (rPIE) <https://doi.org/10.1364/OPTICA.4.000736>`_, 2D
 Planned:
-    - 3D CPT (https://doi.org/10.1364/OL.42.003169)
+    - `Coupled ptychography-tomography (CPT) <https://doi.org/10.1364/OL.42.003169>`_, 3D
 """
 
 import h5py

@@ -41,7 +41,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ptychodactyl.micronix" href="micronix.html" />
+    <link rel="next" title="ptychodactyl.stages" href="stages.html" />
     <link rel="prev" title="API Reference" href="api.html" /> 
 </head>
 
@@ -90,10 +90,10 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation &amp; Setup</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Using PtychoDactyl</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">ptychodactyl.camera</a></li>
-<li class="toctree-l2"><a class="reference internal" href="micronix.html">ptychodactyl.micronix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stages.html">ptychodactyl.stages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ptycho_data.html">ptychodactyl.ptycho_data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="recon.html">ptychodactyl.recon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="scan.html">ptychodactyl.scan</a></li>
@@ -179,6 +179,26 @@
 </ul>
 </dd>
 </dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="camera.SetupCamera">
+<span class="sig-prename descclassname"><span class="pre">camera.</span></span><span class="sig-name descname"><span class="pre">SetupCamera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera_type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.SetupCamera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up the stages with the correct controller class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>camera_type</strong> (<em>str</em>) – Type of stages to set up.</p></li>
+<li><p><strong>kwargs</strong> – keyword arguments associated with type of stages</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Stage controller object, subclass of stages.Stage</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Stage</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="camera.Camera">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">camera.</span></span><span class="sig-name descname"><span class="pre">Camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera" title="Permalink to this definition">¶</a></dt>
@@ -259,7 +279,7 @@ readouts.</p>
 <dd><p>Bases: <a class="reference internal" href="#camera.Camera" title="camera.Camera"><code class="xref py py-class docutils literal notranslate"><span class="pre">camera.Camera</span></code></a></p>
 <p>Camera subclass that can interface with a Thorlabs camera.</p>
 <p>This subclass only implements a few basic functions which are relevant to ptychography data collection. A more
-complete control can be achieved by using the officially provided SDK.</p>
+complete control can be achieved by using the <a class="reference external" href="https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=ThorCam">officially provided SDK</a>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.ThorCam.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.ThorCam.__init__" title="Permalink to this definition">¶</a></dt>
@@ -453,7 +473,7 @@ complete control can be achieved by using the officially provided SDK.</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="micronix.html" class="btn btn-neutral float-right" title="ptychodactyl.micronix" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="stages.html" class="btn btn-neutral float-right" title="ptychodactyl.stages" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="api.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 

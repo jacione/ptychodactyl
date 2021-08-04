@@ -1,17 +1,16 @@
 """
 Main script for collecting ptychography data.
 
-2D: stable
-3D: unfinished
-
-Nick Porter, jacioneportier@gmail.com
+..note::
+    Although 3D data collection is possible using this script, the corresponding 3D reconstruction is not yet
+    implemented in this library.
 """
 
 
 import click
 from ptycho_data import CollectData
 from camera import ThorCam
-from micronix import MMC200
+from stages import Micronix
 from scan import xy_scan, r_scan
 from utils.general import parse_specs
 
@@ -51,7 +50,7 @@ def collect(verbose, spec_file):
     is3d = num_rotations > 1
 
     # Initialize the devices and data structures
-    stages = MMC200(verbose=verbose)
+    stages = Micronix(verbose=verbose)
     camera = ThorCam(verbose=verbose)
     camera.set_resolution(resolution)
     camera.set_exposure(exposure)

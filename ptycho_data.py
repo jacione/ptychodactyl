@@ -1,7 +1,5 @@
 """
 Class definitions for ptychographic datasets.
-
-Nick Porter, jacioneportier@gmail.com
 """
 
 import numpy as np

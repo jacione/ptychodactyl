@@ -6,7 +6,7 @@ API Reference
 .. toctree::
 
     camera
-    micronix
+    stages
     ptycho_data
     recon
     scan

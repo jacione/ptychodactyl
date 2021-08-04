@@ -1,9 +1,0 @@
-Experimental setup
-==================
-
-If you want to run a real ptychography experiment, you'll obviously need more than just a code library. This code is designed to work with a very specific experimental setup, which means that, in addition to software dependencies, there are hardware dependencies.
-
-``TODO: describe the setup``
-
-Additionally, the device interfacing uses some proprietary software development kits provided by Micronix, Mightex, and Thorlabs. This means some DLL and similar files, not created by me, are included in this repository. These files are used under the terms put forth by their respective owners, and all associated copyrights remain with said owners.
-

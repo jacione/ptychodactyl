@@ -1,6 +1,0 @@
-experiment.utils.plotting
-=========================
-
-.. automodule:: experiment.utils.plotting
-    :members:
-

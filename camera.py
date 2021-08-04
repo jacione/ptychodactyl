@@ -15,16 +15,6 @@ import os
 from utils.ThorCam.tl_dotnet_wrapper import TL_SDK
 from skimage.transform import downscale_local_mean
 
-""" Config constants """
-_STRING_MAX = 4096  # for functions that return strings built on C char arrays, this is the max number of characters
-
-""" Callback ctypes types """
-_camera_connect_callback_type = CFUNCTYPE(None, c_char_p, c_int, c_void_p)
-_camera_disconnect_callback_type = CFUNCTYPE(None, c_char_p, c_void_p)
-_frame_available_callback_type = CFUNCTYPE(None, c_void_p, POINTER(c_ushort), c_int, POINTER(c_char), c_int, c_void_p)
-# metadata is ASCII, so use c_char
-_3x3Matrix_float = (c_float * 9)
-
 
 MIGHTEX_DEFAULTS = {
     'width': 2560,
@@ -47,6 +37,24 @@ THORCAM_DEFAULTS = {
 }
 
 libs = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/utils'
+
+
+def SetupCamera(camera_type, **kwargs):
+    """
+    Set up the stages with the correct controller class.
+
+    :param camera_type: Type of stages to set up.
+    :type camera_type: str
+    :param kwargs: keyword arguments associated with type of stages
+    :return: Stage controller object, subclass of stages.Stage
+    :rtype: Stage
+    """
+    options = {
+        'thorcam': ThorCam,
+        'mightex': Mightex,
+        'fancy': None
+    }
+    return options[camera_type.lower()](**kwargs)
 
 
 class Camera(ABC):
@@ -163,7 +171,8 @@ class ThorCam(Camera):
     Camera subclass that can interface with a Thorlabs camera.
 
     This subclass only implements a few basic functions which are relevant to ptychography data collection. A more
-    complete control can be achieved by using the officially provided SDK.
+    complete control can be achieved by using the `officially provided SDK
+    <https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=ThorCam>`_.
     """
 
     def __init__(self, verbose=True):
@@ -313,6 +322,18 @@ class Mightex(Camera):
         """
         super().__init__(MIGHTEX_DEFAULTS, verbose)
         _dll = CDLL(f'{libs}/Mightex/SSClassic_USBCamera_SDK.dll')
+
+        # """ Config constants """
+        # For functions that return strings built on C char arrays, this is the max number of characters
+        # _STRING_MAX = 4096
+        #
+        # """ Callback ctypes types """
+        # _camera_connect_callback_type = CFUNCTYPE(None, c_char_p, c_int, c_void_p)
+        # _camera_disconnect_callback_type = CFUNCTYPE(None, c_char_p, c_void_p)
+        # _frame_available_callback_type = CFUNCTYPE(None, c_void_p, POINTER(c_ushort), c_int, POINTER(c_char), c_int,
+        #                                            c_void_p)
+        # # metadata is ASCII, so use c_char
+        # _3x3Matrix_float = (c_float * 9)
 
         # Basic IO functions for connecting/disconnecting with the camera
         self._sdk_InitDevice = _dll.SSClassicUSB_InitDevice
