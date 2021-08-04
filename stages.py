@@ -1,26 +1,18 @@
 """
 Controller classes for motorized stages.
-
-Currently implemented:
-    - Micronix MMC-200 (stable)
-
-Planned:
-    - Attocube ANC350 (unfinished)
 """
 import numpy as np
-import serial
 import time
-import utils.Attocube.pyanc350v4 as pyanc
 from abc import ABC, abstractmethod
 
 
-def SetupStage(stage_type, **kwargs):
+def get_stage(stage_type, **kwargs):
     """
     Set up the stages with the correct controller class.
 
     :param stage_type: Type of stages to set up.
     :type stage_type: str
-    :param kwargs: keyword arguments associated with type of stages
+    :param kwargs: keyword arguments to pass to stage constructor
     :return: Stage controller object, subclass of stages.Stage
     :rtype: Stage
     """
@@ -32,6 +24,14 @@ def SetupStage(stage_type, **kwargs):
 
 
 class Stage(ABC):
+    """
+    Abstract base class for motorized stage controllers.
+
+    .. note::
+        Axes are defined **in terms of the beamline** which means that the y-axis in this class corresponds to the
+        vertical stage, and the z-axis is horizontal and parallel to the beam. This is different from how the axes are
+        conventionally defined in the stages themselves, where z is assumed to be vertical.
+    """
     def __init__(self, verbose):
         """
         Create a generic Stage object
@@ -42,26 +42,43 @@ class Stage(ABC):
         self.verbose = verbose
 
         # These are the measured positions in the coordinate system of the STAGES
-        self.x = 0
-        self.y = 0
-        self.z = 0
+        self.x = 0.0
+        self.y = 0.0
+        self.z = 0.0
 
         # This is the measured rotational get_position which relates the two coordinate systems
-        self.q = 0
+        self.q = 0.0
 
         # These are the calculated positions in the coordinate system of the BEAMLINE
-        self.x0 = 0
-        self.y0 = 0
-        self.z0 = 0
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        return
+        self.x0 = 0.0
+        self.y0 = 0.0
+        self.z0 = 0.0
 
     def __del__(self):
         return
+
+    @abstractmethod
+    def measure(self):
+        """
+        Check the encoder on each axis and update the attributes within the class instance. This is run automatically
+        immediately after any motion command, so that the attributes should always have the correct values.
+        """
+        pass
+
+    @abstractmethod
+    def check_errors(self):
+        """Check each axis for errors"""
+        pass
+
+    @abstractmethod
+    def get_status(self, ax):
+        """Check the status byte for a given axis"""
+        pass
+
+    @abstractmethod
+    def is_moving(self):
+        """Check each axis' status byte to see if any of them are moving"""
+        pass
 
     # High-level commands #####################################################################################
 
@@ -147,34 +164,7 @@ class Stage(ABC):
         """A quick command to get only the rotational position"""
         return self.q
 
-    # Status queries #######################################################################################
-    # These have to be abstract methods because they will be unique to each type of stage.
-
-    @abstractmethod
-    def measure(self):
-        """
-        Check the encoder on each axis and update the attributes within the class instance. This is run automatically
-        immediately after any motion command, so that the attributes should always have the correct values.
-        """
-        pass
-
-    @abstractmethod
-    def check_errors(self):
-        """Check each axis for errors"""
-        pass
-
-    @abstractmethod
-    def get_status(self, ax):
-        """Check the status byte for a given axis"""
-        pass
-
-    @abstractmethod
-    def is_moving(self):
-        """Check each axis' status byte to see if any of them are moving"""
-        pass
-
     # Other commands #######################################################################################
-    # Some of these features may not be complete.
 
     def print(self, text):
         """A wrapper for print() that checks whether the instance is set to verbose"""
@@ -185,21 +175,16 @@ class Stage(ABC):
 class Attocube(Stage):
     """
     Object-oriented interface for an Attocube ANC350 stage controller.
-
-    .. note::
-        Axes are defined **in terms of the beamline** which means that the y-axis in this class corresponds to the
-        vertical stage, and the z-axis is horizontal and parallel to the beam. This is different from how the axes are
-        conventionally defined in the stages themselves, where z is assumed to be vertical.
-
-    .. note::
-        This class only implements a few basic functions which are relevant to ptychography data collection.
-        For more advanced functionality, you can use the `pyanc350 module <https://github.com/Laukei/pyanc350>`_.
     """
 
-    def __init__(self):
+    def __init__(self, verbose=False):
         """
         Instantiate Attocube object
         """
+        import utils.Attocube.pyanc350v4 as pyanc
+
+        super().__init__(verbose)
+
         pyanc.discover(1)
         self.dev_a = pyanc.Positioner(0)
         self.dev_b = pyanc.Positioner(1)
@@ -214,6 +199,10 @@ class Attocube(Stage):
         self.axes = [self.x_ax, self.y_ax, self.z_ax, self.q_ax]
         self.ax_names = {self.x_ax: 'X', self.y_ax: 'Y', self.z_ax: 'Z', self.q_ax: 'Q'}
         pass
+
+    def __del__(self):
+        self.dev_a.disconnect()
+        self.dev_b.disconnect()
 
     def set_position(self, xyzq, laser_frame=True):
         # Do the move
@@ -238,27 +227,22 @@ class Micronix(Stage):
     Object-oriented interface for a Micronix MMC-200 stage controller.
 
     .. note::
-        Axes are defined **in terms of the beamline** which means that the y-axis in this class corresponds to the
-        vertical stage, and the z-axis is horizontal and parallel to the beam. This is different from how the axes are
-        conventionally defined in the stages themselves, where z is assumed to be vertical.
-
-    .. note::
-        This class only implements a few basic functions
-        which are relevant to ptychography data collection. For more advanced functionality, you can use the ``command``
-        method to send specific serial commands using the supported `command line syntax
-        <https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR>`_.
+        This class only implements a few basic functions which are relevant to ptychography data collection. For more
+        advanced functionality, you can use the ``command`` method to send specific serial commands using the
+        supported `command line syntax <https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR>`_.
     """
     def __init__(self, port='COM3', verbose=False):
         """
-        Create an MMC200 object to interface with a Micronix MMC-200 stage controller.
+        Create a Stage object to interface with a Micronix MMC-200 stage controller.
 
         :param port: Serial port connected to the stage controller.
         :type port: str
-        :param verbose: if True, this instance will print information about most processes as it runs. Default is False.
+        :param verbose: if True, this instance will print information about most processes as it runs.
         :type verbose: bool
         """
         super().__init__(verbose)
         # Connect to the controller
+        import serial
         self.port = serial.Serial(port, baudrate=38400, timeout=2)
         self.port.flush()
 
@@ -276,15 +260,9 @@ class Micronix(Stage):
         self.measure()
         pass
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.port.flush()
-        self.port.close()
-
     def __del__(self):
         self.port.flush()
         self.port.close()
-
-    # High-level commands #####################################################################################
 
     def set_position(self, xyzq, laser_frame=True):
         """
@@ -308,10 +286,6 @@ class Micronix(Stage):
         self.command('0RUN')
         self.measure()
         return
-
-    # Low-level interface ##################################################################################
-    # These can be used for more advanced features using the command line syntax provided by Micronix:
-    # https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR
 
     def command(self, cmd_str):
         """
@@ -347,8 +321,6 @@ class Micronix(Stage):
             s = s[:-1]
         s = s[s.find('#') + 1:]
         return s
-
-    # Status queries ########################################################################
 
     def measure(self):
         """
@@ -397,21 +369,6 @@ class Micronix(Stage):
                 return True
         else:
             return False
-
-    # Other commands #######################################################################################
-    # Some of these features may not be complete.
-
-    def print(self, text):
-        """A wrapper for print() that checks whether the instance is set to verbose"""
-        if self.verbose:
-            print(text)
-
-    # def zero(self):
-    #     # TODO: Move to zero the sample on the beamline
-    #     # TODO: Rotate to align the y-axis parallel to the beamline
-    #     # self.command('0ZRO')
-    #     # self.measure()
-    #     pass
 
 
 if __name__ == '__main__':

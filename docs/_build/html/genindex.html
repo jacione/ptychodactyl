@@ -174,6 +174,7 @@
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -186,9 +187,11 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/camera.html#camera.Camera.__init__">__init__() (camera.Camera method)</a>
+      <li><a href="api/camera.html#camera.Andor.__init__">__init__() (camera.Andor method)</a>
 
       <ul>
+        <li><a href="api/camera.html#camera.Camera.__init__">(camera.Camera method)</a>
+</li>
         <li><a href="api/camera.html#camera.Mightex.__init__">(camera.Mightex method)</a>
 </li>
         <li><a href="api/camera.html#camera.ThorCam.__init__">(camera.ThorCam method)</a>
@@ -207,6 +210,12 @@
 </li>
         <li><a href="api/recon.html#recon.Recon3D.__init__">(recon.Recon3D method)</a>
 </li>
+        <li><a href="api/stages.html#stages.Attocube.__init__">(stages.Attocube method)</a>
+</li>
+        <li><a href="api/stages.html#stages.Micronix.__init__">(stages.Micronix method)</a>
+</li>
+        <li><a href="api/stages.html#stages.Stage.__init__">(stages.Stage method)</a>
+</li>
       </ul></li>
   </ul></td>
 </tr></table>
@@ -215,6 +224,22 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/camera.html#camera.Camera.analyze_frame">analyze_frame() (camera.Camera method)</a>
+</li>
+      <li><a href="api/camera.html#camera.Andor">Andor (class in camera)</a>
+</li>
+      <li><a href="api/camera.html#camera.Andor.arm">arm() (camera.Andor method)</a>
+
+      <ul>
+        <li><a href="api/camera.html#camera.Camera.arm">(camera.Camera method)</a>
+</li>
+        <li><a href="api/camera.html#camera.Mightex.arm">(camera.Mightex method)</a>
+</li>
+        <li><a href="api/camera.html#camera.ThorCam.arm">(camera.ThorCam method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/stages.html#stages.Attocube">Attocube (class in stages)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -241,27 +266,41 @@
       </ul></li>
       <li><a href="api/camera.html#camera.Camera">Camera (class in camera)</a>
 </li>
-      <li><a href="api/camera.html#camera.Camera.camera_off">camera_off() (camera.Camera method)</a>
+      <li><a href="api/camera.html#camera.Andor.camera_off">camera_off() (camera.Andor method)</a>
 
       <ul>
+        <li><a href="api/camera.html#camera.Camera.camera_off">(camera.Camera method)</a>
+</li>
         <li><a href="api/camera.html#camera.Mightex.camera_off">(camera.Mightex method)</a>
 </li>
         <li><a href="api/camera.html#camera.ThorCam.camera_off">(camera.ThorCam method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/camera.html#camera.Camera.camera_on">camera_on() (camera.Camera method)</a>
+      <li><a href="api/camera.html#camera.Andor.camera_on">camera_on() (camera.Andor method)</a>
 
       <ul>
+        <li><a href="api/camera.html#camera.Camera.camera_on">(camera.Camera method)</a>
+</li>
         <li><a href="api/camera.html#camera.Mightex.camera_on">(camera.Mightex method)</a>
 </li>
         <li><a href="api/camera.html#camera.ThorCam.camera_on">(camera.ThorCam method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/recon.html#recon.center">center() (in module recon)</a>
 </li>
+      <li><a href="api/stages.html#stages.Attocube.check_errors">check_errors() (stages.Attocube method)</a>
+
+      <ul>
+        <li><a href="api/stages.html#stages.Micronix.check_errors">(stages.Micronix method)</a>
+</li>
+        <li><a href="api/stages.html#stages.Stage.check_errors">(stages.Stage method)</a>
+</li>
+      </ul></li>
       <li><a href="api/ptycho_data.html#ptycho_data.CollectData">CollectData (class in ptycho_data)</a>
+</li>
+      <li><a href="api/stages.html#stages.Micronix.command">command() (stages.Micronix method)</a>
 </li>
       <li><a href="api/utils.html#utils.plotting.comp_to_rgb">comp_to_rgb() (in module utils.plotting)</a>
 </li>
@@ -281,14 +320,24 @@
 </li>
       <li><a href="api/utils.html#utils.general.demo_image">demo_image() (in module utils.general)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/utils.html#utils.plotting.demo_phase">demo_phase() (in module utils.plotting)</a>
 </li>
       <li><a href="api/ptycho_data.html#ptycho_data.demo_vbleed_correct">demo_vbleed_correct() (in module ptycho_data)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/ptycho_data.html#ptycho_data.GenerateData2D.detect">detect() (ptycho_data.GenerateData2D method)</a>
 </li>
+      <li><a href="api/camera.html#camera.Andor.disarm">disarm() (camera.Andor method)</a>
+
+      <ul>
+        <li><a href="api/camera.html#camera.Camera.disarm">(camera.Camera method)</a>
+</li>
+        <li><a href="api/camera.html#camera.Mightex.disarm">(camera.Mightex method)</a>
+</li>
+        <li><a href="api/camera.html#camera.ThorCam.disarm">(camera.ThorCam method)</a>
+</li>
+      </ul></li>
       <li><a href="api/ptycho_data.html#ptycho_data.PtychoData.distance">distance (ptycho_data.PtychoData property)</a>
 </li>
   </ul></td>
@@ -327,6 +376,18 @@
 </li>
       <li><a href="api/ptycho_data.html#ptycho_data.GenerateData3D">GenerateData3D (class in ptycho_data)</a>
 </li>
+      <li><a href="api/camera.html#camera.get_camera">get_camera() (in module camera)</a>
+</li>
+      <li><a href="api/camera.html#camera.Andor.get_frame">get_frame() (camera.Andor method)</a>
+
+      <ul>
+        <li><a href="api/camera.html#camera.Camera.get_frame">(camera.Camera method)</a>
+</li>
+        <li><a href="api/camera.html#camera.Mightex.get_frame">(camera.Mightex method)</a>
+</li>
+        <li><a href="api/camera.html#camera.ThorCam.get_frame">(camera.ThorCam method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/camera.html#camera.Camera.get_frames">get_frames() (camera.Camera method)</a>
@@ -334,9 +395,23 @@
       <ul>
         <li><a href="api/camera.html#camera.Mightex.get_frames">(camera.Mightex method)</a>
 </li>
-        <li><a href="api/camera.html#camera.ThorCam.get_frames">(camera.ThorCam method)</a>
+      </ul></li>
+      <li><a href="api/stages.html#stages.Stage.get_position">get_position() (stages.Stage method)</a>
+</li>
+      <li><a href="api/stages.html#stages.Stage.get_rotation">get_rotation() (stages.Stage method)</a>
+</li>
+      <li><a href="api/stages.html#stages.get_stage">get_stage() (in module stages)</a>
+</li>
+      <li><a href="api/stages.html#stages.Attocube.get_status">get_status() (stages.Attocube method)</a>
+
+      <ul>
+        <li><a href="api/stages.html#stages.Micronix.get_status">(stages.Micronix method)</a>
+</li>
+        <li><a href="api/stages.html#stages.Stage.get_status">(stages.Stage method)</a>
 </li>
       </ul></li>
+      <li><a href="api/stages.html#stages.Stage.get_translation">get_translation() (stages.Stage method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -344,6 +419,12 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/scan.html#scan.hex_scan">hex_scan() (in module scan)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/stages.html#stages.Stage.home_all">home_all() (stages.Stage method)</a>
+</li>
+      <li><a href="api/stages.html#stages.Stage.home_horizontal">home_horizontal() (stages.Stage method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -357,16 +438,24 @@
 </li>
       <li><a href="api/camera.html#camera.Camera.imshow">imshow() (camera.Camera static method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/recon.html#recon.init_object">init_object() (in module recon)</a>
 </li>
       <li><a href="api/recon.html#recon.init_probe">init_probe() (in module recon)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/recon.html#recon.init_probe_flat">init_probe_flat() (in module recon)</a>
 </li>
       <li><a href="api/ptycho_data.html#ptycho_data.LoadData.is3d">is3d (ptycho_data.LoadData property)</a>
 </li>
+      <li><a href="api/stages.html#stages.Attocube.is_moving">is_moving() (stages.Attocube method)</a>
+
+      <ul>
+        <li><a href="api/stages.html#stages.Micronix.is_moving">(stages.Micronix method)</a>
+</li>
+        <li><a href="api/stages.html#stages.Stage.is_moving">(stages.Stage method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -383,6 +472,16 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/ptycho_data.html#ptycho_data.LoadData.max_translation">max_translation (ptycho_data.LoadData property)</a>
 </li>
+      <li><a href="api/stages.html#stages.Attocube.measure">measure() (stages.Attocube method)</a>
+
+      <ul>
+        <li><a href="api/stages.html#stages.Micronix.measure">(stages.Micronix method)</a>
+</li>
+        <li><a href="api/stages.html#stages.Stage.measure">(stages.Stage method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/stages.html#stages.Micronix">Micronix (class in stages)</a>
+</li>
       <li><a href="api/camera.html#camera.Mightex">Mightex (class in camera)</a>
 </li>
       <li>
@@ -396,6 +495,8 @@
         <li><a href="api/recon.html#module-recon">recon</a>
 </li>
         <li><a href="api/scan.html#module-scan">scan</a>
+</li>
+        <li><a href="api/stages.html#module-stages">stages</a>
 </li>
         <li><a href="api/utils.html#module-utils.general">utils.general</a>
 </li>
@@ -446,14 +547,16 @@
 </li>
       <li><a href="api/ptycho_data.html#ptycho_data.PtychoData.position">position (ptycho_data.PtychoData property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/camera.html#camera.Camera.print">print() (camera.Camera method)</a>
 
       <ul>
         <li><a href="api/ptycho_data.html#ptycho_data.CollectData.print">(ptycho_data.CollectData method)</a>
 </li>
+        <li><a href="api/stages.html#stages.Stage.print">(stages.Stage method)</a>
+</li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     ptycho_data
 
@@ -462,6 +565,14 @@
 </li>
       </ul></li>
       <li><a href="api/ptycho_data.html#ptycho_data.PtychoData">PtychoData (class in ptycho_data)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/stages.html#stages.Micronix.query">query() (stages.Micronix method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -522,42 +633,58 @@
 </li>
       </ul></li>
       <li><a href="api/camera.html#camera.Camera.set_defaults">set_defaults() (camera.Camera method)</a>
-
-      <ul>
-        <li><a href="api/camera.html#camera.ThorCam.set_defaults">(camera.ThorCam method)</a>
 </li>
-      </ul></li>
-      <li><a href="api/camera.html#camera.Camera.set_exposure">set_exposure() (camera.Camera method)</a>
+      <li><a href="api/camera.html#camera.Andor.set_exposure">set_exposure() (camera.Andor method)</a>
 
       <ul>
+        <li><a href="api/camera.html#camera.Camera.set_exposure">(camera.Camera method)</a>
+</li>
         <li><a href="api/camera.html#camera.Mightex.set_exposure">(camera.Mightex method)</a>
 </li>
         <li><a href="api/camera.html#camera.ThorCam.set_exposure">(camera.ThorCam method)</a>
 </li>
       </ul></li>
-      <li><a href="api/camera.html#camera.ThorCam.set_frames_per_trigger">set_frames_per_trigger() (camera.ThorCam method)</a>
-</li>
-      <li><a href="api/camera.html#camera.Camera.set_gain">set_gain() (camera.Camera method)</a>
+      <li><a href="api/camera.html#camera.Andor.set_gain">set_gain() (camera.Andor method)</a>
 
       <ul>
+        <li><a href="api/camera.html#camera.Camera.set_gain">(camera.Camera method)</a>
+</li>
         <li><a href="api/camera.html#camera.Mightex.set_gain">(camera.Mightex method)</a>
 </li>
         <li><a href="api/camera.html#camera.ThorCam.set_gain">(camera.ThorCam method)</a>
 </li>
       </ul></li>
+      <li><a href="api/stages.html#stages.Attocube.set_position">set_position() (stages.Attocube method)</a>
+
+      <ul>
+        <li><a href="api/stages.html#stages.Micronix.set_position">(stages.Micronix method)</a>
+</li>
+        <li><a href="api/stages.html#stages.Stage.set_position">(stages.Stage method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/stages.html#stages.Stage.set_q">set_q() (stages.Stage method)</a>
+</li>
       <li><a href="api/camera.html#camera.Camera.set_resolution">set_resolution() (camera.Camera method)</a>
 
       <ul>
         <li><a href="api/camera.html#camera.Mightex.set_resolution">(camera.Mightex method)</a>
 </li>
-        <li><a href="api/camera.html#camera.ThorCam.set_resolution">(camera.ThorCam method)</a>
-</li>
       </ul></li>
+      <li><a href="api/stages.html#stages.Stage.set_x">set_x() (stages.Stage method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/recon.html#recon.setup_figure">setup_figure() (in module recon)</a>
+      <li><a href="api/stages.html#stages.Stage.set_x0">set_x0() (stages.Stage method)</a>
 </li>
-      <li><a href="api/camera.html#camera.SetupCamera">SetupCamera() (in module camera)</a>
+      <li><a href="api/stages.html#stages.Stage.set_y">set_y() (stages.Stage method)</a>
+</li>
+      <li><a href="api/stages.html#stages.Stage.set_y0">set_y0() (stages.Stage method)</a>
+</li>
+      <li><a href="api/stages.html#stages.Stage.set_z">set_z() (stages.Stage method)</a>
+</li>
+      <li><a href="api/stages.html#stages.Stage.set_z0">set_z0() (stages.Stage method)</a>
+</li>
+      <li><a href="api/recon.html#recon.setup_figure">setup_figure() (in module recon)</a>
 </li>
       <li><a href="api/ptycho_data.html#ptycho_data.PtychoData.shape">shape (ptycho_data.PtychoData property)</a>
 </li>
@@ -577,12 +704,23 @@
         <li><a href="api/recon.html#recon.Recon3D.show_object_and_probe">(recon.Recon3D method)</a>
 </li>
       </ul></li>
+      <li><a href="api/stages.html#stages.Stage.show_off">show_off() (stages.Stage method)</a>
+</li>
       <li><a href="api/ptycho_data.html#ptycho_data.PtychoData.show_pattern">show_pattern() (ptycho_data.PtychoData method)</a>
 </li>
       <li><a href="api/recon.html#recon.Recon2D.show_probe_positions">show_probe_positions() (recon.Recon2D method)</a>
 </li>
       <li><a href="api/scan.html#scan.spiral_scan">spiral_scan() (in module scan)</a>
 </li>
+      <li><a href="api/stages.html#stages.Stage">Stage (class in stages)</a>
+</li>
+      <li>
+    stages
+
+      <ul>
+        <li><a href="api/stages.html#module-stages">module</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 

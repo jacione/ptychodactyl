@@ -2,6 +2,7 @@
 title = test
 
 #### Probe positioning parameters
+stages = micronix               # Keyword for the stages that you're using
 width = 1.0                     # Horizontal scanning range (mm)
 height = 1.0                    # Vertical scanning range (mm)
 step_size = 0.1                 # Spacing between probe positions (mm)
@@ -9,6 +10,7 @@ pattern = spiral                # Geometric pattern for ptychography scan (rect,
 num_rotations = 0               # Number of rotational steps (zero for no rotation)
 
 #### Image acquisition parameters
+camera = thorcam                # Keyword for the camera that you're using
 background_frames = true        # Set to true to record a background image with the laser off
 frames_per_take = 15            # Number of frames to sum for each measurement (including background)
 resolution = 512                # Desired final image size (number of pixels on a side)

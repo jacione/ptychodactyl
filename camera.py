@@ -1,9 +1,5 @@
 """
 Controller classes for cameras.
-
-Currently implemented:
-    - Thorlabs  S805MU1  (preferred)
-    - Mightex  SME-B050-U  (works, but very buggy)
 """
 
 from ctypes import *
@@ -12,34 +8,13 @@ from matplotlib import pyplot as plt
 from scipy.ndimage import center_of_mass
 from abc import ABC, abstractmethod
 import os
-from utils.ThorCam.tl_dotnet_wrapper import TL_SDK
 from skimage.transform import downscale_local_mean
 
-
-MIGHTEX_DEFAULTS = {
-    'width': 2560,
-    'height': 1920,
-    'exposure': 0.25,
-    'gain': 8,
-    'metadata': 128,
-    'dtype': 'i4',
-    'pixel_size': 2.2
-}
-THORCAM_DEFAULTS = {
-    'width': 3296,
-    'height': 2472,
-    'exposure': 0.25,
-    'gain': 1,
-    'metadata': 128,
-    'dtype': 'i4',
-    'pixel_size': 5.5,
-    'serial_number': '08949'
-}
 
 libs = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/utils'
 
 
-def SetupCamera(camera_type, **kwargs):
+def get_camera(camera_type, **kwargs):
     """
     Set up the stages with the correct controller class.
 
@@ -52,7 +27,7 @@ def SetupCamera(camera_type, **kwargs):
     options = {
         'thorcam': ThorCam,
         'mightex': Mightex,
-        'fancy': None
+        'andor': Andor
     }
     return options[camera_type.lower()](**kwargs)
 
@@ -65,6 +40,7 @@ class Camera(ABC):
     def __init__(self, defaults, verbose):
         self.defaults = defaults
         self.is_on = False
+        self.is_armed = False
         self.verbose = verbose
         self.full_width = self.defaults['width']
         self.full_height = self.defaults['height']
@@ -75,9 +51,6 @@ class Camera(ABC):
         self.height = self.defaults['height']
         self.im_shape = (self.height, self.width)
         self.im_size = self.width * self.height
-        self.dtype = self.defaults['dtype']
-        self.image_metadata_size = self.defaults['metadata']
-        self.data_size = self.im_size + self.image_metadata_size
         self.pixel_size = self.defaults['pixel_size']
         self.exposure = self.defaults['exposure']
         self.gain = self.defaults['gain']
@@ -100,10 +73,6 @@ class Camera(ABC):
         pass
 
     @abstractmethod
-    def set_resolution(self, resolution):
-        return
-
-    @abstractmethod
     def set_exposure(self, ms):
         pass
 
@@ -112,8 +81,38 @@ class Camera(ABC):
         pass
 
     @abstractmethod
-    def get_frames(self):
+    def arm(self):
         pass
+
+    @abstractmethod
+    def get_frame(self):
+        pass
+
+    @abstractmethod
+    def disarm(self):
+        pass
+
+    def get_frames(self, num_frames=1, show=False):
+        """
+        Collect a composite image from the camera.
+
+        :param num_frames: Camera will sum this many frames into the composite image
+        :type num_frames: int
+        :param show: If True, show the image (log scale) and a histogram of the image data.
+        :type show: bool
+        :return: 2D image array
+        :rtype: np.ndarray
+        """
+        data = np.zeros(self.im_shape)
+        self.arm()
+        for i in range(num_frames):
+            data = data + downscale_local_mean(self.get_frame(), (self.binning, self.binning))
+        if show:
+            self.imshow(np.log(data + 1))
+            plt.hist(np.ravel(data), bins=100)
+            plt.yscale('log')
+            plt.show()
+        return data
 
     @staticmethod
     def imshow(image):
@@ -130,9 +129,29 @@ class Camera(ABC):
 
     def set_defaults(self):
         """Sets the basic camera features to their basic values."""
-        self.set_resolution((self.defaults['width'], self.defaults['height']))
+        self.set_resolution(self.full_height)
         self.set_exposure(self.defaults['exposure'])
         self.set_gain(self.defaults['gain'])
+        return
+
+    def set_resolution(self, resolution):
+        """
+        Set camera resolution. The functionality of this is a little counter-intuitive. The **resolution** parameter is
+        the side-length of the desired diffraction data. This method will set the camera to bin each image as much as
+        possible without reducing the height or width below **resolution**. The data will be cropped to the right
+        size in CollectData.finalize() before saving. The binning happens here to reduce runtime memory usage,
+        but the cropping has to happen there because it needs to be centered on the diffraction patterns.
+
+        :param resolution: Desired side length of diffraction data.
+        :type resolution: int
+        """
+        if resolution is not None:
+            self.binning = self.full_height // resolution
+        self.width = self.full_width // self.binning
+        self.height = self.full_height // self.binning
+        self.im_shape = (self.height, self.width)
+        self.im_size = self.width * self.height
+        self.pixel_size = self.defaults['pixel_size'] * self.binning
         return
 
     def find_center(self):
@@ -141,8 +160,7 @@ class Camera(ABC):
         beam or diffraction pattern.
         """
         img = self.get_frames()
-        img = img - 2 * np.median(img)
-        img[img < 0] = 0
+        img[img < np.quantile(img, 0.75)] = 0
         return center_of_mass(img)
 
     def analyze_frame(self):
@@ -179,12 +197,25 @@ class ThorCam(Camera):
         """
         Create a ThorCam object
 
-        :param verbose: if True, this instance will print information about most processes as it runs. Default is True.
+        :param verbose: if True (default), this instance will print information about most processes as it runs.
         :type verbose: bool
         """
-        super().__init__(THORCAM_DEFAULTS, verbose)
+
+        from utils.ThorCam.tl_dotnet_wrapper import TL_SDK
+
+        defaults = {
+            'width': 3296,
+            'height': 2472,
+            'exposure': 0.25,
+            'gain': 1,
+            'pixel_size': 5.5
+        }
+
+        super().__init__(defaults, verbose)
+
         self._sdk = TL_SDK()
         self._handle = None
+
         self.camera_on()
         self.set_defaults()
         return
@@ -207,35 +238,11 @@ class ThorCam(Camera):
             self.print('Camera engine not started!')
             return
 
+        self._handle.close()
+
         self.is_on = False
         self.print('SUCCESS: Camera engine stopped!')
         return
-
-    def set_defaults(self):
-        """Sets the exposure time and gain to their default values."""
-        self.set_exposure(self.defaults['exposure'])
-        self.set_gain(self.defaults['gain'])
-        self.set_frames_per_trigger(0)
-        return
-
-    def set_resolution(self, resolution):
-        """
-        Set camera resolution. The functionality of this is a little counter-intuitive. The :resolution: parameter is
-        the side-length of the desired diffraction data. This method will set the camera to bin each image as much as
-        possible without reducing the height or width below :resolution:. The data will be cropped to the right size in
-        CollectData.finalize() before saving. The binning happens here to reduce runtime memory usage, but the cropping
-        has to happen there because it tries to center the diffraction pattern.
-
-        :param resolution: Desired side length of diffraction data.
-        :type resolution: int
-        """
-        if resolution is not None:
-            self.binning = self.full_height // resolution
-        self.width = self.full_width // self.binning
-        self.height = self.full_height // self.binning
-        self.im_shape = (self.height, self.width)
-        self.im_size = self.width * self.height
-        self.pixel_size = self.defaults['pixel_size'] * self.binning
 
     def set_exposure(self, ms):
         """
@@ -260,49 +267,24 @@ class ThorCam(Camera):
             self._handle.set_gain(gain)
         return
 
-    def set_frames_per_trigger(self, fpt):
-        """
-        Set the camera "frames_per_trigger" parameter. This is not necessary, since fpt=0 sets the camera to read out
-        indefinitely, but it may help it run faster.
-
-        :param fpt: number of frames per camera trigger.
-        :type fpt: int
-        """
-        if fpt is not None:
-            self._handle.set_frames_per_trigger_zero_for_unlimited(fpt)
-        return
-
-    def get_frames(self, num_frames=1, show=False):
-        """
-        Collect a composite image from the camera.
-
-        :param num_frames: Camera will sum this many frames into the composite image
-        :type num_frames: int
-        :param show: If True, show the image (log scale) and a histogram of the image data.
-        :type show: bool
-        :return: 2D image array
-        :rtype: np.ndarray
-        """
+    def arm(self):
         if not self.is_on:
             self.camera_on()
         self._handle.arm()
-        data = np.zeros(self.im_shape)
-        for i in range(num_frames):
-            self._handle.issue_software_trigger()
-            frame = None
-            while frame is None:
-                frame = self._handle.get_pending_frame_or_null()
-            frame = self._handle.frame_to_array(frame)  # copies image data from frame into a numpy array
-            data = data + downscale_local_mean(frame, (self.binning, self.binning))
+        self.is_armed = True
+        return
+
+    def get_frame(self):
+        self._handle.issue_software_trigger()
+        frame = None
+        while frame is None:
+            frame = self._handle.get_pending_frame_or_null()
+        return self._handle.frame_to_array(frame)
+
+    def disarm(self):
         self._handle.disarm()
-        if show:
-            self.imshow(np.log(data + 1))
-            plt.hist(np.ravel(data), bins=100)
-            plt.yscale('log')
-            plt.show()
-        while self._handle.is_busy:
-            pass
-        return data
+        self.is_armed = False
+        return
 
 
 class Mightex(Camera):
@@ -317,10 +299,23 @@ class Mightex(Camera):
         """
         Create a Mightex object.
 
-        :param verbose: if True, this instance will print information about most processes as it runs. Default is True.
+        :param verbose: if True, this instance will print information about most processes as it runs. Default is True
         :type verbose: bool
         """
-        super().__init__(MIGHTEX_DEFAULTS, verbose)
+        defaults = {
+            'width': 2560,
+            'height': 1920,
+            'exposure': 0.25,
+            'gain': 8,
+            'metadata': 128,
+            'dtype': 'i4',
+            'pixel_size': 2.2
+        }
+        super().__init__(defaults, verbose)
+        self.dtype = self.defaults['dtype']
+        self.image_metadata_size = self.defaults['metadata']
+        self.data_size = self.im_size + self.image_metadata_size
+
         _dll = CDLL(f'{libs}/Mightex/SSClassic_USBCamera_SDK.dll')
 
         # """ Config constants """
@@ -513,6 +508,15 @@ class Mightex(Camera):
                 self.gain = gain
         return
 
+    def arm(self):
+        pass
+
+    def get_frame(self):
+        pass
+
+    def disarm(self):
+        pass
+
     def get_frames(self, num_frames=1, show=False):
         """
         Collect images from the camera.
@@ -553,6 +557,33 @@ class Mightex(Camera):
         if show:
             self.imshow(data)
         return data
+
+
+class Andor(Camera):
+
+    def __init__(self, defaults, verbose):
+        pass
+
+    def camera_on(self):
+        pass
+
+    def camera_off(self):
+        pass
+
+    def set_exposure(self, ms):
+        pass
+
+    def set_gain(self, gain):
+        pass
+
+    def arm(self):
+        pass
+
+    def get_frame(self):
+        pass
+
+    def disarm(self):
+        pass
 
 
 if __name__ == '__main__':
