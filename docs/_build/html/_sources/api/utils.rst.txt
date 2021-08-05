@@ -1,7 +1,7 @@
 .. _utils:
 
-ptychodactyl.utils
-==================
+Utilities
+=========
 
 These are utility functions that are basically just here to keep the other modules from getting too crowded.
 

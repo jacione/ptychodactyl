@@ -1,7 +1,7 @@
 .. _scan:
 
-ptychodactyl.scan
-=================
+Scan parameters
+===============
 
 .. automodule:: scan
     :members:

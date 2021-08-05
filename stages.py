@@ -8,7 +8,11 @@ from abc import ABC, abstractmethod
 
 def get_stage(stage_type, **kwargs):
     """
-    Set up the stages with the correct controller class.
+    Set up the stages with the correct controller subclass.
+
+    .. note::
+        If you write your own Stage subclass (recommended), be sure to add it to the dictionary within this function.
+        Otherwise, you will get a ``KeyError``.
 
     :param stage_type: Type of stages to set up.
     :type stage_type: str
@@ -32,6 +36,7 @@ class Stage(ABC):
         vertical stage, and the z-axis is horizontal and parallel to the beam. This is different from how the axes are
         conventionally defined in the stages themselves, where z is assumed to be vertical.
     """
+    @abstractmethod
     def __init__(self, verbose):
         """
         Create a generic Stage object
@@ -72,27 +77,40 @@ class Stage(ABC):
 
     @abstractmethod
     def get_status(self, ax):
-        """Check the status byte for a given axis"""
+        """Check the status of a given axis"""
         pass
 
     @abstractmethod
     def is_moving(self):
-        """Check each axis' status byte to see if any of them are moving"""
+        """Check whether any of the axes are currently moving"""
         pass
 
     # High-level commands #####################################################################################
 
     @abstractmethod
     def set_position(self, xyzq, laser_frame=True):
+        """
+        Move the stages to a desired position.
+
+        :param xyzq: Desired position for each axis.
+        :type xyzq: (float, float, float, float)
+        :param laser_frame: if True, convert positions to be in the laser's reference frame. Default is True.
+        :type laser_frame: bool
+        """
         pass
 
-    def get_position(self):
+    def get_position(self, remeasure=False):
         """
         Get the current position of the stages.
 
+        :param remeasure: If True, call self.measure() before returning a value. If False, use the currently stored
+            values. Default is False.
+        :type remeasure: bool
         :return: Stage positions in the beam's reference frame (vertical, horizontal, rotational)
         :rtype: np.ndarray
         """
+        if remeasure:
+            self.measure()
         self.print(f'\nAXIS   POS(mm)\n'
                    f'  X    {self.x0:0.6f}\n'
                    f'  Y    {self.y0:0.6f}\n'
@@ -101,7 +119,7 @@ class Stage(ABC):
         return np.array([self.y0, self.x0, self.q])
 
     def home_all(self):
-        """A quick command to reset all stage positions"""
+        """Move all stages to their zero positions."""
         self.set_position((0, 0, 0, 0))
         return
 
@@ -152,7 +170,7 @@ class Stage(ABC):
         return
 
     def home_horizontal(self):
-        """A quick command to reset horizontal stage positions"""
+        """Move horizontal stages to their zero positions."""
         self.set_position((0, self.y0, 0, self.q))
         pass
 
@@ -265,14 +283,6 @@ class Micronix(Stage):
         self.port.close()
 
     def set_position(self, xyzq, laser_frame=True):
-        """
-        Move the stages to a desired position.
-
-        :param xyzq: Desired position for each axis.
-        :type xyzq: (float, float, float, float)
-        :param laser_frame: if True, convert positions to be in the laser's reference frame. Default is True.
-        :type laser_frame: bool
-        """
         if laser_frame:
             x, y, z, q = xyzq
             q_rads = q * np.pi / 180
@@ -369,6 +379,28 @@ class Micronix(Stage):
                 return True
         else:
             return False
+
+
+class YourStage(Stage):
+
+    def __init__(self, verbose):
+        super().__init__(verbose)
+        pass
+
+    def measure(self):
+        pass
+
+    def check_errors(self):
+        pass
+
+    def get_status(self, ax):
+        pass
+
+    def is_moving(self):
+        pass
+
+    def set_position(self, xyzq, laser_frame=True):
+        pass
 
 
 if __name__ == '__main__':

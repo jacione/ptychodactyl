@@ -1,7 +1,7 @@
 .. _recon:
 
-ptychodactyl.recon
-==================
+Reconstruction
+==============
 
 .. automodule:: recon
     :members:

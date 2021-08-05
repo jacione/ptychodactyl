@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>ptychodactyl.camera &mdash; PtychoDactyl  documentation</title>
+  <title>Camera interfacing &mdash; PtychoDactyl  documentation</title>
   
 
   
@@ -41,7 +41,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ptychodactyl.stages" href="stages.html" />
+    <link rel="next" title="Stage controller interfacing" href="stages.html" />
     <link rel="prev" title="API Reference" href="api.html" /> 
 </head>
 
@@ -92,12 +92,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation &amp; Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Using PtychoDactyl</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">ptychodactyl.camera</a></li>
-<li class="toctree-l2"><a class="reference internal" href="stages.html">ptychodactyl.stages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ptycho_data.html">ptychodactyl.ptycho_data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="recon.html">ptychodactyl.recon</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scan.html">ptychodactyl.scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils.html">ptychodactyl.utils</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Camera interfacing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stages.html">Stage controller interfacing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ptycho_data.html">Data management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recon.html">Reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scan.html">Scan parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utilities</a></li>
 </ul>
 </li>
 </ul>
@@ -150,7 +150,7 @@
         
           <li><a href="api.html">API Reference</a> &raquo;</li>
         
-      <li>ptychodactyl.camera</li>
+      <li>Camera interfacing</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -169,33 +169,33 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="ptychodactyl-camera">
-<span id="camera"></span><h1>ptychodactyl.camera<a class="headerlink" href="#ptychodactyl-camera" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="camera-interfacing">
+<span id="camera"></span><h1>Camera interfacing<a class="headerlink" href="#camera-interfacing" title="Permalink to this headline">¶</a></h1>
 <p>Examples:</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 7%" />
-<col style="width: 7%" />
-<col style="width: 11%" />
-<col style="width: 75%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 5%" />
+<col style="width: 82%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Manufacturer</p></th>
 <th class="head"><p>Camera model</p></th>
 <th class="head"><p>Status</p></th>
-<th class="head"><p>Dependencies</p></th>
+<th class="head"><p>Dependencies (not included)</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Thorlabs</p></td>
 <td><p>S805MU1</p></td>
-<td><p>stable, <em>preferred</em></p></td>
-<td><p><a class="reference external" href="https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=ThorCam">Thorlabs camera SDK</a></p></td>
+<td><p>stable</p></td>
+<td><p><a class="reference external" href="https://pypi.org/project/pythonnet/">Python.NET</a>, <a class="reference external" href="https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=ThorCam">Thorlabs camera SDK</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>Andor</p></td>
 <td><p>DO936N</p></td>
-<td><p>not yet implemented</p></td>
-<td><p><a class="reference external" href="https://andor.oxinst.com/downloads/view/andor-sdk-2.104.30000.0">Andor SDK</a> (requires purchase verification)</p></td>
+<td><p>unfinished</p></td>
+<td><p><a class="reference external" href="https://andor.oxinst.com/downloads/view/andor-sdk-2.104.30000.0">Andor SDK</a> (requires verification)</p></td>
 </tr>
 <tr class="row-even"><td><p>Mightex</p></td>
 <td><p>SME-B050-U</p></td>
@@ -204,23 +204,27 @@
 </tr>
 </tbody>
 </table>
-<span class="target" id="module-camera"></span><p>Controller classes for cameras.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="camera.get_camera">
 <span class="sig-prename descclassname"><span class="pre">camera.</span></span><span class="sig-name descname"><span class="pre">get_camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera_type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.get_camera" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set up the stages with the correct controller class.</p>
+<dd><p>Set up the camera with the correct controller subclass.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you write your own Camera subclass (recommended), be sure to add it to the dictionary within this function.
+Otherwise, you will get a <code class="docutils literal notranslate"><span class="pre">KeyError</span></code>.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>camera_type</strong> (<em>str</em>) – Type of stages to set up.</p></li>
-<li><p><strong>kwargs</strong> – keyword arguments associated with type of stages</p></li>
+<li><p><strong>camera_type</strong> (<em>str</em>) – Type of camera to set up.</p></li>
+<li><p><strong>kwargs</strong> – keyword arguments associated with type of camera</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Stage controller object, subclass of stages.Stage</p>
+<dd class="field-even"><p>Camera controller object, subclass of camera.Camera</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="stages.html#stages.Stage" title="stages.Stage">Stage</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#camera.Camera" title="camera.Camera">Camera</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -238,42 +242,78 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.camera_on">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">camera_on</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.camera_on" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Turn on the camera interface.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.camera_off">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">camera_off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.camera_off" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Turn off the camera interface.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.set_exposure">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">set_exposure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.set_exposure" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Set the camera exposure time in milliseconds.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Not all camera drivers use milliseconds to define exposure time. When implementing this in a subclass,
+remember to check the units that the device is expecting and convert your value if necessary.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ms</strong> (<em>float</em>) – Exposure time in milliseconds</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.set_gain">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">set_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.set_gain" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Set the camera’s analog gain.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Not all camera drivers use raw coefficients to define analog gain. When implementing this in a subclass,
+remember to check the format that the device is expecting and convert your value if necessary.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>gain</strong> (<em>float</em>) – Analog gain</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.arm">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">arm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.arm" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Arm the camera for image capture.</p>
+<p>Most cameras have some sort of arming function that must be called before any frames can be captured.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.get_frame">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">get_frame</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.get_frame" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Capture and return a single frame from the image detector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>2D image array</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.disarm">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">disarm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.disarm" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Disarm the camera after image capture.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.get_frames">
 <span class="sig-name descname"><span class="pre">get_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_frames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.get_frames" title="Permalink to this definition">¶</a></dt>
-<dd><p>Collect a composite image from the camera.</p>
+<dd><p>Collect an image from the camera.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -305,7 +345,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.set_defaults">
 <span class="sig-name descname"><span class="pre">set_defaults</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.set_defaults" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the basic camera features to their basic values.</p>
+<dd><p>Set the basic camera features to their default values.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -326,7 +366,7 @@ but the cropping has to happen there because it needs to be centered on the diff
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.find_center">
 <span class="sig-name descname"><span class="pre">find_center</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.find_center" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds and returns the “center of mass” for the camera’s image sensor. Useful for finding the center of a
+<dd><p>Find and return the “center of brightness” on the camera’s image sensor. Useful for finding the center of a
 beam or diffraction pattern.</p>
 </dd></dl>
 
@@ -339,221 +379,6 @@ readouts.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="camera.ThorCam">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">camera.</span></span><span class="sig-name descname"><span class="pre">ThorCam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.ThorCam" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#camera.Camera" title="camera.Camera"><code class="xref py py-class docutils literal notranslate"><span class="pre">camera.Camera</span></code></a></p>
-<p>Camera subclass that can interface with a Thorlabs camera.</p>
-<p>This subclass only implements a few basic functions which are relevant to ptychography data collection. A more
-complete control can be achieved by using the <a class="reference external" href="https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=ThorCam">officially provided SDK</a>.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.ThorCam.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.ThorCam.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a ThorCam object</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>verbose</strong> (<em>bool</em>) – if True (default), this instance will print information about most processes as it runs.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.ThorCam.camera_on">
-<span class="sig-name descname"><span class="pre">camera_on</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.ThorCam.camera_on" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turns on the camera</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.ThorCam.camera_off">
-<span class="sig-name descname"><span class="pre">camera_off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.ThorCam.camera_off" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turns off the camera</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.ThorCam.set_exposure">
-<span class="sig-name descname"><span class="pre">set_exposure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.ThorCam.set_exposure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the camera exposure time in milliseconds.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ms</strong> (<em>float</em>) – exposure time in milliseconds</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.ThorCam.set_gain">
-<span class="sig-name descname"><span class="pre">set_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.ThorCam.set_gain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the camera analog gain</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>gain</strong> (<em>int</em>) – analog gain</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.ThorCam.arm">
-<span class="sig-name descname"><span class="pre">arm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.ThorCam.arm" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.ThorCam.get_frame">
-<span class="sig-name descname"><span class="pre">get_frame</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.ThorCam.get_frame" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.ThorCam.disarm">
-<span class="sig-name descname"><span class="pre">disarm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.ThorCam.disarm" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="camera.Mightex">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">camera.</span></span><span class="sig-name descname"><span class="pre">Mightex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Mightex" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#camera.Camera" title="camera.Camera"><code class="xref py py-class docutils literal notranslate"><span class="pre">camera.Camera</span></code></a></p>
-<p>Camera subclass that can interface with a Mightex camera.</p>
-<p>This subclass only implements a few basic functions which are relevant to ptychography data collection. A more
-complete control can be achieved by using the officially provided SDK.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Mightex.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Mightex.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a Mightex object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>verbose</strong> (<em>bool</em>) – if True, this instance will print information about most processes as it runs. Default is True</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Mightex.camera_on">
-<span class="sig-name descname"><span class="pre">camera_on</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Mightex.camera_on" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start the camera engine</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Mightex.camera_off">
-<span class="sig-name descname"><span class="pre">camera_off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Mightex.camera_off" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stop the camera engine</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Mightex.set_resolution">
-<span class="sig-name descname"><span class="pre">set_resolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Mightex.set_resolution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set camera resolution.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>resolution</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – Desired camera resolution (width, height)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Mightex.set_exposure">
-<span class="sig-name descname"><span class="pre">set_exposure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Mightex.set_exposure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set camera exposure time.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ms</strong> (<em>float</em>) – exposure time in milliseconds</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Mightex.set_gain">
-<span class="sig-name descname"><span class="pre">set_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Mightex.set_gain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set camera gain.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>gain</strong> (<em>int</em>) – gain factor in eighths (e.g. gain of 8 corresponds to 1x gain)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Mightex.arm">
-<span class="sig-name descname"><span class="pre">arm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Mightex.arm" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Mightex.get_frame">
-<span class="sig-name descname"><span class="pre">get_frame</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Mightex.get_frame" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Mightex.disarm">
-<span class="sig-name descname"><span class="pre">disarm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Mightex.disarm" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Mightex.get_frames">
-<span class="sig-name descname"><span class="pre">get_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_frames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Mightex.get_frames" title="Permalink to this definition">¶</a></dt>
-<dd><p>Collect images from the camera.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>num_frames</strong> (<em>int</em>) – number of frames to collect. <em>Currently has no effect</em></p></li>
-<li><p><strong>show</strong> (<em>bool</em>) – if True, show the image before returning it</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>2D image array</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="camera.Andor">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">camera.</span></span><span class="sig-name descname"><span class="pre">Andor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Andor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#camera.Camera" title="camera.Camera"><code class="xref py py-class docutils literal notranslate"><span class="pre">camera.Camera</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Andor.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Andor.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Andor.camera_on">
-<span class="sig-name descname"><span class="pre">camera_on</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Andor.camera_on" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Andor.camera_off">
-<span class="sig-name descname"><span class="pre">camera_off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Andor.camera_off" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Andor.set_exposure">
-<span class="sig-name descname"><span class="pre">set_exposure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Andor.set_exposure" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Andor.set_gain">
-<span class="sig-name descname"><span class="pre">set_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Andor.set_gain" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Andor.arm">
-<span class="sig-name descname"><span class="pre">arm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Andor.arm" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Andor.get_frame">
-<span class="sig-name descname"><span class="pre">get_frame</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Andor.get_frame" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="camera.Andor.disarm">
-<span class="sig-name descname"><span class="pre">disarm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Andor.disarm" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 </div>
 
 
@@ -562,7 +387,7 @@ complete control can be achieved by using the officially provided SDK.</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="stages.html" class="btn btn-neutral float-right" title="ptychodactyl.stages" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="stages.html" class="btn btn-neutral float-right" title="Stage controller interfacing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="api.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 

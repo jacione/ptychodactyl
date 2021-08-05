@@ -16,13 +16,17 @@ libs = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/utils'
 
 def get_camera(camera_type, **kwargs):
     """
-    Set up the stages with the correct controller class.
+    Set up the camera with the correct controller subclass.
 
-    :param camera_type: Type of stages to set up.
+    .. note::
+        If you write your own Camera subclass (recommended), be sure to add it to the dictionary within this function.
+        Otherwise, you will get a ``KeyError``.
+
+    :param camera_type: Type of camera to set up.
     :type camera_type: str
-    :param kwargs: keyword arguments associated with type of stages
-    :return: Stage controller object, subclass of stages.Stage
-    :rtype: Stage
+    :param kwargs: keyword arguments associated with type of camera
+    :return: Camera controller object, subclass of camera.Camera
+    :rtype: Camera
     """
     options = {
         'thorcam': ThorCam,
@@ -66,35 +70,71 @@ class Camera(ABC):
 
     @abstractmethod
     def camera_on(self):
+        """Turn on the camera interface."""
         pass
 
     @abstractmethod
     def camera_off(self):
+        """Turn off the camera interface."""
         pass
 
     @abstractmethod
     def set_exposure(self, ms):
+        """
+        Set the camera exposure time in milliseconds.
+
+        .. note::
+            Not all camera drivers use milliseconds to define exposure time. When implementing this in a subclass,
+            remember to check the units that the device is expecting and convert your value if necessary.
+
+        :param ms: Exposure time in milliseconds
+        :type ms: float
+        """
         pass
 
     @abstractmethod
     def set_gain(self, gain):
+        """
+        Set the camera's analog gain.
+
+        .. note::
+            Not all camera drivers use raw coefficients to define analog gain. When implementing this in a subclass,
+            remember to check the format that the device is expecting and convert your value if necessary.
+
+        :param gain: Analog gain
+        :type gain: float
+        """
         pass
 
     @abstractmethod
     def arm(self):
+        """
+        Arm the camera for image capture.
+
+        Most cameras have some sort of arming function that must be called before any frames can be captured.
+        """
         pass
 
     @abstractmethod
     def get_frame(self):
+        """
+        Capture and return a single frame from the image detector.
+
+        :return: 2D image array
+        :rtype: np.ndarray
+        """
         pass
 
     @abstractmethod
     def disarm(self):
+        """
+        Disarm the camera after image capture.
+        """
         pass
 
     def get_frames(self, num_frames=1, show=False):
         """
-        Collect a composite image from the camera.
+        Collect an image from the camera.
 
         :param num_frames: Camera will sum this many frames into the composite image
         :type num_frames: int
@@ -107,6 +147,7 @@ class Camera(ABC):
         self.arm()
         for i in range(num_frames):
             data = data + downscale_local_mean(self.get_frame(), (self.binning, self.binning))
+        self.disarm()
         if show:
             self.imshow(np.log(data + 1))
             plt.hist(np.ravel(data), bins=100)
@@ -128,7 +169,7 @@ class Camera(ABC):
             print(text)
 
     def set_defaults(self):
-        """Sets the basic camera features to their basic values."""
+        """Set the basic camera features to their default values."""
         self.set_resolution(self.full_height)
         self.set_exposure(self.defaults['exposure'])
         self.set_gain(self.defaults['gain'])
@@ -156,7 +197,7 @@ class Camera(ABC):
 
     def find_center(self):
         """
-        Finds and returns the "center of mass" for the camera's image sensor. Useful for finding the center of a
+        Find and return the "center of brightness" on the camera's image sensor. Useful for finding the center of a
         beam or diffraction pattern.
         """
         img = self.get_frames()
@@ -562,6 +603,41 @@ class Mightex(Camera):
 class Andor(Camera):
 
     def __init__(self, defaults, verbose):
+        pass
+
+    def camera_on(self):
+        pass
+
+    def camera_off(self):
+        pass
+
+    def set_exposure(self, ms):
+        pass
+
+    def set_gain(self, gain):
+        pass
+
+    def arm(self):
+        pass
+
+    def get_frame(self):
+        pass
+
+    def disarm(self):
+        pass
+
+
+class YourCamera(Camera):
+
+    def __init__(self, verbose):
+        defaults = {
+            'width': 0,         # Horizontal size of the detector (in pixels)
+            'height': 0,        # Vertical size of the detector (in pixels)
+            'exposure': 0,      # Exposure time (typically in milliseconds)
+            'gain': 1,          # Analog gain (typically a unitless multiplier)
+            'pixel_size': 1     # Pixel side length (typically in microns)
+        }
+        super().__init__(defaults, verbose)
         pass
 
     def camera_on(self):
