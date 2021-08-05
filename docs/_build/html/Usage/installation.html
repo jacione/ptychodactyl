@@ -172,7 +172,7 @@
 <p class="admonition-title">Note</p>
 <p>PtychoDactyl has only been tested on Windows 10.</p>
 </div>
-<p>This project must be run on <strong>Python 3.8</strong> (later versions are not yet supported by pythonnet). It requires the following packages, all available via <code class="docutils literal notranslate"><span class="pre">conda</span></code> (recommended) or <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<p>PtychoDactyl requires the following packages, all available via <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span></code> or <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>:</p>
 <ul class="simple">
 <li><p>click (&gt;=8.0.1)</p></li>
 <li><p>h5py (&gt;=3.2.1)</p></li>
@@ -180,8 +180,6 @@
 <li><p>numpy (&gt;=1.20.3)</p></li>
 <li><p>pillow (&gt;=8.2.0)</p></li>
 <li><p>progressbar2 (&gt;=3.53.1)</p></li>
-<li><p>pyserial (&gt;=3.5)</p></li>
-<li><p>pythonnet (&gt;=2.5.2)</p></li>
 <li><p>scikit-image (&gt;=0.18.1)</p></li>
 <li><p>scipy (&gt;=1.6.3)</p></li>
 </ul>
@@ -200,7 +198,7 @@
 <p class="admonition-title">Warning</p>
 <p>You will probably need to write your own controller classes for your own devices.</p>
 </div>
-<p>For full functionality, your classes should inherit the abstract base classes provided in <a class="reference internal" href="../api/stages.html#stages"><span class="std std-ref">ptychodactyl.stages</span></a> and <a class="reference internal" href="../api/camera.html#camera"><span class="std std-ref">ptychodactyl.camera</span></a>.</p>
+<p>For full functionality, your classes should inherit the abstract base classes provided in <a class="reference internal" href="../api/stages.html#stages"><span class="std std-ref">Stage controller interfacing</span></a> and <a class="reference internal" href="../api/camera.html#camera"><span class="std std-ref">Camera interfacing</span></a>.</p>
 <p>Additionally, the device interfacing uses some proprietary software development kits provided by Micronix, Mightex, and Thorlabs. This means some DLL and similar files, not created by me, are included in this repository. These files are used under the terms put forth by their respective owners, and all associated copyrights remain with said owners.</p>
 </div>
 </div>

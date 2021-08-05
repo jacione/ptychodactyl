@@ -34,7 +34,7 @@ to start the reconstruction. The reconstructed image (probe and object, amplitud
 Ptychography toolkit
 --------------------
 
-If you want a more customizable experience, you can also use PtychoDactyl to create your own pipeline. The :ref:`ptycho_data` module contains very useful classes for managing ptychographic data, and the :ref:`recon` module contains several options for reconstructing that data. For example, say you want to do manual 2D ptychography---that is, without motorized stages or an automated camera capture. You could do something like the following example:
+If you want a more customizable experience, you can also use PtychoDactyl to create your own pipeline. The ``ptycho_data.py`` module contains very useful classes for managing ptychographic data, and ``recon.py`` contains several options for reconstructing that data. For example, say you want to do manual 2D ptychography---that is, without motorized stages or an automated camera capture. You could do something like the following example:
 
 .. code-block:: python
 

@@ -13,7 +13,7 @@ Download the PtychoDactyl source code from my git repository.
 .. note::
     PtychoDactyl has only been tested on Windows 10.
 
-This project must be run on **Python 3.8** (later versions are not yet supported by pythonnet). It requires the following packages, all available via ``conda`` (recommended) or ``pip``:
+PtychoDactyl requires the following packages, all available via ``conda install`` or ``pip install``:
 
 * click (>=8.0.1)
 * h5py (>=3.2.1)
@@ -21,8 +21,6 @@ This project must be run on **Python 3.8** (later versions are not yet supported
 * numpy (>=1.20.3)
 * pillow (>=8.2.0)
 * progressbar2 (>=3.53.1)
-* pyserial (>=3.5)
-* pythonnet (>=2.5.2)
 * scikit-image (>=0.18.1)
 * scipy (>=1.6.3)
 
