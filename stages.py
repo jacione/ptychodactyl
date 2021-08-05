@@ -193,6 +193,13 @@ class Stage(ABC):
 class Attocube(Stage):
     """
     Object-oriented interface for an Attocube ANC350 stage controller.
+
+    This might be a little more tricky than usual because each controller can only connect to 3 stages, which means
+    there are 2 controllers:
+
+    Position    S/N         Axes
+    Top         L010812     rotation, vertical (y), perpendicular-to-beam (coarse x)
+    Bottom      L010810     perpendicular-to-beam (x), parallel-to-beam (z)
     """
 
     def __init__(self, verbose=False):
@@ -206,17 +213,29 @@ class Attocube(Stage):
         pyanc.discover(1)
         self.dev_a = pyanc.Positioner(0)
         self.dev_b = pyanc.Positioner(1)
+        print('rotation:', self.dev_a.getPosition(0))
+        print('x-linear:', self.dev_b.getPosition(0))
+        print('y-linear:', self.dev_a.getPosition(1))
+        print('z-linear:', self.dev_b.getPosition(1))
+        print('x-coarse:', self.dev_a.getPosition(2))
 
-        # The numerical index of each stage ON THE CONTROLLER
-        self.x_ax = 0
-        self.z_ax = 0
-        self.y_ax = 0
-        self.q_ax = 0
-
-        # This just makes it easier to access each axis sequentially
-        self.axes = [self.x_ax, self.y_ax, self.z_ax, self.q_ax]
-        self.ax_names = {self.x_ax: 'X', self.y_ax: 'Y', self.z_ax: 'Z', self.q_ax: 'Q'}
-        pass
+        self.devices = {
+            'q': self.dev_a,
+            'x': self.dev_b,
+            'y': self.dev_a,
+            'z': self.dev_b,
+            'xc': self.dev_a
+        }
+        self.ax_indeces = {
+            'q': 0,
+            'x': 0,
+            'y': 1,
+            'z': 1,
+            'xc': 2
+        }
+        self.fine_axes = ['q', 'x', 'y', 'z']
+        self.coarse = 'xc'
+        self.xc = 0.0
 
     def __del__(self):
         self.dev_a.disconnect()
@@ -228,7 +247,16 @@ class Attocube(Stage):
         pass
 
     def measure(self):
-        pass
+        positions = []
+        for ax in self.fine_axes:
+            pos = self.devices[ax].getPosition(self.ax_indeces[ax])
+            positions.append(pos)
+        self.q, self.x, self.y, self.z = tuple(positions)
+
+        self.x0 = self.x * np.cos(self.q) - self.z * np.sin(self.q)
+        self.z0 = self.x * np.sin(self.q) + self.z * np.cos(self.q)
+        self.y0 = self.y
+        return
 
     def check_errors(self):
         pass
@@ -404,5 +432,4 @@ class YourStage(Stage):
 
 
 if __name__ == '__main__':
-    ctrl = Micronix(verbose=True)
-    ctrl.home_all()
+    ctrl = Attocube(verbose=True)
