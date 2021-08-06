@@ -46,7 +46,7 @@ class Stage(ABC):
         """
         self.verbose = verbose
 
-        # These are the measured positions in the coordinate system of the STAGES
+        # These are the measured positions in the coordinate system of the STAGES.
         self.x = 0.0
         self.y = 0.0
         self.z = 0.0
@@ -67,6 +67,10 @@ class Stage(ABC):
         """
         Check the encoder on each axis and update the attributes within the class instance. This is run automatically
         immediately after any motion command, so that the attributes should always have the correct values.
+
+        .. note::
+            When implementing this method in a subclass, make sure that it returns a value in **millimeters**. This is
+            for consistency across all other modules in this package, particularly those in ``ptycho_data.py``.
         """
         pass
 
@@ -101,7 +105,7 @@ class Stage(ABC):
 
     def get_position(self, remeasure=False):
         """
-        Get the current position of the stages.
+        Get the current position of the sample.
 
         :param remeasure: If True, call self.measure() before returning a value. If False, use the currently stored
             values. Default is False.
@@ -117,6 +121,25 @@ class Stage(ABC):
                    f'  Z    {self.z0:0.6f}\n'
                    f'  Q    {self.q:0.6f}')
         return np.array([self.y0, self.x0, self.q])
+
+    def get_stage_positions(self, remeasure=False):
+        """
+        Get the current positions of each of the stages.
+
+        :param remeasure: If True, call self.measure() before returning a value. If False, use the currently stored
+            values. Default is False.
+        :type remeasure: bool
+        :return: Stage positions in the beam's reference frame (vertical, horizontal, rotational)
+        :rtype: np.ndarray
+        """
+        if remeasure:
+            self.measure()
+        self.print(f'\nAXIS   POS(mm)\n'
+                   f'  X    {self.x:0.6f}\n'
+                   f'  Y    {self.y:0.6f}\n'
+                   f'  Z    {self.z:0.6f}\n'
+                   f'  Q    {self.q:0.6f}')
+        return np.array([self.x, self.y, self.z, self.q])
 
     def home_all(self):
         """Move all stages to their zero positions."""
@@ -213,11 +236,6 @@ class Attocube(Stage):
         pyanc.discover(1)
         self.dev_a = pyanc.Positioner(0)
         self.dev_b = pyanc.Positioner(1)
-        print('rotation:', self.dev_a.getPosition(0))
-        print('x-linear:', self.dev_b.getPosition(0))
-        print('y-linear:', self.dev_a.getPosition(1))
-        print('z-linear:', self.dev_b.getPosition(1))
-        print('x-coarse:', self.dev_a.getPosition(2))
 
         self.devices = {
             'q': self.dev_a,
@@ -233,7 +251,8 @@ class Attocube(Stage):
             'z': 1,
             'xc': 2
         }
-        self.fine_axes = ['q', 'x', 'y', 'z']
+        self.fine_axes = ['x', 'y', 'z', 'q']
+        self.all_axes = ['x', 'y', 'z', 'q', 'xc']
         self.coarse = 'xc'
         self.xc = 0.0
 
@@ -242,7 +261,22 @@ class Attocube(Stage):
         self.dev_b.disconnect()
 
     def set_position(self, xyzq, laser_frame=True):
-        # Do the move
+        if laser_frame:
+            x, y, z, q = xyzq
+            q_rads = q * np.pi / 180
+            xp = x*np.cos(q_rads) + z*np.sin(q_rads)
+            zp = z*np.cos(q_rads) - x*np.sin(q_rads)
+            x = xp
+            z = zp
+            xyzq = {'x': x, 'y': y, 'z': z, 'q': q}
+        for ax in self.fine_axes:
+            self.devices[ax].setTargetPosition(self.ax_indeces[ax], xyzq[ax])
+            self.devices[ax].startAutoMove(self.ax_indeces[ax], 1, 0)
+        while self.is_moving():
+            time.sleep(0.1)
+        for ax in self.fine_axes:
+            self.devices[ax].startAutoMove(self.ax_indeces[ax], 0, 0)
+
         self.measure()
         pass
 
@@ -250,8 +284,10 @@ class Attocube(Stage):
         positions = []
         for ax in self.fine_axes:
             pos = self.devices[ax].getPosition(self.ax_indeces[ax])
+            if ax != 'q':
+                pos *= 1000  # The Attocube controller returns meters
             positions.append(pos)
-        self.q, self.x, self.y, self.z = tuple(positions)
+        self.x, self.y, self.z, self.q = tuple(positions)
 
         self.x0 = self.x * np.cos(self.q) - self.z * np.sin(self.q)
         self.z0 = self.x * np.sin(self.q) + self.z * np.cos(self.q)
@@ -259,13 +295,18 @@ class Attocube(Stage):
         return
 
     def check_errors(self):
-        pass
+        return {ax: self.get_status(ax)[-1] for ax in self.all_axes}
 
     def get_status(self, ax):
-        pass
+        connected, enabled, moving, target, eotFwd, eotBwd, error = self.devices[ax].getAxisStatus(self.ax_indeces[ax])
+        return connected, enabled, moving, target, eotFwd, eotBwd, error
 
     def is_moving(self):
-        pass
+        for ax in self.all_axes:
+            if self.get_status(ax)[2]:
+                return True
+        else:
+            return False
 
 
 class Micronix(Stage):
@@ -433,3 +474,4 @@ class YourStage(Stage):
 
 if __name__ == '__main__':
     ctrl = Attocube(verbose=True)
+    ctrl.get_stage_positions(True)
