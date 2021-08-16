@@ -46,7 +46,7 @@ class Stage(ABC):
         """
         self.verbose = verbose
 
-        # These are the measured positions in the coordinate system of the STAGES
+        # These are the measured positions in the coordinate system of the STAGES.
         self.x = 0.0
         self.y = 0.0
         self.z = 0.0
@@ -67,6 +67,10 @@ class Stage(ABC):
         """
         Check the encoder on each axis and update the attributes within the class instance. This is run automatically
         immediately after any motion command, so that the attributes should always have the correct values.
+
+        .. note::
+            When implementing this method in a subclass, make sure that it returns a value in **millimeters**. This is
+            for consistency across all other modules in this package, particularly those in ``ptycho_data.py``.
         """
         pass
 
@@ -101,7 +105,7 @@ class Stage(ABC):
 
     def get_position(self, remeasure=False):
         """
-        Get the current position of the stages.
+        Get the current position of the sample.
 
         :param remeasure: If True, call self.measure() before returning a value. If False, use the currently stored
             values. Default is False.
@@ -117,6 +121,25 @@ class Stage(ABC):
                    f'  Z    {self.z0:0.6f}\n'
                    f'  Q    {self.q:0.6f}')
         return np.array([self.y0, self.x0, self.q])
+
+    def get_stage_positions(self, remeasure=False):
+        """
+        Get the current positions of each of the stages.
+
+        :param remeasure: If True, call self.measure() before returning a value. If False, use the currently stored
+            values. Default is False.
+        :type remeasure: bool
+        :return: Stage positions in the beam's reference frame (vertical, horizontal, rotational)
+        :rtype: np.ndarray
+        """
+        if remeasure:
+            self.measure()
+        self.print(f'\nAXIS   POS(mm)\n'
+                   f'  X    {self.x:0.6f}\n'
+                   f'  Y    {self.y:0.6f}\n'
+                   f'  Z    {self.z:0.6f}\n'
+                   f'  Q    {self.q:0.6f}')
+        return np.array([self.x, self.y, self.z, self.q])
 
     def home_all(self):
         """Move all stages to their zero positions."""
@@ -193,51 +216,168 @@ class Stage(ABC):
 class Attocube(Stage):
     """
     Object-oriented interface for an Attocube ANC350 stage controller.
+
+    This might be a little more tricky than usual because each controller can only connect to 3 stages, which means
+    there are 2 controllers:
+
+    Rack    S/N      Axes
+    ------  -------  ----
+    Top     L010812  rotation, vertical (y), perpendicular-to-beam (coarse x)
+    ------  -------  ----
+    Bottom  L010810  perpendicular-to-beam (x), parallel-to-beam (z)
     """
 
-    def __init__(self, verbose=False):
+    def __init__(self, verbose=False, ignore_rotation=True):
         """
         Instantiate Attocube object
         """
         import utils.Attocube.pyanc350v4 as pyanc
 
         super().__init__(verbose)
+        self.ignore_rotation = ignore_rotation
 
         pyanc.discover(1)
-        self.dev_a = pyanc.Positioner(0)
-        self.dev_b = pyanc.Positioner(1)
+        self.dev_a = pyanc.Positioner(1)
+        self.dev_b = pyanc.Positioner(0)
 
-        # The numerical index of each stage ON THE CONTROLLER
-        self.x_ax = 0
-        self.z_ax = 0
-        self.y_ax = 0
-        self.q_ax = 0
+        # Which ANC350 device is each stage connected to?
+        self.devices = {
+            'q': self.dev_a,
+            'x': self.dev_b,
+            'y': self.dev_a,
+            'z': self.dev_b,
+            'xc': self.dev_a
+        }
+        # Which "axisNo" does each stage occupy on its respective ANC350?
+        self.ax_id = {
+            'q': 0,
+            'x': 0,
+            'y': 1,
+            'z': 1,
+            'xc': 2
+        }
+        # Each stage's zero or center position, as measured by the ANC350
+        self.zeros = {                      # Actual EOT limits:
+            'q': 168.38,                    # None (endless, but be careful the cords don't wrap)
+            'x': (0.005270 + 0.000196)/2,   # 0.000196 , 0.005270
+            'y': 0.000020,                  # 0.000016 , 0.005050
+            'z': (0.005103 + 0.000089)/2,   # 0.000089 , 0.005103
+            'xc': 0.0001                    # 0.000012 , 0.015831
+        }
+        self.fine_axes = ['x', 'y', 'z', 'q']
+        self.all_axes = ['x', 'y', 'z', 'q', 'xc']
+        self.xc = 0.0
 
-        # This just makes it easier to access each axis sequentially
-        self.axes = [self.x_ax, self.y_ax, self.z_ax, self.q_ax]
-        self.ax_names = {self.x_ax: 'X', self.y_ax: 'Y', self.z_ax: 'Z', self.q_ax: 'Q'}
-        pass
+        # Set default settings
+        # Error range on EITHER side of the target position where the stage is still considered "on target"
+        target_range = {
+            'q': 0.0075,
+            'x': 0.00000007,
+            'y': 0.00000007,
+            'z': 0.00000007,
+            'xc': 0.000001
+        }
+        for ax in self.all_axes:
+            self.devices[ax].setAxisOutput(self.ax_id[ax], 1, 0)
+            time.sleep(0.05)
+            self.devices[ax].setFrequency(self.ax_id[ax], 1000)
+            time.sleep(0.05)
+            self.devices[ax].startAutoMove(self.ax_id[ax], 1, 0)
+            time.sleep(0.05)
+            self.devices[ax].setTargetRange(self.ax_id[ax], target_range[ax])
+            time.sleep(0.05)
+            self.devices[ax].setTargetPosition(self.ax_id[ax], self.zeros[ax])
+            time.sleep(0.05)
+
+        self.measure()
 
     def __del__(self):
+        for ax in self.all_axes:
+            self.devices[ax].startAutoMove(self.ax_id[ax], 0, 0)
+            self.devices[ax].setAxisOutput(self.ax_id[ax], 0, 0)
         self.dev_a.disconnect()
         self.dev_b.disconnect()
 
     def set_position(self, xyzq, laser_frame=True):
-        # Do the move
+        x, y, z, q = xyzq
+        if self.ignore_rotation:
+            q = self.q
+        if laser_frame:
+            q_rads = q * np.pi / 180
+            xp = x*np.cos(q_rads) + z*np.sin(q_rads)
+            zp = x*np.sin(q_rads) - z*np.cos(q_rads)
+            x = xp
+            z = zp
+        xyzq = {'x': x/1000, 'y': y/1000, 'z': z/1000, 'q': q}
+        for ax in self.fine_axes:
+            if self.ignore_rotation and ax == 'q':
+                continue
+            self.devices[ax].setTargetPosition(self.ax_id[ax], xyzq[ax]+self.zeros[ax])
+        try_count = 0
+        while not self.is_on_target():
+            time.sleep(0.1)
+            try_count += 1
+            if try_count > 100:
+                raise IOError('Stage is taking too long to find target!')
+
         self.measure()
         pass
 
     def measure(self):
-        pass
+        positions = []
+        for ax in self.all_axes:
+            pos = self.devices[ax].getPosition(self.ax_id[ax])
+            if ax != 'q':
+                pos *= 1000  # The Attocube controller returns meters
+            positions.append(pos)
+        self.x, self.y, self.z, self.q, self.xc = tuple(positions)
+
+        q_rads = self.q * np.pi / 180
+        self.x0 = self.x * np.cos(q_rads) + self.z * np.sin(q_rads)
+        self.z0 = self.x * np.sin(q_rads) - self.z * np.cos(q_rads)
+        self.y0 = self.y
+        return
+
+    def show_off(self):
+        """Moves all the axes around simultaneously...just for fun :)"""
+        self.set_position((2, 1, 2, 0))
+        self.get_position()
+        self.set_position((-2, 2, -2, 0))
+        self.get_position()
+        self.set_position((0, 0, 0, 0))
+        self.get_position()
 
     def check_errors(self):
-        pass
+        return {ax: self.get_status(ax)[-1] for ax in self.all_axes}
+
+    def check_all(self):
+        return {ax: self.get_status(ax) for ax in self.all_axes}
 
     def get_status(self, ax):
-        pass
+        connected, enabled, moving, target, eotFwd, eotBwd, error = self.devices[ax].getAxisStatus(self.ax_id[ax])
+        return connected, enabled, moving, target, eotFwd, eotBwd, error
 
     def is_moving(self):
-        pass
+        """
+        The "moving" status bit is actually quite difficult to work with when "automove" is enabled, since the stage is
+        constantly adjusting to stay as close to the target as possible. I've therefore implemented the is_on_target()
+        method, which is more useful for our purposes.
+        """
+        for ax in self.all_axes:
+            if self.get_status(ax)[2]:
+                return True
+        else:
+            return False
+
+    def is_on_target(self):
+        """Returns whether all of the stages are on target."""
+        for ax in self.all_axes:
+            if self.ignore_rotation and ax == 'q':
+                continue
+            if not self.get_status(ax)[3]:
+                return False
+        else:
+            return True
 
 
 class Micronix(Stage):
@@ -347,9 +487,9 @@ class Micronix(Stage):
             positions.append(pos)
 
         self.x, self.y, self.z, self.q = tuple(positions)
-
-        self.x0 = self.x * np.cos(self.q) - self.z * np.sin(self.q)
-        self.z0 = self.x * np.sin(self.q) + self.z * np.cos(self.q)
+        q_rads = self.q * np.pi / 180
+        self.x0 = self.x * np.cos(q_rads) - self.z * np.sin(q_rads)
+        self.z0 = self.x * np.sin(q_rads) + self.z * np.cos(q_rads)
         self.y0 = self.y
         return
 
@@ -404,5 +544,5 @@ class YourStage(Stage):
 
 
 if __name__ == '__main__':
-    ctrl = Micronix(verbose=True)
-    ctrl.home_all()
+    ctrl = Attocube(verbose=True)
+    ctrl.show_off()
