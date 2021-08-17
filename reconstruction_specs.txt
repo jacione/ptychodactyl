@@ -11,12 +11,12 @@ threshold = 0.0001                  # Pixel values below this fraction of the ma
 #### Reconstruction parameters
 # Separate multiple algorithms with a semicolon. Reconstructions will be performed from left to right. Update strengths
 # should be given as a decimal from 0 to 1.
-algorithm           = rpie  ; epie              # Options: rpie, epie
-num_iterations      = 10    ; 10                # number of iterations to run
-obj_up_initial      = 0.9   ; 1.0               # Initial object update strength
-obj_up_final        = 0.7   ; 0.9               # Final object update strength
-pro_up_initial      = 0.75  ; 0.5               # Initial probe update strength
-pro_up_final        = 0.5   ; 0.25              # Final probe update strength
+algorithm           = rpie  , epie              # Options: rpie, epie
+num_iterations      = 10    , 10                # number of iterations to run
+obj_up_initial      = 0.9   , 1.0               # Initial object update strength
+obj_up_final        = 0.7   , 0.9               # Final object update strength
+pro_up_initial      = 0.75  , 0.5               # Initial probe update strength
+pro_up_final        = 0.5   , 0.25              # Final probe update strength
 
 #### Post-processing parameters
 animate = False                     # Set to true to animate the reconstruction progress at each iteration.

@@ -2,7 +2,8 @@
 title = test
 
 #### Probe positioning parameters
-stages = micronix               # Keyword for the stages that you're using
+stages = micronix               # Keyword for the stage controller that you're using
+scan_center = 0.0 , 0.0         # Stage position where probe is centered on object (mm)
 width = 1.0                     # Horizontal scanning range (mm)
 height = 1.0                    # Vertical scanning range (mm)
 step_size = 0.1                 # Spacing between probe positions (mm)

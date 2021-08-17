@@ -7,12 +7,14 @@ import utils.general as hf
 from matplotlib import pyplot as plt
 
 
-def xy_scan(pattern, width, height, step, random=True):
+def xy_scan(pattern, center, width, height, step, random=True):
     """
     Generates a set of positions used for a ptychographic scan.
 
     :param pattern: 'rect' for rectangular, 'hex' for hexagonal, 'spiral' for spiral/orchestral
     :type pattern: str
+    :param center: horizontal and vertical scan center position
+    :type center: (float, float)
     :param width: scan width in millimeters
     :type width: float
     :param height: scan height in millimeters
@@ -25,16 +27,18 @@ def xy_scan(pattern, width, height, step, random=True):
     :rtype: (np.ndarray, np.ndarray, int)
     """
     scan = STYLE_DICT[pattern]
-    return scan(width, height, step, random)
+    return scan(center, width, height, step, random)
     
 
-def rect_scan(width, height, step, random):
+def rect_scan(center, width, height, step, random):
     """
     Generates a rectangular ptychographic scan. Positions are aligned into rows and columns, such that the four nearest
     neighbors of each position are directly above, below, and to either side.
 
     :param width: scan width in millimeters
     :type width: float
+    :param center: horizontal and vertical scan center position
+    :type center: (float, float)
     :param height: scan height in millimeters
     :type height: float
     :param step: distance between nearest-neighbor positions
@@ -44,26 +48,28 @@ def rect_scan(width, height, step, random):
     :return: X and Y scan positions, and number of total positions
     :rtype: (np.ndarray, np.ndarray, int)
     """
-    x = np.arange(-width/2, width/2, step)
-    y = np.arange(-height/2, height/2, step)
+    x = np.arange(center[0]-width/2, center[0]+width/2, step)
+    y = np.arange(center[1]-height/2, center[1]+height/2, step)
     X, Y = np.meshgrid(x, y)
     if random:
         dxy = 0.05*step
         X = X + hf.random(X.shape, -dxy, dxy)
         Y = Y + hf.random(Y.shape, -dxy, dxy)
     X = np.ravel(X)
-    Y = np.ravel(Y) - np.min(Y) + 0.5
+    Y = np.ravel(Y)
     N = len(X)
     return np.round(X, 6), np.round(Y, 6), N
 
 
-def hex_scan(width, height, step, random):
+def hex_scan(center, width, height, step, random):
     """
     Generates a hexagonal ptychographic scan. Positions are aligned into rows and (loosely) columns, such that the six
     nearest neighbors of each position form a regular hexagon.
 
     :param width: scan width in millimeters
     :type width: float
+    :param center: horizontal and vertical scan center position
+    :type center: (float, float)
     :param height: scan height in millimeters
     :type height: float
     :param step: distance between nearest-neighbor positions
@@ -73,8 +79,9 @@ def hex_scan(width, height, step, random):
     :return: X and Y scan positions, and number of total positions
     :rtype: (np.ndarray, np.ndarray, int)
     """
-    x = np.arange(-width/2, width/2, step)
-    y = np.arange(-height/2, height/2, step*np.sqrt(3)/2)  # The spacing between rows takes the shifting into account
+    x = np.arange(center[0]-width/2, center[0]+width/2, step)
+    y = np.arange(center[1]-height/2, center[1]+height/2, step*np.sqrt(3)/2)  # The spacing between rows takes the
+                                                                              # shifting into account
     X, Y = np.meshgrid(x, y)
     for i in range(X.shape[0]):
         # This shifts every other row by a half step to make the hexagonal pattern
@@ -85,18 +92,20 @@ def hex_scan(width, height, step, random):
         X = X + hf.random(X.shape, -dxy, dxy)
         Y = Y + hf.random(Y.shape, -dxy, dxy)
     X = np.ravel(X)
-    Y = np.ravel(Y) - np.min(Y) + 0.5
+    Y = np.ravel(Y)
     N = len(X)
     return np.round(X, 6), np.round(Y, 6), N
 
 
-def spiral_scan(width, height, step, random):
+def spiral_scan(center, width, height, step, random):
     """
     Generates a spiral ptychographic scan. Positions are arranged spiraling out such that the points are spaced evenly
     along the path and the loops are spaced evenly from each other.
 
     :param width: scan width in millimeters
     :type width: float
+    :param center: horizontal and vertical scan center position
+    :type center: (float, float)
     :param height: scan height in millimeters
     :type height: float
     :param step: distance between nearest-neighbor positions
@@ -123,8 +132,8 @@ def spiral_scan(width, height, step, random):
         dxy = 0.05*step
         X = X + hf.random(X.shape, -dxy, dxy)
         Y = Y + hf.random(Y.shape, -dxy, dxy)
-    X = X[bounds]
-    Y = Y[bounds] + height/2 + 0.5
+    X = X[bounds] + center[0]
+    Y = Y[bounds] + center[1]
     N = len(X)
     return np.round(X, 6), np.round(Y, 6), N
 

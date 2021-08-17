@@ -59,6 +59,12 @@ class Stage(ABC):
         self.y0 = 0.0
         self.z0 = 0.0
 
+        self.units = 1  # size of one millimeter in units the controller expects
+        self.axes = ['x', 'y', 'z', 'q']  # Basic 4-axis setup
+        self.limits = {ax: (0.0, 0.0) for ax in self.axes}  # EOT limits for each axis in AXIS UNITS
+        self.zeros = {ax: 0.0 for ax in self.axes}  # Center position for each axis in AXIS UNITS
+
+    @abstractmethod
     def __del__(self):
         return
 
@@ -140,6 +146,31 @@ class Stage(ABC):
                    f'  Z    {self.z:0.6f}\n'
                    f'  Q    {self.q:0.6f}')
         return np.array([self.x, self.y, self.z, self.q])
+
+    def check_scan(self, X, Y):
+        """
+        Check a set of scan positions to make sure that they are all within the stages' travel limits.
+
+        The function checks whether the proposed scan is within the travel limits of the horizontal stages at
+        zero-degree rotation (x_ok2), the horizontal stages at 45-deg rotation (x_ok3), and the vertical stages (y_ok)
+
+        :param X: Horizontal scan positions
+        :type X: np.ndarray
+        :param Y: Vertical scan positions
+        :type Y: np.ndarray
+        :return: x_ok2, x_ok3, y_ok
+        :rtype: (bool, bool, bool)
+        """
+        xmin = np.max([self.limits['x'][0]-self.zeros['x'], self.limits['z'][0]-self.zeros['z']])
+        xmax = np.min([self.limits['x'][1]-self.zeros['x'], self.limits['z'][1]-self.zeros['z']])
+        ymin = self.limits['y'][0] - self.zeros['y']
+        ymax = self.limits['y'][1] - self.zeros['y']
+        X = X * self.units
+        Y = Y * self.units
+        x_ok2 = np.min(X) > xmin and np.max(X) < xmax
+        x_ok3 = np.min(X)*np.sqrt(2) > xmin and np.max(X)*np.sqrt(2) < xmax
+        y_ok = np.min(Y) > ymin and np.max(Y) < ymax
+        return x_ok2, x_ok3, y_ok
 
     def home_all(self):
         """Move all stages to their zero positions."""
@@ -236,6 +267,8 @@ class Attocube(Stage):
         super().__init__(verbose)
         self.ignore_rotation = ignore_rotation
 
+        self.units = 1e-3  # expects meters, so one millimeter is 0.001
+
         pyanc.discover(1)
         self.dev_a = pyanc.Positioner(1)
         self.dev_b = pyanc.Positioner(0)
@@ -256,14 +289,23 @@ class Attocube(Stage):
             'z': 1,
             'xc': 2
         }
-        # Each stage's zero or center position, as measured by the ANC350
-        self.zeros = {                      # Actual EOT limits:
-            'q': 168.38,                    # None (endless, but be careful the cords don't wrap)
-            'x': (0.005270 + 0.000196)/2,   # 0.000196 , 0.005270
-            'y': 0.000020,                  # 0.000016 , 0.005050
-            'z': (0.005103 + 0.000089)/2,   # 0.000089 , 0.005103
-            'xc': 0.0001                    # 0.000012 , 0.015831
+        # Each stages EOT limits (m)
+        self.limits = {
+            'q': (-np.infty, np.infty),
+            'x': (0.000196, 0.005270),
+            'y': (0.000016, 0.005050),
+            'z': (0.000089, 0.005103),
+            'xc': (0.000012, 0.015831)
         }
+        # Each stage's zero or center position, as measured by the ANC350 (m)
+        self.zeros = {
+            'q': 168.38,
+            'x': sum(self.limits['x'])/2,
+            'y': sum(self.limits['y'])/2,
+            'z': sum(self.limits['z'])/2,
+            'xc': 0.0001
+        }
+
         self.fine_axes = ['x', 'y', 'z', 'q']
         self.all_axes = ['x', 'y', 'z', 'q', 'xc']
         self.xc = 0.0
@@ -308,7 +350,7 @@ class Attocube(Stage):
             zp = x*np.sin(q_rads) - z*np.cos(q_rads)
             x = xp
             z = zp
-        xyzq = {'x': x/1000, 'y': y/1000, 'z': z/1000, 'q': q}
+        xyzq = {'x': x*self.units, 'y': y*self.units, 'z': z*self.units, 'q': q}
         for ax in self.fine_axes:
             if self.ignore_rotation and ax == 'q':
                 continue
@@ -404,15 +446,20 @@ class Micronix(Stage):
         self.port = serial.Serial(port, baudrate=38400, timeout=2)
         self.port.flush()
 
-        # The numerical index of each stage ON THE CONTROLLER
-        self.x_ax = 3
-        self.z_ax = 2
-        self.y_ax = 1
-        self.q_ax = 4
-
         # This just makes it easier to access each axis sequentially
-        self.axes = [self.x_ax, self.y_ax, self.z_ax, self.q_ax]
-        self.ax_names = {self.x_ax: 'X', self.y_ax: 'Y', self.z_ax: 'Z', self.q_ax: 'Q'}
+        self.axes = ['x', 'y', 'z', 'q']
+        self.ax_id = {
+            'x': 3,
+            'y': 1,
+            'z': 2,
+            'q': 4
+        }
+        self.limits = {
+            'x': (-9.0, 9.0),
+            'y': (0.1, 9.9),
+            'z': (-9.0, 9.0),
+            'q': (-np.infty. np.infty)
+        }
 
         self.check_errors()
         self.measure()
@@ -423,16 +470,16 @@ class Micronix(Stage):
         self.port.close()
 
     def set_position(self, xyzq, laser_frame=True):
+        x, y, z, q = xyzq
         if laser_frame:
-            x, y, z, q = xyzq
             q_rads = q * np.pi / 180
             xp = x*np.cos(q_rads) + z*np.sin(q_rads)
             zp = z*np.cos(q_rads) - x*np.sin(q_rads)
             x = xp
             z = zp
-            xyzq = x, y, z, q
-        for i, ax in enumerate(self.axes):
-            self.command(f'{ax}MSA{xyzq[i]:0.6f}')
+        xyzq = {'x': x, 'y': y, 'z': z, 'q': q}
+        for ax in self.axes:
+            self.command(f'{self.ax_id[ax]}MSA{xyzq[ax]:0.6f}')
         self.command('0RUN')
         self.measure()
         return
@@ -481,7 +528,7 @@ class Micronix(Stage):
         while self.is_moving():
             time.sleep(0.1)
         for ax in self.axes:
-            pos = self.query(f'{ax}POS?')
+            pos = self.query(f'{self.ax_id[ax]}POS?')
             pos = pos.split(',')  # Parse the returned string
             pos = float(pos[1])
             positions.append(pos)
@@ -497,7 +544,7 @@ class Micronix(Stage):
         """Check each axis for errors"""
         for ax in self.axes:
             status = self.get_status(ax)
-            self.print(f'{self.ax_names[ax]}-axis  (SB: {status})')
+            self.print(f'{ax}-axis  (SB: {status})')
             err = self.query(f'{ax}ERR?')
             if len(err):
                 for s in err.split('#'):
@@ -508,7 +555,7 @@ class Micronix(Stage):
 
     def get_status(self, ax):
         """Check the status byte for a given axis"""
-        s = int(self.query(f'{ax}STA?'))
+        s = int(self.query(f'{self.ax_id[ax]}STA?'))
         status = f'{s:b}'.rjust(8, '0')
         return status
 
@@ -525,6 +572,9 @@ class YourStage(Stage):
 
     def __init__(self, verbose):
         super().__init__(verbose)
+        pass
+
+    def __del__(self):
         pass
 
     def measure(self):

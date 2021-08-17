@@ -197,8 +197,8 @@ def parse_specs(filename):
         line, _, _ = line.partition('#')  # Separate the comments from the actual values
         if "=" in line:
             key, val = map(str.strip, line.split("="))
-            if ';' in val:
-                val = tuple(map(sub_parse, val.split(';')))
+            if ',' in val:
+                val = tuple(map(sub_parse, val.split(',')))
             else:
                 val = sub_parse(val)
             specs[key] = val
