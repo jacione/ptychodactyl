@@ -6,7 +6,7 @@ import time
 from abc import ABC, abstractmethod
 
 
-def get_stage(stage_type, **kwargs):
+def get_stages(stage_type, **kwargs):
     """
     Set up the stages with the correct controller subclass.
 

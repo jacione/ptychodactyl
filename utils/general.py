@@ -170,11 +170,18 @@ def parse_specs(filename):
     :return: A dictionary containing all the desired parameters as key-value pairs.
     :rtype: dict
     """
-    p = Path(__file__).parents[2]
-    os.chdir(p)
-    print(os.getcwd())
+    parents = Path(__file__).parents
+    for p in parents:
+        try:
+            os.chdir(p)
+            file = open(filename, 'r')
+            break
+        except FileNotFoundError:
+            continue
+    else:
+        raise FileNotFoundError(f'Could not find spec_file called "{filename}"')
+
     specs = {}  # create an empty dictionary
-    file = open(filename, 'r')
 
     def sub_parse(s):
         # Assigns an appropriate type to the value strings taken from a spec file.

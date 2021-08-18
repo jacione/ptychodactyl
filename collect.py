@@ -9,8 +9,8 @@ Main script for collecting ptychography data.
 
 import click
 from ptycho_data import CollectData
-from camera import ThorCam
-from stages import Micronix
+from camera import get_camera
+from stages import get_stages
 from scan import xy_scan, r_scan
 from utils.general import parse_specs
 
@@ -28,12 +28,14 @@ def collect(verbose, spec_file):
     # Load collection parameters from spec file
     specs = parse_specs(f'{spec_file}')
     title = specs['title']
+    stage_model = specs['stages']
     pattern = specs['pattern']
     scan_center = specs['scan_center']
     scan_width = specs['scan_width']
     scan_height = specs['scan_height']
     step_size = specs['step_size']
     num_rotations = specs['num_rotations']
+    camera_model = specs['camera']
     background_frames = specs['background_frames']
     frames_per_take = specs['frames_per_take']
     resolution = specs['resolution']
@@ -51,8 +53,8 @@ def collect(verbose, spec_file):
     is3d = num_rotations > 1
 
     # Initialize the devices and data structures
-    stages = Micronix(verbose=verbose)
-    camera = ThorCam(verbose=verbose)
+    stages = get_stages(stage_model, verbose=verbose)
+    camera = get_camera(camera_model, verbose=verbose)
     camera.set_frames_per_take(frames_per_take)
     camera.set_resolution(resolution)
     camera.set_exposure(exposure)
