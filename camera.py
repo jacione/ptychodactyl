@@ -615,7 +615,7 @@ class Mightex(Camera):
 
 class Andor(Camera):
 
-    def __init__(self, verbose):
+    def __init__(self, verbose=False):
         from pyAndorSDK2.atmcd import atmcd
         defaults = {
             'width': 2048,
@@ -636,7 +636,7 @@ class Andor(Camera):
             return
 
         self._sdk.Initialize("")
-        # self._sdk.CoolerON()
+        self._sdk.CoolerON()
         self._sdk.SetAcquisitionMode(2)  # Accumulation/summing mode
         self._sdk.SetReadMode(4)  # Full image mode
         self._sdk.SetTriggerMode(0)  # Internally regulated triggering

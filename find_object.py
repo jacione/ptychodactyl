@@ -36,4 +36,4 @@ def search(spec_file, obj_size, search_area):
 
 
 if __name__ == '__main__':
-    search('collection_specs.txt', 0.1, (1.0, 1.0))
+    search('collection_specs.txt', 0.05, (1.0, 1.0))

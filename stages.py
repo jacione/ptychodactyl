@@ -295,7 +295,7 @@ class Attocube(Stage):
             'x': (0.000196, 0.005270),
             'y': (0.000016, 0.005050),
             'z': (0.000089, 0.005103),
-            'xc': (0.000012, 0.015831)
+            'xc': (0.000012, 0.015890)
         }
         # Each stage's zero or center position, as measured by the ANC350 (m)
         self.zeros = {
@@ -303,7 +303,7 @@ class Attocube(Stage):
             'x': sum(self.limits['x'])/2,
             'y': sum(self.limits['y'])/2,
             'z': sum(self.limits['z'])/2,
-            'xc': 0.0001
+            'xc': 0.015860
         }
 
         self.fine_axes = ['x', 'y', 'z', 'q']

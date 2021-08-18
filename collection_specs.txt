@@ -2,22 +2,22 @@
 title = test
 
 #### Probe positioning parameters
-stages = micronix               # Keyword for the stage controller that you're using
-scan_center = 0.0 , 0.0         # Stage position where probe is centered on object (mm)
-scan_width = 1.0                # Horizontal scanning range (mm)
-scan_height = 1.0               # Vertical scanning range (mm)
-step_size = 0.1                 # Spacing between probe positions (mm)
+stages = attocube               # Keyword for the stage controller that you're using
+scan_center = 0.283 , 0.309         # Stage position where probe is centered on object (mm)
+scan_width = 0.1                # Horizontal scanning range (mm)
+scan_height = 0.1               # Vertical scanning range (mm)
+step_size = 0.019                 # Spacing between probe positions (mm)
 pattern = spiral                # Geometric pattern for ptychography scan (rect, hex, or spiral)
 num_rotations = 0               # Number of rotational steps (zero for no rotation)
 
 #### Image acquisition parameters
-camera = thorcam                # Keyword for the camera that you're using
+camera = andor                # Keyword for the camera that you're using
 background_frames = true        # Set to true to record a background image with the laser off
-frames_per_take = 15            # Number of frames to sum for each measurement (including background)
+frames_per_take = 2            # Number of frames to sum for each measurement (including background)
 resolution = 512                # Desired final image size (number of pixels on a side)
-exposure = 0.25                 # Exposure time (ms)
+exposure = 200                 # Exposure time (ms)
 gain = 1                        # Analog gain
 
 #### Other parameters
-distance = 0.075                # Distance from lens (or sample) to detector (m)
-energy = 1.957346               # Laser photon energy (eV)
+distance = 0.13                # Distance from lens (or sample) to detector (m)
+energy = 52               # Laser photon energy (eV)

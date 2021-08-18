@@ -392,7 +392,6 @@ class CollectData(PtychoData):
 
         # Create file using HDF5 protocol.
         os.chdir(os.path.dirname(__file__))
-        os.chdir('')
         f = h5py.File(f'data/{self.title}.pty', 'w')
 
         # Save collected data

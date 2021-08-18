@@ -67,12 +67,9 @@ def convert_to_gif(pty_file):
     """
     # arr should be a 3D numpy array, with images along the 0th axis.
     data = h5py.File(pty_file)
-    images = np.array(data['data/data'])
-    cx, cy = images[0].shape
-    cx = cx // 2 - 30
-    cy = cy // 2 + 20
-    images = images[:, cx - 300:cx + 300, cy - 300:cy + 300]
-    images = images - np.min(images)
+    images = np.squeeze(np.array(data['data/data']))
+    # images = images - np.min(images)
+    images = np.log(images+1)
     images = np.uint8(images / np.max(images) * 255)
 
     ims = [Image.fromarray(a) for a in images]
@@ -81,4 +78,4 @@ def convert_to_gif(pty_file):
 
 
 if __name__ == '__main__':
-    view_pty()
+    convert_to_gif('C:/Users/jacione/PycharmProjects/ptychodactyl/data/test-2021-08-18.pty')
