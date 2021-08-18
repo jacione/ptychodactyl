@@ -56,6 +56,7 @@ class Camera(ABC):
         self.im_shape = (self.height, self.width)
         self.im_size = self.width * self.height
         self.pixel_size = self.defaults['pixel_size']
+        self.frames_per_take = 1
         self.exposure = self.defaults['exposure']
         self.gain = self.defaults['gain']
 
@@ -132,12 +133,10 @@ class Camera(ABC):
         """
         pass
 
-    def get_frames(self, num_frames=1, show=False):
+    def get_frames(self, show=False):
         """
         Collect an image from the camera.
 
-        :param num_frames: Camera will sum this many frames into the composite image
-        :type num_frames: int
         :param show: If True, show the image (log scale) and a histogram of the image data.
         :type show: bool
         :return: 2D image array
@@ -145,7 +144,7 @@ class Camera(ABC):
         """
         data = np.zeros(self.im_shape)
         self.arm()
-        for i in range(num_frames):
+        for i in range(self.frames_per_take):
             data = data + downscale_local_mean(self.get_frame(), (self.binning, self.binning))
         self.disarm()
         if show:
@@ -175,6 +174,12 @@ class Camera(ABC):
         self.set_gain(self.defaults['gain'])
         return
 
+    def set_frames_per_take(self, frames_per_take):
+        """
+        Set the number of frames to sum for each image measurement
+        """
+        self.frames_per_take = frames_per_take
+
     def set_resolution(self, resolution):
         """
         Set camera resolution. The functionality of this is a little counter-intuitive. The **resolution** parameter is
@@ -195,12 +200,13 @@ class Camera(ABC):
         self.pixel_size = self.defaults['pixel_size'] * self.binning
         return
 
-    def find_center(self):
+    def find_center(self, img=None):
         """
         Find and return the "center of brightness" on the camera's image sensor. Useful for finding the center of a
         beam or diffraction pattern.
         """
-        img = self.get_frames()
+        if img is None:
+            img = self.get_frames()
         img[img < np.quantile(img, 0.75)] = 0
         return center_of_mass(img)
 
@@ -210,7 +216,8 @@ class Camera(ABC):
         readouts.
         """
         img = self.get_frames()
-        cy, cx = self.find_center()
+        self.imshow(img)
+        cy, cx = center_of_mass(img)
         x = img[int(np.round(cy, 0))]
         y = img[:, int(np.round(cx, 0))]
         plt.figure(tight_layout=True)
@@ -221,7 +228,7 @@ class Camera(ABC):
         plt.subplot2grid((4, 4), (3, 0), colspan=3)
         plt.plot(x, c='g')
         plt.subplot2grid((4, 4), (0, 3), rowspan=3)
-        plt.plot(y, np.arange(self.height), c='r')
+        plt.plot(np.flip(y), np.arange(self.height), c='r')
         plt.show()
 
 
@@ -232,6 +239,12 @@ class ThorCam(Camera):
     This subclass only implements a few basic functions which are relevant to ptychography data collection. A more
     complete control can be achieved by using the `officially provided SDK
     <https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=ThorCam>`_.
+
+    .. note::
+        The Thorcam does support automatic image summation (sending several capture triggers and summing the results),
+        but the summing appears to be performed in the camera's on-board memory, which means it has the same dynamic
+        range as a single capture. I don't know if this can be changed/fixed, but for now at least the easy solution is
+        to externally sum a series of single images.
     """
 
     def __init__(self, verbose=True):
@@ -602,28 +615,90 @@ class Mightex(Camera):
 
 class Andor(Camera):
 
-    def __init__(self, defaults, verbose):
-        pass
+    def __init__(self, verbose):
+        from pyAndorSDK2.atmcd import atmcd
+        defaults = {
+            'width': 2048,
+            'height': 2048,
+            'exposure': 500,
+            'gain': 0,
+            'pixel_size': 13.5
+        }
+        super().__init__(defaults, verbose)
+        self._sdk = atmcd()
+
+        self.camera_on()
+        self.set_defaults()
 
     def camera_on(self):
+        if self.is_on:
+            self.print('Camera engine already started!')
+            return
+
+        self._sdk.Initialize("")
+        # self._sdk.CoolerON()
+        self._sdk.SetAcquisitionMode(2)  # Accumulation/summing mode
+        self._sdk.SetReadMode(4)  # Full image mode
+        self._sdk.SetTriggerMode(0)  # Internally regulated triggering
+        self._sdk.SetImage(1, 1, 1, self.full_width, 1, self.full_height)
+        self._sdk.SetShutter(1, 0, 50, 40)
+
+        self.is_on = True
+        self.print('SUCCESS: Camera engine started!')
         pass
 
     def camera_off(self):
-        pass
+        if not self.is_on:
+            self.print('Camera engine not started!')
+            return
+
+        self._sdk.ShutDown()
+
+        self.is_on = False
+        self.print('SUCCESS: Camera engine stopped!')
+        return
 
     def set_exposure(self, ms):
+        if ms < 50:
+            ms = 50
+        seconds = ms / 1000
+        self._sdk.SetExposureTime(seconds)
+        self._sdk.SetAccumulationCycleTime(seconds + 0.1)
         pass
 
     def set_gain(self, gain):
+        # Feature not supported by camera
         pass
 
+    def set_frames_per_take(self, frames_per_take):
+        self.frames_per_take = frames_per_take
+        self._sdk.SetNumberAccumulations(frames_per_take)
+
     def arm(self):
+        self._sdk.PrepareAcquisition()
+        self.is_armed = True
         pass
 
     def get_frame(self):
+        # The AndorSDK supports automatic image summation with (unlike the ThorCam, I might add) corresponding dynamic
+        # range increase, so there's no need for this function.
         pass
 
+    def get_frames(self, show=False):
+        self.arm()
+        self._sdk.StartAcquisition()
+        self._sdk.WaitForAcquisition()
+        _, buffer = self._sdk.GetMostRecentImage(self.im_size)
+        image = np.ctypeslib.as_array(buffer, self.im_size)
+        image = np.reshape(image, self.im_shape)
+        image = np.asarray(image, dtype='Q')
+        self.disarm()
+        if show:
+            self.imshow(image)
+        return image
+
     def disarm(self):
+        self.is_armed = False
         pass
 
 
@@ -663,7 +738,5 @@ class YourCamera(Camera):
 
 
 if __name__ == '__main__':
-    with ThorCam(False) as cam:
-        cam.set_exposure(0.25)
-        cam.set_resolution(512)
-        cam.get_frames(10, show=True)
+    cam = Andor(False)
+    cam.analyze_frame()

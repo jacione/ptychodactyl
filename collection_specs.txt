@@ -4,8 +4,8 @@ title = test
 #### Probe positioning parameters
 stages = micronix               # Keyword for the stage controller that you're using
 scan_center = 0.0 , 0.0         # Stage position where probe is centered on object (mm)
-width = 1.0                     # Horizontal scanning range (mm)
-height = 1.0                    # Vertical scanning range (mm)
+scan_width = 1.0                # Horizontal scanning range (mm)
+scan_height = 1.0               # Vertical scanning range (mm)
 step_size = 0.1                 # Spacing between probe positions (mm)
 pattern = spiral                # Geometric pattern for ptychography scan (rect, hex, or spiral)
 num_rotations = 0               # Number of rotational steps (zero for no rotation)
