@@ -51,6 +51,11 @@ def rect_scan(center, width, height, step, random):
     x = np.arange(center[0]-width/2, center[0]+width/2, step)
     y = np.arange(center[1]-height/2, center[1]+height/2, step)
     X, Y = np.meshgrid(x, y)
+    for i in range(x.shape[0]):
+        # This flips every other row so that the final scan is a snake-like pattern rather than always starting from
+        # one side.
+        if i % 2:
+            X[i] = np.flip(X[i])
     if random:
         dxy = 0.05*step
         X = X + hf.random(X.shape, -dxy, dxy)
@@ -84,9 +89,11 @@ def hex_scan(center, width, height, step, random):
                                                                               # shifting into account
     X, Y = np.meshgrid(x, y)
     for i in range(X.shape[0]):
-        # This shifts every other row by a half step to make the hexagonal pattern
+        # This shifts every other row by a half step to make the hexagonal pattern and flips every other row to make a
+        # snake like pattern
         if i % 2:
-            X[i] = X[i] + step / 2
+            X[i] = np.flip(X[i] + step / 2)
+
     if random:
         dxy = 0.05*step
         X = X + hf.random(X.shape, -dxy, dxy)

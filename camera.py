@@ -1,7 +1,7 @@
 """
 Controller classes for cameras.
 """
-
+import time
 from ctypes import *
 import numpy as np
 from matplotlib import pyplot as plt
@@ -169,6 +169,7 @@ class Camera(ABC):
 
     def set_defaults(self):
         """Set the basic camera features to their default values."""
+        self.set_frames_per_take(1)
         self.set_resolution(self.full_height)
         self.set_exposure(self.defaults['exposure'])
         self.set_gain(self.defaults['gain'])
@@ -620,9 +621,10 @@ class Andor(Camera):
         defaults = {
             'width': 2048,
             'height': 2048,
-            'exposure': 500,
+            'exposure': 80,
             'gain': 0,
-            'pixel_size': 13.5
+            'pixel_size': 13.5,
+            'temperature': -60
         }
         super().__init__(defaults, verbose)
         self._sdk = atmcd()
@@ -636,12 +638,19 @@ class Andor(Camera):
             return
 
         self._sdk.Initialize("")
-        self._sdk.CoolerON()
         self._sdk.SetAcquisitionMode(2)  # Accumulation/summing mode
         self._sdk.SetReadMode(4)  # Full image mode
         self._sdk.SetTriggerMode(0)  # Internally regulated triggering
         self._sdk.SetImage(1, 1, 1, self.full_width, 1, self.full_height)
-        self._sdk.SetShutter(1, 0, 50, 40)
+        self._sdk.SetShutter(1, 0, 15, 15)
+        self._sdk.CoolerON()
+        self.set_defaults()
+
+        ret, curr_temp = self._sdk.GetTemperature()
+        while ret != self._sdk.DRV_TEMP_STABILIZED:
+            time.sleep(1)
+            ret, curr_temp = self._sdk.GetTemperature()
+            print(curr_temp)
 
         self.is_on = True
         self.print('SUCCESS: Camera engine started!')
@@ -657,6 +666,13 @@ class Andor(Camera):
         self.is_on = False
         self.print('SUCCESS: Camera engine stopped!')
         return
+
+    def set_temperature(self, temp):
+        self._sdk.SetTemperature(temp)
+
+    def set_defaults(self):
+        super().set_defaults()
+        self.set_temperature(self.defaults['temperature'])
 
     def set_exposure(self, ms):
         if ms < 50:

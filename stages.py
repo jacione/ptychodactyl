@@ -300,9 +300,9 @@ class Attocube(Stage):
         # Each stage's zero or center position, as measured by the ANC350 (m)
         self.zeros = {
             'q': 168.38,
-            'x': sum(self.limits['x'])/2,
-            'y': sum(self.limits['y'])/2,
-            'z': sum(self.limits['z'])/2,
+            'x': sum(self.limits['x'])/2,  # 0.002733
+            'y': sum(self.limits['y'])/2,  # 0.002533
+            'z': sum(self.limits['z'])/2,  # 0.002596
             'xc': 0.015860
         }
 
@@ -314,10 +314,10 @@ class Attocube(Stage):
         # Error range on EITHER side of the target position where the stage is still considered "on target"
         target_range = {
             'q': 0.0075,
-            'x': 0.00000007,
-            'y': 0.00000007,
-            'z': 0.00000007,
-            'xc': 0.000001
+            'x': 0.0000001,
+            'y': 0.0000001,
+            'z': 0.0000001,
+            'xc': 0.000005
         }
         for ax in self.all_axes:
             self.devices[ax].setAxisOutput(self.ax_id[ax], 1, 0)
@@ -346,8 +346,8 @@ class Attocube(Stage):
             q = self.q
         if laser_frame:
             q_rads = q * np.pi / 180
-            xp = x*np.cos(q_rads) + z*np.sin(q_rads)
-            zp = x*np.sin(q_rads) - z*np.cos(q_rads)
+            xp = -x*np.cos(q_rads) + z*np.sin(q_rads)
+            zp = -x*np.sin(q_rads) - z*np.cos(q_rads)
             x = xp
             z = zp
         xyzq = {'x': x*self.units, 'y': y*self.units, 'z': z*self.units, 'q': q}
@@ -359,7 +359,7 @@ class Attocube(Stage):
         while not self.is_on_target():
             time.sleep(0.1)
             try_count += 1
-            if try_count > 100:
+            if try_count > 200:
                 raise IOError('Stage is taking too long to find target!')
 
         self.measure()

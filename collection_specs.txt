@@ -3,7 +3,7 @@ title = test
 
 #### Probe positioning parameters
 stages = attocube               # Keyword for the stage controller that you're using
-scan_center = 0.283 , 0.309         # Stage position where probe is centered on object (mm)
+scan_center = 0.283 , 0.309         # X,Y stage position where probe is centered on object (mm)
 scan_width = 0.1                # Horizontal scanning range (mm)
 scan_height = 0.1               # Vertical scanning range (mm)
 step_size = 0.019                 # Spacing between probe positions (mm)
