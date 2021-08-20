@@ -19,17 +19,21 @@ def search(spec_file, obj_size, search_area):
     # y0 = (0.002905 - stages.zeros['y']) / stages.units
     x0 = 0.581
     y0 = 0.373
-    X, Y, N = xy_scan('spiral', (x0, y0), search_area[0], search_area[1], obj_size/2, False)
+    X, Y, N = xy_scan('hex', (x0, y0), search_area[0], search_area[1], obj_size/2, False)
 
     # Scan over the full range. At each position, take a quick image and record only the sum
     search_results = np.zeros((N, 3))
     print('Scanning object space for features...')
     time.sleep(0.1)
     for i in pbar(range(N)):
-        stages.set_position((X[i], Y[i], 0, 0))
-        res = np.mean(camera.get_frames())
-        # res = np.exp(-(X[i]**2 + Y[i]**2))
-        search_results[i] = [X[i], Y[i], res]
+        try:
+            stages.set_position((X[i], Y[i], 0, 0))
+            res = np.mean(camera.get_frames())
+            # res = np.exp(-(X[i]**2 + Y[i]**2))
+            search_results[i] = [X[i], Y[i], res]
+        except IOError:
+            search_results = search_results[:i]
+            break
 
     # Save the positions and sums as a npy file
     np.save(f'data/{title}_search.npy', search_results)
@@ -57,5 +61,5 @@ def analyze_search(search_file):
 
 
 if __name__ == '__main__':
-    search('collection_specs.txt', 0.07, (1.7, 1.7))
-    # analyze_search('test_search.npy')
+    # search('collection_specs.txt', 0.1, (1.7, 1.7))
+    analyze_search('test_search.npy')
