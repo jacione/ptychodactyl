@@ -9,6 +9,7 @@ from scipy.ndimage import center_of_mass
 from abc import ABC, abstractmethod
 import os
 from skimage.transform import downscale_local_mean
+from progressbar import ProgressBar, widgets
 
 
 libs = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/utils'
@@ -628,9 +629,9 @@ class Andor(Camera):
         }
         super().__init__(defaults, verbose)
         self._sdk = atmcd()
+        self.temp = self.defaults['temperature']
 
         self.camera_on()
-        self.set_defaults()
 
     def camera_on(self):
         if self.is_on:
@@ -645,12 +646,6 @@ class Andor(Camera):
         self._sdk.SetShutter(1, 0, 15, 15)
         self._sdk.CoolerON()
         self.set_defaults()
-
-        ret, curr_temp = self._sdk.GetTemperature()
-        while ret != self._sdk.DRV_TEMP_STABILIZED:
-            time.sleep(1)
-            ret, curr_temp = self._sdk.GetTemperature()
-            print(curr_temp)
 
         self.is_on = True
         self.print('SUCCESS: Camera engine started!')
@@ -668,7 +663,22 @@ class Andor(Camera):
         return
 
     def set_temperature(self, temp):
+        self.temp = temp
         self._sdk.SetTemperature(temp)
+        ret, curr_temp = self._sdk.GetTemperature()
+        print(f'Setting camera temperature to {self.temp} °C...')
+        pbar = ProgressBar(
+            max_value=curr_temp-self.temp+10,
+            initial_value=curr_temp,
+            widgets=[widgets.Variable('T', '{value} °C'), ' ', widgets.Bar(), ' ', widgets.Timer()],
+            variables={'T': curr_temp}
+        )
+        time.sleep(0.1)
+        while ret != self._sdk.DRV_TEMP_STABILIZED:
+            time.sleep(1)
+            ret, curr_temp = self._sdk.GetTemperature()
+            pbar.update(curr_temp-self.temp+5, T=curr_temp)
+        pbar.finish()
 
     def set_defaults(self):
         super().set_defaults()
@@ -691,6 +701,8 @@ class Andor(Camera):
         self._sdk.SetNumberAccumulations(frames_per_take)
 
     def arm(self):
+        # The Andor SDK doesn't really have an arming function. The PrepareAcquisition function just allocates the
+        # memory for the image(s). It's not necessary, but may speed up collection time in accumulation mode.
         self._sdk.PrepareAcquisition()
         self.is_armed = True
         pass

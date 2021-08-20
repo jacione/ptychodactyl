@@ -19,7 +19,7 @@ def search(spec_file, obj_size, search_area):
     # y0 = (0.002905 - stages.zeros['y']) / stages.units
     x0 = 0.581
     y0 = 0.373
-    X, Y, N = xy_scan('hex', (x0, y0), search_area[0], search_area[1], obj_size/2, False)
+    X, Y, N = xy_scan('spiral', (x0, y0), search_area[0], search_area[1], obj_size/2, False)
 
     # Scan over the full range. At each position, take a quick image and record only the sum
     search_results = np.zeros((N, 3))
@@ -45,12 +45,9 @@ def search(spec_file, obj_size, search_area):
 def analyze_search(search_file):
     data = np.load(f'data/{search_file}').T
     # Surface plot the positions and sums to see outliers
-    X = data[0][data[1] > 0.2]
-    Y = data[1][data[1] > 0.2]
-    Z = data[2][data[1] > 0.2]
-    # X = data[0]
-    # Y = data[1]
-    # Z = data[2]
+    X = data[0]
+    Y = data[1]
+    Z = data[2]
     plt.tripcolor(X, Y, Z, cmap='inferno')
     plt.gca().set_aspect('equal')
     fig = plt.figure()
@@ -60,5 +57,5 @@ def analyze_search(search_file):
 
 
 if __name__ == '__main__':
-    search('collection_specs.txt', 0.02, (0.1, 0.1))
+    search('collection_specs.txt', 0.07, (1.7, 1.7))
     # analyze_search('test_search.npy')
