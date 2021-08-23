@@ -617,7 +617,7 @@ class Mightex(Camera):
 
 class Andor(Camera):
 
-    def __init__(self, verbose=False):
+    def __init__(self, verbose=False, temperature=-60):
         from pyAndorSDK2.atmcd import atmcd
         defaults = {
             'width': 2048,
@@ -625,7 +625,7 @@ class Andor(Camera):
             'exposure': 80,
             'gain': 0,
             'pixel_size': 13.5,
-            'temperature': -60
+            'temperature': temperature
         }
         super().__init__(defaults, verbose)
         self._sdk = atmcd()
@@ -674,10 +674,15 @@ class Andor(Camera):
             variables={'T': curr_temp}
         )
         time.sleep(0.1)
-        while ret != self._sdk.DRV_TEMP_STABILIZED:
+        while ret != self._sdk.DRV_TEMP_STABILIZED or curr_temp != self.temp:
             time.sleep(1)
             ret, curr_temp = self._sdk.GetTemperature()
-            pbar.update(curr_temp-self.temp+5, T=curr_temp)
+            t_val = curr_temp-self.temp+5
+            if t_val > pbar.max_value:
+                t_val = pbar.max_value
+            if t_val < 0:
+                t_val = 0
+            pbar.update(t_val, T=curr_temp)
         pbar.finish()
 
     def set_defaults(self):

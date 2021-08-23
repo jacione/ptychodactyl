@@ -11,14 +11,14 @@ import time
 def search(spec_file, obj_size, search_area):
     specs = parse_specs(spec_file)
     title = specs['title']
-    camera = get_camera(specs['camera'])
+    camera = get_camera(specs['camera'], temperature=-10)
     stages = get_stages(specs['stages'])
 
     # Generate a scan for the search area
     # x0 = (0.003264 - stages.zeros['x']) / stages.units
     # y0 = (0.002905 - stages.zeros['y']) / stages.units
-    x0 = 0.581
-    y0 = 0.373
+    x0 = 0.300  # Center in mm
+    y0 = 0.800  # center in mm
     X, Y, N = xy_scan('hex', (x0, y0), search_area[0], search_area[1], obj_size/2, False)
 
     # Scan over the full range. At each position, take a quick image and record only the sum
@@ -39,9 +39,9 @@ def search(spec_file, obj_size, search_area):
     np.save(f'data/{title}_search.npy', search_results)
 
     # Surface plot the positions and sums to see outliers
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    ax.plot_trisurf(X, Y, search_results[:, -1], cmap='inferno')
+    plt.tripcolor(X, Y, search_results[:, -1], cmap='inferno')
+    plt.gca().set_aspect('equal')
+    plt.colorbar()
     plt.show()
     return
 
@@ -54,12 +54,10 @@ def analyze_search(search_file):
     Z = data[2]
     plt.tripcolor(X, Y, Z, cmap='inferno')
     plt.gca().set_aspect('equal')
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    ax.plot_trisurf(X, Y, Z, cmap='inferno')
+    plt.colorbar()
     plt.show()
 
 
 if __name__ == '__main__':
-    # search('collection_specs.txt', 0.1, (1.7, 1.7))
-    analyze_search('test_search.npy')
+    search('collection_specs.txt', 0.06, (1.2, 1.2))
+    # analyze_search('test_search.npy')

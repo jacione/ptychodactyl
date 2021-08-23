@@ -258,14 +258,13 @@ class Attocube(Stage):
     Bottom  L010810  perpendicular-to-beam (x), parallel-to-beam (z)
     """
 
-    def __init__(self, verbose=False, ignore_rotation=True):
+    def __init__(self, verbose=False):
         """
         Instantiate Attocube object
         """
         import utils.Attocube.pyanc350v4 as pyanc
 
         super().__init__(verbose)
-        self.ignore_rotation = ignore_rotation
 
         self.units = 1e-3  # expects meters, so one millimeter is 0.001
 
@@ -342,18 +341,14 @@ class Attocube(Stage):
 
     def set_position(self, xyzq, laser_frame=True):
         x, y, z, q = xyzq
-        if self.ignore_rotation:
-            q = self.q
         if laser_frame:
             q_rads = q * np.pi / 180
-            xp = -x*np.cos(q_rads) + z*np.sin(q_rads)
-            zp = -x*np.sin(q_rads) - z*np.cos(q_rads)
+            xp = x*np.cos(q_rads) + z*np.sin(q_rads)
+            zp = x*np.sin(q_rads) - z*np.cos(q_rads)
             x = xp
             z = zp
         xyzq = {'x': x*self.units, 'y': y*self.units, 'z': z*self.units, 'q': q}
         for ax in self.fine_axes:
-            if self.ignore_rotation and ax == 'q':
-                continue
             self.devices[ax].setTargetPosition(self.ax_id[ax], xyzq[ax]+self.zeros[ax])
         try_count = 0
         while not self.is_on_target():
@@ -414,8 +409,6 @@ class Attocube(Stage):
     def is_on_target(self):
         """Returns whether all of the stages are on target."""
         for ax in self.all_axes:
-            if self.ignore_rotation and ax == 'q':
-                continue
             if not self.get_status(ax)[3]:
                 return False
         else:
