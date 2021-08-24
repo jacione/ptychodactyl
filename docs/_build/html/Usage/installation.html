@@ -92,10 +92,12 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation &amp; Setup</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installing-ptychodactyl">Installing PtychoDactyl</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#experimental-setup">Experimental setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#device-interfacing">Device Interfacing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Using PtychoDactyl</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 </ul>
 
             
@@ -172,7 +174,7 @@
 <p class="admonition-title">Note</p>
 <p>PtychoDactyl has only been tested on Windows 10.</p>
 </div>
-<p>PtychoDactyl requires the following packages, all available via <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span></code> or <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>:</p>
+<p>PtychoDactyl requires the following packages, all available via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>:</p>
 <ul class="simple">
 <li><p>click (&gt;=8.0.1)</p></li>
 <li><p>h5py (&gt;=3.2.1)</p></li>
@@ -193,13 +195,28 @@
 <li><p>A multi-axis positioning system</p></li>
 <li><p>A lensless camera</p></li>
 </ul>
-<p>PtychoDactyl doesn’t care about the laser or the sample, but it does care (quite a bit, actually) about the stages and the camera.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>TO-DO:
+Include a picture and brief description of a ptycho experiment.</p>
+</div>
+<p>PtychoDactyl doesn’t really care about the laser or the sample, but it does care (quite a bit, actually) about the stages and the camera, which brings us to…</p>
+</div>
+<div class="section" id="device-interfacing">
+<span id="subclassing"></span><h2>Device Interfacing<a class="headerlink" href="#device-interfacing" title="Permalink to this headline">¶</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>You will probably need to write your own controller classes for your own devices.</p>
+<p>Unless you’re very lucky (or happen to work in the lab where this was developed), you will almost certainly need to write your own controller classes for your own devices.</p>
 </div>
-<p>For full functionality, your classes should inherit the abstract base classes provided in <a class="reference internal" href="../api/stages.html#stages"><span class="std std-ref">Stage controller interfacing</span></a> and <a class="reference internal" href="../api/camera.html#camera"><span class="std std-ref">Camera interfacing</span></a>.</p>
-<p>Additionally, the device interfacing uses some proprietary software development kits provided by Micronix, Mightex, and Thorlabs. This means some DLL and similar files, not created by me, are included in this repository. These files are used under the terms put forth by their respective owners, and all associated copyrights remain with said owners.</p>
+<p>In order to make device interfacing as painless as possible, PtychoDactyl implements abstract base classes for <a class="reference internal" href="../api/stages.html#stages"><span class="std std-ref">stages</span></a> and <a class="reference internal" href="../api/camera.html#camera"><span class="std std-ref">cameras</span></a>, as well as a stub subclass (a stubclass, if you will) which you will need to flesh out to work with your own devices. While you’re free to do this in any way you like, here are a few important considerations:</p>
+<ol class="arabic simple">
+<li><p>Make a copy of the <code class="docutils literal notranslate"><span class="pre">YourStages</span></code> and <code class="docutils literal notranslate"><span class="pre">YourCamera</span></code> subclass templates so that you still have them if you need to start over or implement another device.</p></li>
+<li><p>If your subclass requires additional <code class="docutils literal notranslate"><span class="pre">import</span></code> statements, put those statements in the <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method.</p></li>
+<li><p>Your subclass must implement all of the abstract methods from the base class, but you may also need to override some other methods (e.g. <code class="docutils literal notranslate"><span class="pre">cameras.Andor.get_frames()</span></code>), and even add some internal methods of your own (e.g. <code class="docutils literal notranslate"><span class="pre">stages.Micronix.command()</span></code>).</p></li>
+<li><p>If you use a software development kit (SDK), you’ll need to reference those libraries within your subclass. To keep your libraries organized, you may want to make a subdirectory for each device within the <code class="docutils literal notranslate"><span class="pre">utils</span></code> directory (e.g. <code class="docutils literal notranslate"><span class="pre">utils/Polaroid</span></code>).</p></li>
+<li><p>Even if the SDK has a fully functional Python class for your device, it will still be beneficial to make your own subclass that wraps around it because the rest of PtychoDactyl won’t recognize the foreign class. One easy way to do this is to give your subclass an attribute like <code class="docutils literal notranslate"><span class="pre">self._sdk</span></code> or <code class="docutils literal notranslate"><span class="pre">self._handle</span></code> that references to the SDK object, and then just have your methods call its methods.</p></li>
+<li><p>The best way to use your new subclass is to add it to the dictionary in either <code class="docutils literal notranslate"><span class="pre">stages.get_stages()</span></code> or <code class="docutils literal notranslate"><span class="pre">camera.get_camera()</span></code>. Other PtychoDactyl scripts use these functions in conjunction with the <a class="reference internal" href="../api/specs.html#specs"><span class="std std-ref">spec file</span></a>. The key should be the name of the class in all lowercase, and the value should be the name of the subclass (e.g. <code class="docutils literal notranslate"><span class="pre">'polaroid':</span> <span class="pre">Polaroid</span></code>).</p></li>
+</ol>
 </div>
 </div>
 

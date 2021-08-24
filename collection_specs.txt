@@ -15,7 +15,7 @@ camera = andor                # Keyword for the camera that you're using
 background_frames = true        # Set to true to record a background image with the laser off
 frames_per_take = 2            # Number of frames to sum for each measurement (including background)
 resolution = 512                # Desired final image size (number of pixels on a side)
-exposure = 200                 # Exposure time (ms)
+exposure = 100                 # Exposure time (ms)
 gain = 1                        # Analog gain
 
 #### Other parameters

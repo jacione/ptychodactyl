@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation &amp; Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Using PtychoDactyl</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="specs.html">Parameter specification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="camera.html">Camera interfacing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="stages.html">Stage controller interfacing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ptycho_data.html">Data management</a></li>
@@ -100,6 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utilities</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 </ul>
 
             
@@ -183,26 +185,6 @@
 </ul>
 </dd>
 </dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="recon.Reconstruction">
-<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">Reconstruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Reconstruction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load a PTY file and construct the appropriate Recon subclass.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – name of the datafile</p></li>
-<li><p><strong>specs</strong> – keyword arguments to pass to LoadData</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Recon2D or Recon3D instance</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#recon.Recon" title="recon.Recon">Recon</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="recon.Recon">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">Recon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="ptycho_data.html#ptycho_data.LoadData" title="ptycho_data.LoadData"><span class="pre">ptycho_data.LoadData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon" title="Permalink to this definition">¶</a></dt>
@@ -224,15 +206,15 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="recon.Recon.show_object_and_probe">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">show_object_and_probe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon.show_object_and_probe" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="recon.Recon.save">
 <span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the reconstruction to the original PTY file</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="recon.Recon.show_object_and_probe">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">show_object_and_probe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon.show_object_and_probe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -266,15 +248,15 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="recon.Recon2D.show_probe_positions">
-<span class="sig-name descname"><span class="pre">show_probe_positions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon2D.show_probe_positions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Show a scatter plot of all of the probe positions in the scan.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="recon.Recon2D.show_object_and_probe">
 <span class="sig-name descname"><span class="pre">show_object_and_probe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon2D.show_object_and_probe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show the object and probe in their current state of reconstruction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="recon.Recon2D.show_probe_positions">
+<span class="sig-name descname"><span class="pre">show_probe_positions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon2D.show_probe_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show a scatter plot of all of the probe positions in the scan.</p>
 </dd></dl>
 
 </dd></dl>
@@ -308,6 +290,26 @@
 <span class="sig-name descname"><span class="pre">show_object_and_probe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon3D.show_object_and_probe" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="recon.Reconstruction">
+<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">Reconstruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Reconstruction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a PTY file and construct the appropriate Recon subclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – name of the datafile</p></li>
+<li><p><strong>specs</strong> – keyword arguments to pass to LoadData</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Recon2D or Recon3D instance</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#recon.Recon" title="recon.Recon">Recon</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

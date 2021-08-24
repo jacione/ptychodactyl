@@ -169,7 +169,7 @@ STYLE_DICT = {'rect': rect_scan, 'hex': hex_scan, 'spiral': spiral_scan}
 
 if __name__ == '__main__':
     a = 0
-    xx, yy, _ = xy_scan('spiral', 1, 1, 0.1)
+    xx, yy, _ = xy_scan('spiral', (0, 0), 3, 3, 0.1)
     plt.scatter(xx, yy)
     plt.gca().set_aspect('equal')
     plt.show()

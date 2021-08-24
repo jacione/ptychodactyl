@@ -5,6 +5,7 @@ API Reference
 
 .. toctree::
 
+    specs
     camera
     stages
     ptycho_data

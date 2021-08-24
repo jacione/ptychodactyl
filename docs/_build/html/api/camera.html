@@ -42,7 +42,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Stage controller interfacing" href="stages.html" />
-    <link rel="prev" title="API Reference" href="api.html" /> 
+    <link rel="prev" title="Parameter specification" href="specs.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation &amp; Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Using PtychoDactyl</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="specs.html">Parameter specification</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Camera interfacing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="stages.html">Stage controller interfacing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ptycho_data.html">Data management</a></li>
@@ -100,6 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utilities</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 </ul>
 
             
@@ -171,39 +173,51 @@
             
   <div class="section" id="camera-interfacing">
 <span id="camera"></span><h1>Camera interfacing<a class="headerlink" href="#camera-interfacing" title="Permalink to this headline">¶</a></h1>
-<p>Examples:</p>
+<p>As discussed <a class="reference internal" href="../usage/installation.html#subclassing"><span class="std std-ref">previously</span></a>, you will likely need to define your own <code class="docutils literal notranslate"><span class="pre">Camera</span></code> subclass to use this software with your own devices. The following subclasses are built-in, and may serve as useful examples in this process.</p>
 <table class="docutils align-default">
 <colgroup>
+<col style="width: 7%" />
 <col style="width: 6%" />
 <col style="width: 6%" />
 <col style="width: 5%" />
-<col style="width: 82%" />
+<col style="width: 76%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Manufacturer</p></th>
+<tr class="row-odd"><th class="head"><p>Subclass</p></th>
+<th class="head"><p>Manufacturer</p></th>
 <th class="head"><p>Camera model</p></th>
 <th class="head"><p>Status</p></th>
 <th class="head"><p>Dependencies (not included)</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Thorlabs</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ThorCam</span></code></p></td>
+<td><p>Thorlabs</p></td>
 <td><p>S805MU1</p></td>
 <td><p>stable</p></td>
-<td><p><a class="reference external" href="https://pypi.org/project/pythonnet/">Python.NET</a>, <a class="reference external" href="https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=ThorCam">Thorlabs camera SDK</a></p></td>
+<td><p><a class="reference external" href="https://pypi.org/project/pythonnet/">Python.NET</a>, <a class="reference external" href="https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=ThorCam">SDK</a> (proprietary)</p></td>
 </tr>
-<tr class="row-odd"><td><p>Andor</p></td>
-<td><p>DO936N</p></td>
-<td><p>unfinished</p></td>
-<td><p><a class="reference external" href="https://andor.oxinst.com/downloads/view/andor-sdk-2.104.30000.0">Andor SDK</a> (requires verification)</p></td>
-</tr>
-<tr class="row-even"><td><p>Mightex</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Mightex</span></code></p></td>
+<td><p>Mightex</p></td>
 <td><p>SME-B050-U</p></td>
 <td><p>buggy</p></td>
-<td><p><a class="reference external" href="https://www.mightexsystems.com/product/usb3-0-monochrome-or-color-5mp-cmos-camera-8-or-12-bit/">Mightex camera software package</a></p></td>
+<td><p><a class="reference external" href="https://www.mightexsystems.com/product/usb3-0-monochrome-or-color-5mp-cmos-camera-8-or-12-bit/">SDK</a> (proprietary)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Andor</span></code></p></td>
+<td><p>Andor</p></td>
+<td><p>iKon-L</p></td>
+<td><p>stable</p></td>
+<td><p><a class="reference external" href="https://andor.oxinst.com/downloads/view/andor-sdk-2.104.30000.0">SDK</a> (proprietary, paid)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">YourCamera</span></code></p></td>
+<td><p>n/a</p></td>
+<td><p>n/a</p></td>
+<td><p>template</p></td>
+<td><p>n/a</p></td>
 </tr>
 </tbody>
 </table>
+<p>These can each be found in the source code of <em>camera.py</em>.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="camera.get_camera">
 <span class="sig-prename descclassname"><span class="pre">camera.</span></span><span class="sig-name descname"><span class="pre">get_camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera_type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.get_camera" title="Permalink to this definition">¶</a></dt>
@@ -237,29 +251,52 @@ Otherwise, you will get a <code class="docutils literal notranslate"><span class
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.__init__">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Because this is an abstract class, this constructor must be explicitly called within a subclass constructor.
+At the very least, a subclass constructor should</p>
+<ol class="arabic simple">
+<li><p>define a <code class="docutils literal notranslate"><span class="pre">defaults</span></code> dict,</p></li>
+<li><p>call this function as <code class="docutils literal notranslate"><span class="pre">super().__init__(defaults,</span> <span class="pre">verbose)</span></code>, and</p></li>
+<li><p>call <code class="docutils literal notranslate"><span class="pre">self.camera_on()</span></code>.</p></li>
+</ol>
+<p>These three steps are already implemented into the <code class="docutils literal notranslate"><span class="pre">YourCamera</span></code> stubclass.</p>
+<p>When subclassing, you may want to include other parameters (such as temperature control target) in your
+constructor. These are OK as long as they are keyword arguments (i.e. they have a default value). They can then
+be passed to <code class="docutils literal notranslate"><span class="pre">get_camera</span></code> without any issue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>defaults</strong> (<em>dict</em>) – Default camera parameters. Must include the following keys: [“width”, “height”, “exposure”,
+“gain”, “pixel_size”, or will raise a <code class="docutils literal notranslate"><span class="pre">KeyError</span></code>.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Whether to print lots of information about camera processes.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.camera_on">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">camera_on</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.camera_on" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn on the camera interface.</p>
+<dd><p>Turns on the camera interface.</p>
+<p>This is where you should set any parameters that you won’t change over the course of a single data run. It may
+not be a bad idea to also include a call to <code class="docutils literal notranslate"><span class="pre">self.set_defaults()</span></code>. After this function is called, the camera
+should be ready to take images.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.camera_off">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">camera_off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.camera_off" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn off the camera interface.</p>
+<dd><p>Turns off the camera interface.</p>
+<p>This is where you should dispose of any handles to the device. After this function is called, all camera
+functions should be disabled (except <code class="docutils literal notranslate"><span class="pre">self.camera_on()</span></code>), and the garbage collector should only have to clean
+up the class object itself.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.set_exposure">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">set_exposure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.set_exposure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the camera exposure time in milliseconds.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
 <p>Not all camera drivers use milliseconds to define exposure time. When implementing this in a subclass,
 remember to check the units that the device is expecting and convert your value if necessary.</p>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ms</strong> (<em>float</em>) – Exposure time in milliseconds</p>
@@ -271,11 +308,8 @@ remember to check the units that the device is expecting and convert your value 
 <dt class="sig sig-object py" id="camera.Camera.set_gain">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">set_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.set_gain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the camera’s analog gain.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
 <p>Not all camera drivers use raw coefficients to define analog gain. When implementing this in a subclass,
 remember to check the format that the device is expecting and convert your value if necessary.</p>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>gain</strong> (<em>float</em>) – Analog gain</p>
@@ -312,14 +346,12 @@ remember to check the format that the device is expecting and convert your value
 
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.get_frames">
-<span class="sig-name descname"><span class="pre">get_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_frames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.get_frames" title="Permalink to this definition">¶</a></dt>
-<dd><p>Collect an image from the camera.</p>
+<span class="sig-name descname"><span class="pre">get_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.get_frames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect a composite image from the camera. The returned image will be a sum of <em>N</em> frames, where <em>N</em> is set
+using <code class="docutils literal notranslate"><span class="pre">self.set_frames_per_take()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>num_frames</strong> (<em>int</em>) – Camera will sum this many frames into the composite image</p></li>
-<li><p><strong>show</strong> (<em>bool</em>) – If True, show the image (log scale) and a histogram of the image data.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>show</strong> (<em>bool</em>) – If True, show the image (log scale) and a histogram of the image data.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>2D image array</p>
@@ -349,6 +381,12 @@ remember to check the format that the device is expecting and convert your value
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="camera.Camera.set_frames_per_take">
+<span class="sig-name descname"><span class="pre">set_frames_per_take</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames_per_take</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.set_frames_per_take" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the number of frames to sum for each image measurement</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.set_resolution">
 <span class="sig-name descname"><span class="pre">set_resolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.set_resolution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set camera resolution. The functionality of this is a little counter-intuitive. The <strong>resolution</strong> parameter is
@@ -365,7 +403,7 @@ but the cropping has to happen there because it needs to be centered on the diff
 
 <dl class="py method">
 <dt class="sig sig-object py" id="camera.Camera.find_center">
-<span class="sig-name descname"><span class="pre">find_center</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.find_center" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">find_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.find_center" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find and return the “center of brightness” on the camera’s image sensor. Useful for finding the center of a
 beam or diffraction pattern.</p>
 </dd></dl>
@@ -388,7 +426,7 @@ readouts.</p>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="stages.html" class="btn btn-neutral float-right" title="Stage controller interfacing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="api.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="specs.html" class="btn btn-neutral float-left" title="Parameter specification" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

@@ -31,15 +31,30 @@ class Stage(ABC):
     """
     Abstract base class for motorized stage controllers.
 
-    .. note::
-        Axes are defined **in terms of the beamline** which means that the y-axis in this class corresponds to the
-        vertical stage, and the z-axis is horizontal and parallel to the beam. This is different from how the axes are
-        conventionally defined in the stages themselves, where z is assumed to be vertical.
+    .. warning::
+        This class uses two coordinate systems, those of the stages (*x, y, z*) and those of the experiment (*x0, y0,
+        z0*). If a rotation stage is included, the two systems are related by the angle between them. Outside of the
+        class definition, only the experimental coordinates should be used.
+
+        The experimental coordinates are defined **in terms of the beamline**, with the positive *z0*-axis aligning
+        with the beam's path, the *y0*-axis perpendicular to the table (positive up), and the *x0*-axis perpendicular
+        to both (positive to the beam's left), to make a right-handed coordinate system.
+
+        To minimize confusion as much as possible, a similar convention is used for the stage coordinates.
+        The *y* axis should correspond to the vertical stage, and the two horizontal stages should be *x* and *z* (you
+        decide which is which). Note that this is different from how the axes are conventionally defined on the stages
+        themselves, where *x* and *y* are horizontal axes, and *z* is vertical.
     """
     @abstractmethod
     def __init__(self, verbose):
         """
-        Create a generic Stage object
+        Because this is an abstract class, this constructor must be explicitly called within a subclass constructor.
+        At the very least, a subclass constructor should
+
+        #. call this function as ``super().__init__(verbose)``,
+        #. connect to the device,
+        #. redefine the attributes ``units``, ``axes``, ``limits``, and ``zeros`` if necessary, and
+        #. call ``self.measure()``.
 
         :param verbose: if True, this instance will print information about most processes as it runs.
         :type verbose: bool
@@ -66,6 +81,10 @@ class Stage(ABC):
 
     @abstractmethod
     def __del__(self):
+        """
+        This is where you should dispose of any handles to the device. After this function is called, the garbage
+        collector should only have to clean up the class object itself.
+        """
         return
 
     @abstractmethod
@@ -74,25 +93,37 @@ class Stage(ABC):
         Check the encoder on each axis and update the attributes within the class instance. This is run automatically
         immediately after any motion command, so that the attributes should always have the correct values.
 
-        .. note::
+        .. warning::
             When implementing this method in a subclass, make sure that it returns a value in **millimeters**. This is
             for consistency across all other modules in this package, particularly those in ``ptycho_data.py``.
+
+        .. warning::
+            The calculation of ``x0`` and ``z0`` will be different for each setup, but will likely follow some variation
+            of *x0 = x cos(q) + z sin(q)*.
         """
         pass
 
     @abstractmethod
     def check_errors(self):
-        """Check each axis for errors"""
+        """
+        Check each axis for errors. For most devices, this will involve calling ``self.get_status()`` for each axis.
+        """
         pass
 
     @abstractmethod
     def get_status(self, ax):
-        """Check the status of a given axis"""
+        """
+        Check the status of a given axis. Typically, the controller will return a list of booleans, each corresponding
+        to a certain attribute (connected, moving, has an error, etc.).
+        """
         pass
 
     @abstractmethod
     def is_moving(self):
-        """Check whether any of the axes are currently moving"""
+        """
+        Check whether any of the axes are currently moving. This should return False if ALL stages are at their
+        target positions and True if ANY stage is still in motion.
+        """
         pass
 
     # High-level commands #####################################################################################
@@ -100,9 +131,14 @@ class Stage(ABC):
     @abstractmethod
     def set_position(self, xyzq, laser_frame=True):
         """
-        Move the stages to a desired position.
+        Move the stages to a desired position. When implementing this into a subclass, make sure that it waits until the
+        stages have all reached their destination, then calls ``self.measure()`` before returning.
 
-        :param xyzq: Desired position for each axis.
+        .. warning::
+            When subclassing, if this does not call ``self.measure()``, or if it calls it before the stages are finished
+            moving, the object will not read out the correct positions.
+
+        :param xyzq: Desired position for each axis, in mm.
         :type xyzq: (float, float, float, float)
         :param laser_frame: if True, convert positions to be in the laser's reference frame. Default is True.
         :type laser_frame: bool
@@ -258,13 +294,14 @@ class Attocube(Stage):
     Bottom  L010810  perpendicular-to-beam (x), parallel-to-beam (z)
     """
 
-    def __init__(self, verbose=False):
+    def __init__(self, verbose=False, ignore_rotation=True):
         """
         Instantiate Attocube object
         """
         import utils.Attocube.pyanc350v4 as pyanc
 
         super().__init__(verbose)
+        self.ignore_rotation = ignore_rotation
 
         self.units = 1e-3  # expects meters, so one millimeter is 0.001
 
@@ -341,14 +378,18 @@ class Attocube(Stage):
 
     def set_position(self, xyzq, laser_frame=True):
         x, y, z, q = xyzq
+        if self.ignore_rotation:
+            q = self.q
         if laser_frame:
             q_rads = q * np.pi / 180
-            xp = x*np.cos(q_rads) + z*np.sin(q_rads)
-            zp = x*np.sin(q_rads) - z*np.cos(q_rads)
+            xp = -x*np.cos(q_rads) + z*np.sin(q_rads)
+            zp = -x*np.sin(q_rads) - z*np.cos(q_rads)
             x = xp
             z = zp
         xyzq = {'x': x*self.units, 'y': y*self.units, 'z': z*self.units, 'q': q}
         for ax in self.fine_axes:
+            if self.ignore_rotation and ax == 'q':
+                continue
             self.devices[ax].setTargetPosition(self.ax_id[ax], xyzq[ax]+self.zeros[ax])
         try_count = 0
         while not self.is_on_target():
@@ -409,6 +450,8 @@ class Attocube(Stage):
     def is_on_target(self):
         """Returns whether all of the stages are on target."""
         for ax in self.all_axes:
+            if self.ignore_rotation and ax == 'q':
+                continue
             if not self.get_status(ax)[3]:
                 return False
         else:
@@ -474,6 +517,8 @@ class Micronix(Stage):
         for ax in self.axes:
             self.command(f'{self.ax_id[ax]}MSA{xyzq[ax]:0.6f}')
         self.command('0RUN')
+        while self.is_moving():
+            time.sleep(0.1)
         self.measure()
         return
 
@@ -518,8 +563,6 @@ class Micronix(Stage):
         immediately after any motion command, so that the attributes should always have the correct values.
         """
         positions = []
-        while self.is_moving():
-            time.sleep(0.1)
         for ax in self.axes:
             pos = self.query(f'{self.ax_id[ax]}POS?')
             pos = pos.split(',')  # Parse the returned string
@@ -565,24 +608,37 @@ class YourStage(Stage):
 
     def __init__(self, verbose):
         super().__init__(verbose)
+
+        # Establish connection with the device
+
+        self.home_all()
+        self.measure()
         pass
 
     def __del__(self):
+        # Your code goes here
         pass
 
     def measure(self):
+        # Measure each axis, then set self.x, self.y, self.z, self.q, self.x0, self.y0, and self.z0.
         pass
 
     def check_errors(self):
+        # Check each axis for errors
         pass
 
     def get_status(self, ax):
+        # General status check for a particular axis.
         pass
 
     def is_moving(self):
         pass
 
     def set_position(self, xyzq, laser_frame=True):
+
+        # Your code goes here!
+
+        self.measure()
         pass
 
 

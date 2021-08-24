@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation &amp; Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Using PtychoDactyl</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="specs.html">Parameter specification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="camera.html">Camera interfacing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="stages.html">Stage controller interfacing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ptycho_data.html">Data management</a></li>
@@ -100,6 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utilities</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 </ul>
 
             
@@ -174,12 +176,13 @@
 <p>Functions to generate an array of positions for ptychographic scans</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="scan.xy_scan">
-<span class="sig-prename descclassname"><span class="pre">scan.</span></span><span class="sig-name descname"><span class="pre">xy_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scan.xy_scan" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">scan.</span></span><span class="sig-name descname"><span class="pre">xy_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scan.xy_scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a set of positions used for a ptychographic scan.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pattern</strong> (<em>str</em>) – ‘rect’ for rectangular, ‘hex’ for hexagonal, ‘spiral’ for spiral/orchestral</p></li>
+<li><p><strong>center</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>)</em>) – horizontal and vertical scan center position</p></li>
 <li><p><strong>width</strong> (<em>float</em>) – scan width in millimeters</p></li>
 <li><p><strong>height</strong> (<em>float</em>) – scan height in millimeters</p></li>
 <li><p><strong>step</strong> (<em>float</em>) – distance between nearest-neighbor positions</p></li>
@@ -197,13 +200,14 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="scan.rect_scan">
-<span class="sig-prename descclassname"><span class="pre">scan.</span></span><span class="sig-name descname"><span class="pre">rect_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scan.rect_scan" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">scan.</span></span><span class="sig-name descname"><span class="pre">rect_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scan.rect_scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a rectangular ptychographic scan. Positions are aligned into rows and columns, such that the four nearest
 neighbors of each position are directly above, below, and to either side.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>width</strong> (<em>float</em>) – scan width in millimeters</p></li>
+<li><p><strong>center</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>)</em>) – horizontal and vertical scan center position</p></li>
 <li><p><strong>height</strong> (<em>float</em>) – scan height in millimeters</p></li>
 <li><p><strong>step</strong> (<em>float</em>) – distance between nearest-neighbor positions</p></li>
 <li><p><strong>random</strong> (<em>bool</em>) – if True (default), assigns a small random shift to each position</p></li>
@@ -220,13 +224,14 @@ neighbors of each position are directly above, below, and to either side.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="scan.hex_scan">
-<span class="sig-prename descclassname"><span class="pre">scan.</span></span><span class="sig-name descname"><span class="pre">hex_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scan.hex_scan" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">scan.</span></span><span class="sig-name descname"><span class="pre">hex_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scan.hex_scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a hexagonal ptychographic scan. Positions are aligned into rows and (loosely) columns, such that the six
 nearest neighbors of each position form a regular hexagon.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>width</strong> (<em>float</em>) – scan width in millimeters</p></li>
+<li><p><strong>center</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>)</em>) – horizontal and vertical scan center position</p></li>
 <li><p><strong>height</strong> (<em>float</em>) – scan height in millimeters</p></li>
 <li><p><strong>step</strong> (<em>float</em>) – distance between nearest-neighbor positions</p></li>
 <li><p><strong>random</strong> (<em>bool</em>) – if True (default), assigns a small random shift to each position</p></li>
@@ -243,13 +248,14 @@ nearest neighbors of each position form a regular hexagon.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="scan.spiral_scan">
-<span class="sig-prename descclassname"><span class="pre">scan.</span></span><span class="sig-name descname"><span class="pre">spiral_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scan.spiral_scan" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">scan.</span></span><span class="sig-name descname"><span class="pre">spiral_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scan.spiral_scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a spiral ptychographic scan. Positions are arranged spiraling out such that the points are spaced evenly
 along the path and the loops are spaced evenly from each other.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>width</strong> (<em>float</em>) – scan width in millimeters</p></li>
+<li><p><strong>center</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>)</em>) – horizontal and vertical scan center position</p></li>
 <li><p><strong>height</strong> (<em>float</em>) – scan height in millimeters</p></li>
 <li><p><strong>step</strong> (<em>float</em>) – distance between nearest-neighbor positions</p></li>
 <li><p><strong>random</strong> (<em>bool</em>) – if True (default), assigns a small random shift to each position</p></li>

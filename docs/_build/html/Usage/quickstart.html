@@ -96,6 +96,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 </ul>
 
             
@@ -167,7 +168,7 @@
 <span id="quickstart"></span><h1>Using PtychoDactyl<a class="headerlink" href="#using-ptychodactyl" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="fully-automated-ptychography">
 <span id="quickstart-auto"></span><h2>Fully automated ptychography<a class="headerlink" href="#fully-automated-ptychography" title="Permalink to this headline">¶</a></h2>
-<p>If you have working classes for the devices you’re using, then running PtychoDactyl is as easy as pie! There are two main scripts designed to be run from the command line, one for data collection (<code class="docutils literal notranslate"><span class="pre">collect.py</span></code>) and the other for data analysis (<code class="docutils literal notranslate"><span class="pre">reconstruct.py</span></code>). These each use an associated text file (<code class="docutils literal notranslate"><span class="pre">collection_specs.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">reconstruction_specs.txt</span></code>) to define the needed parameters. Before running either, double-check the spec file and make sure that it’s set up the way you want. Both scripts can be run with a <code class="docutils literal notranslate"><span class="pre">--spec_file</span> <span class="pre">&lt;filename&gt;</span></code> option if you want to define a specific set of parameters in a different place.</p>
+<p>If you have working classes for the devices you’re using, then running PtychoDactyl is as easy as pie! There are two main scripts designed to be run from the command line, one for data collection (<code class="docutils literal notranslate"><span class="pre">collect.py</span></code>) and the other for data analysis (<code class="docutils literal notranslate"><span class="pre">reconstruct.py</span></code>). These each use an associated text file (<code class="docutils literal notranslate"><span class="pre">collection_specs.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">reconstruction_specs.txt</span></code>) to define the needed parameters. Before running either, double-check the spec file and make sure that it’s set up the way you want. For a more detailed description of each file, see <a class="reference internal" href="../api/specs.html#specs"><span class="std std-ref">Parameter specification</span></a>. Both scripts can be run with a <code class="docutils literal notranslate"><span class="pre">--spec_file</span> <span class="pre">&lt;filename&gt;</span></code> option if you want to define a specific set of parameters in a different place.</p>
 <p>Make sure the camera, stages, and laser are all turned on and working properly. Open a commandline and navigate to the ptychodactyl directory, then run</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python collect.py
 </pre></div>

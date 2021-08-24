@@ -3,16 +3,19 @@
 Stage controller interfacing
 ============================
 
-Examples:
+As discussed :ref:`previously <subclassing>`, you will likely need to define your own ``Stages`` subclass to use this software with your positioning systems. The following subclasses are built-in, and may serve as useful examples.
 
-============  ============  ==========  ===========================
-Manufacturer  Model         Status      Dependencies (not included)
-============  ============  ==========  ===========================
-Micronix      MMC-200       stable      `pyserial <https://pypi.org/project/pyserial>`_, `Micronix command syntax <https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR>`_
-Attocube      ANC350        unfinished  `pyanc350 <https://github.com/Laukei/pyanc350>`_ (modified), drivers/DLLs from Attocube
-============  ============  ==========  ===========================
+==============  ============  ============  ==========  ===========================
+Subclass        Manufacturer  Model         Status      Dependencies (not included)
+==============  ============  ============  ==========  ===========================
+``Micronix``    Micronix      MMC-200       stable      `pyserial <https://pypi.org/project/pyserial>`_, `Micronix command syntax <https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR>`_
+``Attocube``    Attocube      ANC350        stable      `pyanc350 <https://github.com/Laukei/pyanc350>`_ (modified), SDK (proprietary)
+``YourStages``  n/a           n/a           template    n/a
+==============  ============  ============  ==========  ===========================
 
-.. autofunction:: stages.get_stage
+These can each be found in the source code of *stages.py*.
+
+.. autofunction:: stages.get_stages
 
 .. autoclass:: stages.Stage
     :members:

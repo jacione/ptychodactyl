@@ -32,7 +32,8 @@ def get_camera(camera_type, **kwargs):
     options = {
         'thorcam': ThorCam,
         'mightex': Mightex,
-        'andor': Andor
+        'andor': Andor,
+        'yourcamera': YourCamera
     }
     return options[camera_type.lower()](**kwargs)
 
@@ -43,23 +44,48 @@ class Camera(ABC):
     """
     @abstractmethod
     def __init__(self, defaults, verbose):
-        self.defaults = defaults
-        self.is_on = False
-        self.is_armed = False
-        self.verbose = verbose
-        self.full_width = self.defaults['width']
-        self.full_height = self.defaults['height']
-        self.full_shape = (self.full_height, self.full_width)
-        self.full_size = (self.full_height, self.full_width)
-        self.binning = 1
-        self.width = self.defaults['width']
-        self.height = self.defaults['height']
-        self.im_shape = (self.height, self.width)
-        self.im_size = self.width * self.height
-        self.pixel_size = self.defaults['pixel_size']
-        self.frames_per_take = 1
-        self.exposure = self.defaults['exposure']
-        self.gain = self.defaults['gain']
+        """
+        Because this is an abstract class, this constructor must be explicitly called within a subclass constructor.
+        At the very least, a subclass constructor should
+
+        #. define a ``defaults`` dict,
+        #. call this function as ``super().__init__(defaults, verbose)``, and
+        #. call ``self.camera_on()``.
+
+        These three steps are already implemented into the ``YourCamera`` stubclass.
+
+        When subclassing, you may want to include other parameters (such as temperature control target) in your
+        constructor. These are OK as long as they are keyword arguments (i.e. they have a default value). They can then
+        be passed to ``get_camera`` without any issue.
+
+        :param defaults: Default camera parameters. Must include the following keys: ["width", "height", "exposure",
+            "gain", "pixel_size", or will raise a ``KeyError``.
+        :type defaults: dict
+        :param verbose: Whether to print lots of information about camera processes.
+        :type verbose: bool
+        """
+        try:
+            self.defaults = defaults
+            self.is_on = False
+            self.is_armed = False
+            self.verbose = verbose
+            self.full_width = self.defaults['width']
+            self.full_height = self.defaults['height']
+            self.full_shape = (self.full_height, self.full_width)
+            self.full_size = (self.full_height, self.full_width)
+            self.binning = 1
+            self.width = self.defaults['width']
+            self.height = self.defaults['height']
+            self.im_shape = (self.height, self.width)
+            self.im_size = self.width * self.height
+            self.pixel_size = self.defaults['pixel_size']
+            self.frames_per_take = 1
+            self.exposure = self.defaults['exposure']
+            self.gain = self.defaults['gain']
+        except KeyError:
+            raise KeyError(f'The dict containing the default parameters did not contain all the expected keys.\n'
+                           f'\tExpected: ["width", "height", "exposure", "gain", "pixel_size"]\n'
+                           f'\tFound:    {list(defaults.keys())}')
 
     def __enter__(self):
         return self
@@ -72,12 +98,24 @@ class Camera(ABC):
 
     @abstractmethod
     def camera_on(self):
-        """Turn on the camera interface."""
+        """
+        Turns on the camera interface.
+
+        This is where you should set any parameters that you won't change over the course of a single data run. It may
+        not be a bad idea to also include a call to ``self.set_defaults()``. After this function is called, the camera
+        should be ready to take images.
+        """
         pass
 
     @abstractmethod
     def camera_off(self):
-        """Turn off the camera interface."""
+        """
+        Turns off the camera interface.
+
+        This is where you should dispose of any handles to the device. After this function is called, all camera
+        functions should be disabled (except ``self.camera_on()``), and the garbage collector should only have to clean
+        up the class object itself.
+        """
         pass
 
     @abstractmethod
@@ -85,9 +123,8 @@ class Camera(ABC):
         """
         Set the camera exposure time in milliseconds.
 
-        .. note::
-            Not all camera drivers use milliseconds to define exposure time. When implementing this in a subclass,
-            remember to check the units that the device is expecting and convert your value if necessary.
+        Not all camera drivers use milliseconds to define exposure time. When implementing this in a subclass,
+        remember to check the units that the device is expecting and convert your value if necessary.
 
         :param ms: Exposure time in milliseconds
         :type ms: float
@@ -99,9 +136,8 @@ class Camera(ABC):
         """
         Set the camera's analog gain.
 
-        .. note::
-            Not all camera drivers use raw coefficients to define analog gain. When implementing this in a subclass,
-            remember to check the format that the device is expecting and convert your value if necessary.
+        Not all camera drivers use raw coefficients to define analog gain. When implementing this in a subclass,
+        remember to check the format that the device is expecting and convert your value if necessary.
 
         :param gain: Analog gain
         :type gain: float
@@ -136,7 +172,8 @@ class Camera(ABC):
 
     def get_frames(self, show=False):
         """
-        Collect an image from the camera.
+        Collect a composite image from the camera. The returned image will be a sum of *N* frames, where *N* is set
+        using ``self.set_frames_per_take()``.
 
         :param show: If True, show the image (log scale) and a histogram of the image data.
         :type show: bool
@@ -649,7 +686,7 @@ class Andor(Camera):
 
         self.is_on = True
         self.print('SUCCESS: Camera engine started!')
-        pass
+        return
 
     def camera_off(self):
         if not self.is_on:
@@ -695,7 +732,7 @@ class Andor(Camera):
         seconds = ms / 1000
         self._sdk.SetExposureTime(seconds)
         self._sdk.SetAccumulationCycleTime(seconds + 0.1)
-        pass
+        return
 
     def set_gain(self, gain):
         # Feature not supported by camera
@@ -704,13 +741,14 @@ class Andor(Camera):
     def set_frames_per_take(self, frames_per_take):
         self.frames_per_take = frames_per_take
         self._sdk.SetNumberAccumulations(frames_per_take)
+        return
 
     def arm(self):
         # The Andor SDK doesn't really have an arming function. The PrepareAcquisition function just allocates the
         # memory for the image(s). It's not necessary, but may speed up collection time in accumulation mode.
         self._sdk.PrepareAcquisition()
         self.is_armed = True
-        pass
+        return
 
     def get_frame(self):
         # The AndorSDK supports automatic image summation with (unlike the ThorCam, I might add) corresponding dynamic
@@ -731,8 +769,9 @@ class Andor(Camera):
         return image
 
     def disarm(self):
+        # The AndorSDK doesn't have an explicit arming/disarming sequence
         self.is_armed = False
-        pass
+        return
 
 
 class YourCamera(Camera):
@@ -746,27 +785,51 @@ class YourCamera(Camera):
             'pixel_size': 1     # Pixel side length (typically in microns)
         }
         super().__init__(defaults, verbose)
-        pass
+        self.camera_on()
+        return
 
     def camera_on(self):
-        pass
+        if self.is_on:
+            self.print('Camera engine already started!')
+            return
+
+        # Your code goes here!
+
+        self.is_on = True
+        self.print('SUCCESS: Camera engine started!')
+        return
 
     def camera_off(self):
-        pass
+        if not self.is_on:
+            self.print('Camera engine not started!')
+            return
+
+        # Your code goes here!
+
+        self.is_on = False
+        self.print('SUCCESS: Camera engine stopped!')
+        return
 
     def set_exposure(self, ms):
+        self.exposure = ms
+        # Your code goes here!
         pass
 
     def set_gain(self, gain):
+        self.gain = gain
+        # Your code goes here!
         pass
 
     def arm(self):
+        # Your code goes here!
         pass
 
     def get_frame(self):
+        # Your code goes here!
         pass
 
     def disarm(self):
+        # Your code goes here!
         pass
 
 

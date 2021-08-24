@@ -22,6 +22,7 @@ As to why I chose the name "PtychoDactyl," it was a combination four factors. Fi
    usage/installation
    usage/quickstart
    api/api
+   glossary
 
 
 Indices and tables

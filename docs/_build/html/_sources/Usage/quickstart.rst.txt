@@ -8,7 +8,7 @@ Using PtychoDactyl
 Fully automated ptychography
 ----------------------------
 
-If you have working classes for the devices you're using, then running PtychoDactyl is as easy as pie! There are two main scripts designed to be run from the command line, one for data collection (``collect.py``) and the other for data analysis (``reconstruct.py``). These each use an associated text file (``collection_specs.txt`` and ``reconstruction_specs.txt``) to define the needed parameters. Before running either, double-check the spec file and make sure that it's set up the way you want. Both scripts can be run with a ``--spec_file <filename>`` option if you want to define a specific set of parameters in a different place.
+If you have working classes for the devices you're using, then running PtychoDactyl is as easy as pie! There are two main scripts designed to be run from the command line, one for data collection (``collect.py``) and the other for data analysis (``reconstruct.py``). These each use an associated text file (``collection_specs.txt`` and ``reconstruction_specs.txt``) to define the needed parameters. Before running either, double-check the spec file and make sure that it's set up the way you want. For a more detailed description of each file, see :ref:`specs`. Both scripts can be run with a ``--spec_file <filename>`` option if you want to define a specific set of parameters in a different place.
 
 Make sure the camera, stages, and laser are all turned on and working properly. Open a commandline and navigate to the ptychodactyl directory, then run
 

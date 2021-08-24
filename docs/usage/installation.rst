@@ -13,7 +13,7 @@ Download the PtychoDactyl source code from my git repository.
 .. note::
     PtychoDactyl has only been tested on Windows 10.
 
-PtychoDactyl requires the following packages, all available via ``conda install`` or ``pip install``:
+PtychoDactyl requires the following packages, all available via ``pip install``:
 
 * click (>=8.0.1)
 * h5py (>=3.2.1)
@@ -36,11 +36,24 @@ If you want to run a real ptychography experiment, you'll obviously need more th
 * A multi-axis positioning system
 * A lensless camera
 
-PtychoDactyl doesn't care about the laser or the sample, but it does care (quite a bit, actually) about the stages and the camera.
+.. note:: TO-DO:
+    Include a picture and brief description of a ptycho experiment.
+
+PtychoDactyl doesn't really care about the laser or the sample, but it does care (quite a bit, actually) about the stages and the camera, which brings us to...
+
+.. _subclassing:
+
+Device Interfacing
+------------------
 
 .. warning::
-    You will probably need to write your own controller classes for your own devices.
+    Unless you're very lucky (or happen to work in the lab where this was developed), you will almost certainly need to write your own controller classes for your own devices.
 
-For full functionality, your classes should inherit the abstract base classes provided in :ref:`stages` and :ref:`camera`.
+In order to make device interfacing as painless as possible, PtychoDactyl implements abstract base classes for :ref:`stages <stages>` and :ref:`cameras <camera>`, as well as a stub subclass (a stubclass, if you will) which you will need to flesh out to work with your own devices. While you're free to do this in any way you like, here are a few important considerations:
 
-Additionally, the device interfacing uses some proprietary software development kits provided by Micronix, Mightex, and Thorlabs. This means some DLL and similar files, not created by me, are included in this repository. These files are used under the terms put forth by their respective owners, and all associated copyrights remain with said owners.
+#. Make a copy of the ``YourStages`` and ``YourCamera`` subclass templates so that you still have them if you need to start over or implement another device.
+#. If your subclass requires additional ``import`` statements, put those statements in the ``__init__()`` method.
+#. Your subclass must implement all of the abstract methods from the base class, but you may also need to override some other methods (e.g. ``cameras.Andor.get_frames()``), and even add some internal methods of your own (e.g. ``stages.Micronix.command()``).
+#. If you use a software development kit (SDK), you'll need to reference those libraries within your subclass. To keep your libraries organized, you may want to make a subdirectory for each device within the ``utils`` directory (e.g. ``utils/Polaroid``).
+#. Even if the SDK has a fully functional Python class for your device, it will still be beneficial to make your own subclass that wraps around it because the rest of PtychoDactyl won't recognize the foreign class. One easy way to do this is to give your subclass an attribute like ``self._sdk`` or ``self._handle`` that references to the SDK object, and then just have your methods call its methods.
+#. The best way to use your new subclass is to add it to the dictionary in either ``stages.get_stages()`` or ``camera.get_camera()``. Other PtychoDactyl scripts use these functions in conjunction with the :ref:`spec file <specs>`. The key should be the name of the class in all lowercase, and the value should be the name of the subclass (e.g. ``'polaroid': Polaroid``).
