@@ -8,6 +8,7 @@ Main script for collecting ptychography data.
 
 
 import click
+from progressbar import progressbar
 from ptycho_data import CollectData
 from camera import get_camera
 from stages import get_stages
@@ -34,6 +35,7 @@ def collect(verbose, spec_file):
     scan_width = specs['scan_width']
     scan_height = specs['scan_height']
     step_size = specs['step_size']
+    Z = specs['z_position']
     num_rotations = specs['num_rotations']
     camera_model = specs['camera']
     background_frames = specs['background_frames']
@@ -80,19 +82,19 @@ def collect(verbose, spec_file):
         dataset.record_background(camera.get_frames())
 
     input('Preparing to take ptychography data. Turn laser ON, then press ENTER to continue...')
+
     for i in range(num_rotations):
         # This is
         print(f'Rotation {i+1}: {Q[i]} deg')
         rotation_complete = False
-        with click.progressbar(range(num_translations)) as count:
-            for j in count:
-                if verbose:
-                    print()
-                stages.set_position((X[j], Y[j], 0, Q[i]))
-                diff_pattern = camera.get_frames()
-                rotation_complete = dataset.record_data(stages.get_position(), diff_pattern)
-                # The CollectData.record_data() method should return True only after taking num_translations images.
-                # This ensures that the data from each rotation angle stays together.
+        for j in progressbar(range(num_translations)):
+            if verbose:
+                print()
+            stages.set_position((X[j], Y[j], Z, Q[i]))
+            diff_pattern = camera.get_frames()
+            rotation_complete = dataset.record_data(stages.get_position(), diff_pattern)
+            # The CollectData.record_data() method should return True only after taking num_translations images.
+            # This ensures that the data from each rotation angle stays together.
         assert rotation_complete, 'Ran out of translations before dataset was ready to rotate.'
 
     # Return the stages to zero

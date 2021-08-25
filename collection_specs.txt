@@ -1,23 +1,25 @@
 #### Title
-title = test
+title = hhg-Yobject
 
 #### Probe positioning parameters
 stages = attocube               # Keyword for the stage controller that you're using
-scan_center = 0.283 , 0.309         # X,Y stage position where probe is centered on object (mm)
-scan_width = 0.1                # Horizontal scanning range (mm)
-scan_height = 0.1               # Vertical scanning range (mm)
-step_size = 0.019                 # Spacing between probe positions (mm)
+scan_center = -0.046 , 0.078     # X,Y stage position where probe is centered on object (mm)
+scan_width = 0.03                # Horizontal scanning range (mm)
+scan_height = 0.03               # Vertical scanning range (mm)
+step_size = 0.002               # Spacing between probe positions (mm)
+z_position = -2.0               # Positioning along the beamline
 pattern = spiral                # Geometric pattern for ptychography scan (rect, hex, or spiral)
 num_rotations = 0               # Number of rotational steps (zero for no rotation)
 
 #### Image acquisition parameters
-camera = andor                # Keyword for the camera that you're using
-background_frames = true        # Set to true to record a background image with the laser off
-frames_per_take = 2            # Number of frames to sum for each measurement (including background)
+camera = andor                 # Keyword for the camera that you're using
+background_frames = true
+       # Set to true to record a background image with the laser off
+frames_per_take = 5            # Number of frames to sum for each measurement (including background)
 resolution = 512                # Desired final image size (number of pixels on a side)
 exposure = 100                 # Exposure time (ms)
 gain = 1                        # Analog gain
 
 #### Other parameters
 distance = 0.13                # Distance from lens (or sample) to detector (m)
-energy = 52               # Laser photon energy (eV)
+energy = 52                   # Laser photon energy (eV)

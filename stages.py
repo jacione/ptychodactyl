@@ -158,10 +158,10 @@ class Stage(ABC):
         if remeasure:
             self.measure()
         self.print(f'\nAXIS   POS(mm)\n'
-                   f'  X    {self.x0:0.6f}\n'
-                   f'  Y    {self.y0:0.6f}\n'
-                   f'  Z    {self.z0:0.6f}\n'
-                   f'  Q    {self.q:0.6f}')
+                   f'  X0    {self.x0:0.6f}\n'
+                   f'  Y0    {self.y0:0.6f}\n'
+                   f'  Z0    {self.z0:0.6f}\n'
+                   f'  Q     {self.q:0.6f}')
         return np.array([self.y0, self.x0, self.q])
 
     def get_stage_positions(self, remeasure=False):
@@ -339,7 +339,7 @@ class Attocube(Stage):
             'x': sum(self.limits['x'])/2,  # 0.002733
             'y': sum(self.limits['y'])/2,  # 0.002533
             'z': sum(self.limits['z'])/2,  # 0.002596
-            'xc': 0.015860
+            'xc': 0.015855
         }
 
         self.fine_axes = ['x', 'y', 'z', 'q']
@@ -382,8 +382,8 @@ class Attocube(Stage):
             q = self.q
         if laser_frame:
             q_rads = q * np.pi / 180
-            xp = -x*np.cos(q_rads) + z*np.sin(q_rads)
-            zp = -x*np.sin(q_rads) - z*np.cos(q_rads)
+            xp = x*np.cos(q_rads) + z*np.sin(q_rads)
+            zp = x*np.sin(q_rads) - z*np.cos(q_rads)
             x = xp
             z = zp
         xyzq = {'x': x*self.units, 'y': y*self.units, 'z': z*self.units, 'q': q}
@@ -404,7 +404,7 @@ class Attocube(Stage):
     def measure(self):
         positions = []
         for ax in self.all_axes:
-            pos = self.devices[ax].getPosition(self.ax_id[ax])
+            pos = self.devices[ax].getPosition(self.ax_id[ax]) - self.zeros[ax]
             if ax != 'q':
                 pos *= 1000  # The Attocube controller returns meters
             positions.append(pos)
@@ -644,4 +644,5 @@ class YourStage(Stage):
 
 if __name__ == '__main__':
     ctrl = Attocube(verbose=True)
-    ctrl.show_off()
+    ctrl.set_position((-0.046, 0.078, 0, 0))
+    ctrl.get_position()

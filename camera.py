@@ -72,7 +72,7 @@ class Camera(ABC):
             self.full_width = self.defaults['width']
             self.full_height = self.defaults['height']
             self.full_shape = (self.full_height, self.full_width)
-            self.full_size = (self.full_height, self.full_width)
+            self.full_size = self.full_height*self.full_width
             self.binning = 1
             self.width = self.defaults['width']
             self.height = self.defaults['height']
@@ -183,10 +183,14 @@ class Camera(ABC):
         data = np.zeros(self.im_shape)
         self.arm()
         for i in range(self.frames_per_take):
-            data = data + downscale_local_mean(self.get_frame(), (self.binning, self.binning))
+            frame = self.get_frame()
+            data = data + downscale_local_mean(frame, (self.binning, self.binning))
         self.disarm()
         if show:
-            self.imshow(np.log(data + 1))
+            plt.subplot(111, xticks=[], yticks=[])
+            plt.imshow(np.log(data+1), cmap='plasma')
+            plt.tight_layout()
+            plt.figure()
             plt.hist(np.ravel(data), bins=100)
             plt.yscale('log')
             plt.show()
@@ -208,7 +212,7 @@ class Camera(ABC):
     def set_defaults(self):
         """Set the basic camera features to their default values."""
         self.set_frames_per_take(1)
-        self.set_resolution(self.full_height)
+        self.set_resolution()
         self.set_exposure(self.defaults['exposure'])
         self.set_gain(self.defaults['gain'])
         return
@@ -219,7 +223,7 @@ class Camera(ABC):
         """
         self.frames_per_take = frames_per_take
 
-    def set_resolution(self, resolution):
+    def set_resolution(self, resolution=None, space_factor=1.0):
         """
         Set camera resolution. The functionality of this is a little counter-intuitive. The **resolution** parameter is
         the side-length of the desired diffraction data. This method will set the camera to bin each image as much as
@@ -229,9 +233,13 @@ class Camera(ABC):
 
         :param resolution: Desired side length of diffraction data.
         :type resolution: int
+        :param space_factor: extra space on the edges
+        :type space_factor: float
         """
         if resolution is not None:
-            self.binning = self.full_height // resolution
+            self.binning = int(self.full_height / (space_factor*resolution))
+        else:
+            self.binning = 1
         self.width = self.full_width // self.binning
         self.height = self.full_height // self.binning
         self.im_shape = (self.height, self.width)
@@ -246,7 +254,8 @@ class Camera(ABC):
         """
         if img is None:
             img = self.get_frames()
-        img[img < np.quantile(img, 0.75)] = 0
+        img = np.array(img, dtype='Q')
+        img[img < np.quantile(img, 0.99)] = 0
         return center_of_mass(img)
 
     def analyze_frame(self):
@@ -255,8 +264,7 @@ class Camera(ABC):
         readouts.
         """
         img = self.get_frames()
-        self.imshow(img)
-        cy, cx = center_of_mass(img)
+        cy, cx = self.find_center(img)
         x = img[int(np.round(cy, 0))]
         y = img[:, int(np.round(cx, 0))]
         plt.figure(tight_layout=True)
@@ -269,6 +277,24 @@ class Camera(ABC):
         plt.subplot2grid((4, 4), (0, 3), rowspan=3)
         plt.plot(np.flip(y), np.arange(self.height), c='r')
         plt.show()
+
+    def running_analysis(self):
+        plt.figure(tight_layout=True)
+        while True:
+            img = self.get_frames()
+            cy, cx = self.find_center(img)
+            x = img[int(np.round(cy, 0))]
+            y = img[:, int(np.round(cx, 0))]
+            plt.subplot2grid((4, 4), (0, 0), rowspan=3, colspan=3, xticks=[], yticks=[])
+            plt.imshow(np.log(img+1), cmap='bone')
+            plt.axhline(cy, c='g')
+            plt.axvline(cx, c='r')
+            plt.subplot2grid((4, 4), (3, 0), colspan=3)
+            plt.plot(x, c='g')
+            plt.subplot2grid((4, 4), (0, 3), rowspan=3)
+            plt.plot(np.flip(y), np.arange(self.height), c='r')
+            plt.draw()
+            plt.pause(0.1)
 
 
 class ThorCam(Camera):
@@ -654,7 +680,7 @@ class Mightex(Camera):
 
 class Andor(Camera):
 
-    def __init__(self, verbose=False, temperature=-60):
+    def __init__(self, verbose=False, temperature=-59, hold_temp=True):
         from pyAndorSDK2.atmcd import atmcd
         defaults = {
             'width': 2048,
@@ -662,11 +688,13 @@ class Andor(Camera):
             'exposure': 80,
             'gain': 0,
             'pixel_size': 13.5,
-            'temperature': temperature
+            'temperature': temperature,
+            'hold_temp': hold_temp,
         }
         super().__init__(defaults, verbose)
         self._sdk = atmcd()
         self.temp = self.defaults['temperature']
+        self.hold_temp = hold_temp
 
         self.camera_on()
 
@@ -676,12 +704,13 @@ class Andor(Camera):
             return
 
         self._sdk.Initialize("")
-        self._sdk.SetAcquisitionMode(2)  # Accumulation/summing mode
+        self._sdk.SetAcquisitionMode(1)  # Single image capture
         self._sdk.SetReadMode(4)  # Full image mode
         self._sdk.SetTriggerMode(0)  # Internally regulated triggering
         self._sdk.SetImage(1, 1, 1, self.full_width, 1, self.full_height)
         self._sdk.SetShutter(1, 0, 15, 15)
         self._sdk.CoolerON()
+        self._sdk.SetCoolerMode(int(self.hold_temp))
         self.set_defaults()
 
         self.is_on = True
@@ -703,6 +732,8 @@ class Andor(Camera):
         self.temp = temp
         self._sdk.SetTemperature(temp)
         ret, curr_temp = self._sdk.GetTemperature()
+        if self.temp == curr_temp:
+            return
         print(f'Setting camera temperature to {self.temp} °C...')
         pbar = ProgressBar(
             max_value=curr_temp-self.temp+10,
@@ -711,7 +742,7 @@ class Andor(Camera):
             variables={'T': curr_temp}
         )
         time.sleep(0.1)
-        while ret != self._sdk.DRV_TEMP_STABILIZED or curr_temp != self.temp:
+        while ret != self._sdk.DRV_TEMP_STABILIZED or abs(curr_temp-self.temp) > 1:
             time.sleep(1)
             ret, curr_temp = self._sdk.GetTemperature()
             t_val = curr_temp-self.temp+5
@@ -731,7 +762,6 @@ class Andor(Camera):
             ms = 50
         seconds = ms / 1000
         self._sdk.SetExposureTime(seconds)
-        self._sdk.SetAccumulationCycleTime(seconds + 0.1)
         return
 
     def set_gain(self, gain):
@@ -740,32 +770,22 @@ class Andor(Camera):
 
     def set_frames_per_take(self, frames_per_take):
         self.frames_per_take = frames_per_take
-        self._sdk.SetNumberAccumulations(frames_per_take)
         return
 
     def arm(self):
         # The Andor SDK doesn't really have an arming function. The PrepareAcquisition function just allocates the
         # memory for the image(s). It's not necessary, but may speed up collection time in accumulation mode.
-        self._sdk.PrepareAcquisition()
         self.is_armed = True
         return
 
     def get_frame(self):
         # The AndorSDK supports automatic image summation with (unlike the ThorCam, I might add) corresponding dynamic
         # range increase, so there's no need for this function.
-        pass
-
-    def get_frames(self, show=False):
-        self.arm()
         self._sdk.StartAcquisition()
         self._sdk.WaitForAcquisition()
-        _, buffer = self._sdk.GetMostRecentImage(self.im_size)
-        image = np.ctypeslib.as_array(buffer, self.im_size)
-        image = np.reshape(image, self.im_shape)
-        image = np.asarray(image, dtype='Q')
-        self.disarm()
-        if show:
-            self.imshow(image)
+        _, buffer = self._sdk.GetMostRecentImage(self.full_size)
+        image = np.ctypeslib.as_array(buffer, self.full_size)
+        image = np.reshape(image, self.full_shape)
         return image
 
     def disarm(self):
