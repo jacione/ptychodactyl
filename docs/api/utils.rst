@@ -8,16 +8,16 @@ These are utility functions that are basically just here to keep the other modul
 utils.general
 -------------
 
-.. automodule:: utils.general
+.. automodule:: ptycho.general
     :members:
 
 utils.plotting
 --------------
-.. automodule:: utils.plotting
+.. automodule:: ptycho.plotting
     :members:
 
 utils.pty_files
 ---------------
-.. automodule:: utils.pty_files
+.. automodule:: ptycho.pty_files
     :members:
 

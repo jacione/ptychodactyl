@@ -298,7 +298,7 @@ class Attocube(Stage):
         """
         Instantiate Attocube object
         """
-        import utils.Attocube.pyanc350v4 as pyanc
+        import libs.Attocube.pyanc350v4 as pyanc
 
         super().__init__(verbose)
         self.ignore_rotation = ignore_rotation
@@ -463,7 +463,7 @@ class Micronix(Stage):
     Object-oriented interface for a Micronix MMC-200 stage controller.
 
     .. note::
-        This class only implements a few basic functions which are relevant to ptychography data collection. For more
+        This class only implements a few basic functions which are relevant to ptycho data collection. For more
         advanced functionality, you can use the ``command`` method to send specific serial commands using the
         supported `command line syntax <https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR>`_.
     """

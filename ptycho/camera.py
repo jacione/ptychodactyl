@@ -12,7 +12,7 @@ from skimage.transform import downscale_local_mean
 from progressbar import ProgressBar, widgets
 
 
-libs = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/utils'
+libs = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/libs'
 
 
 def get_camera(camera_type, **kwargs):
@@ -301,7 +301,7 @@ class ThorCam(Camera):
     """
     Camera subclass that can interface with a Thorlabs camera.
 
-    This subclass only implements a few basic functions which are relevant to ptychography data collection. A more
+    This subclass only implements a few basic functions which are relevant to ptycho data collection. A more
     complete control can be achieved by using the `officially provided SDK
     <https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=ThorCam>`_.
 
@@ -320,7 +320,7 @@ class ThorCam(Camera):
         :type verbose: bool
         """
 
-        from utils.ThorCam.tl_dotnet_wrapper import TL_SDK
+        from libs.ThorCam.tl_dotnet_wrapper import TL_SDK
 
         defaults = {
             'width': 3296,
@@ -410,7 +410,7 @@ class Mightex(Camera):
     """
     Camera subclass that can interface with a Mightex camera.
 
-    This subclass only implements a few basic functions which are relevant to ptychography data collection. A more
+    This subclass only implements a few basic functions which are relevant to ptycho data collection. A more
     complete control can be achieved by using the officially provided SDK.
     """
 

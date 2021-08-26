@@ -1,9 +1,9 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from camera import get_camera
-from stages import get_stages
-from utils.general import parse_specs
-from scan import xy_scan
+from ptycho.camera import get_camera
+from ptycho.stages import get_stages
+from ptycho.general import parse_specs
+from ptycho.scan import xy_scan
 from progressbar import progressbar as pbar
 import time
 
@@ -36,7 +36,7 @@ def search(spec_file, obj_size, search_area):
             break
 
     # Save the positions and sums as a npy file
-    np.save(f'data/{title}_search.npy', search_results)
+    np.save(f'../data/{title}_search.npy', search_results)
 
     # Surface plot the positions and sums to see outliers
     plt.tripcolor(X, Y, search_results[:, -1], cmap='inferno')
@@ -47,7 +47,7 @@ def search(spec_file, obj_size, search_area):
 
 
 def analyze_search(search_file):
-    data = np.load(f'data/{search_file}').T
+    data = np.load(f'../data/{search_file}').T
     # Surface plot the positions and sums to see outliers
     X = data[0]
     Y = data[1]

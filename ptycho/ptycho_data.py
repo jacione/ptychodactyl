@@ -12,12 +12,12 @@ from abc import ABC, abstractmethod
 from matplotlib.patches import Circle
 from matplotlib.animation import ArtistAnimation
 import progressbar
-import os
+from pathlib import Path
 from time import perf_counter
 
-import utils.general as utils
-import utils.plotting as plotting
-from scan import xy_scan
+import ptycho.general as utils
+import ptycho.plotting as plotting
+from ptycho.scan import xy_scan
 
 
 class PtychoData(ABC):
@@ -136,9 +136,7 @@ class LoadData(PtychoData):
         # LOAD DATA FROM FILE #########################################################################################
         # Open the .pty file
         self._file = pty_file
-        os.chdir(os.path.dirname(__file__))
-        os.chdir('data')
-        f = h5py.File(self._file, 'r')
+        f = h5py.File(Path(__file__).parent / 'data' / self._file, 'r')
 
         # Load diffraction image data
         self._im_data = np.array(f['data/data'])
@@ -220,11 +218,11 @@ class LoadData(PtychoData):
 
 class CollectData(PtychoData):
     """
-    PtychoData subclass for collecting, organizing, and saving ptychography data during an experiment
+    PtychoData subclass for collecting, organizing, and saving ptycho data during an experiment
     """
     def __init__(self, num_rotations, num_translations, title, im_shape, pixel_size, distance, energy, verbose=False):
         """
-        Create a CollectData object for collecting, organizing, and saving ptychography data during an experiment.
+        Create a CollectData object for collecting, organizing, and saving ptycho data during an experiment.
 
         :param num_rotations: number of rotational positions
         :type num_rotations: int
@@ -391,8 +389,8 @@ class CollectData(PtychoData):
         print(f'Compressing and saving data...')
 
         # Create file using HDF5 protocol.
-        os.chdir(os.path.dirname(__file__))
-        f = h5py.File(f'data/{self.title}.pty', 'w')
+        filepath = Path(__file__).parent / 'data' / f'{self.title}.pty'
+        f = h5py.File(filepath, 'w')
 
         # Save collected data
         t0 = perf_counter()
@@ -416,7 +414,7 @@ class CollectData(PtychoData):
 
         print(f'Data saved as {self.title}.pty')
         print(f'Save time: {np.round(t1-t0, 4)} seconds')
-        print(f'Data size: {np.round(os.path.getsize(f"data/{self.title}.pty")/1024/1024, 3)} MB')
+        print(f'Data size: {np.round(filepath.stat().st_size/1024/1024, 3)} MB')
         return
 
 
@@ -541,7 +539,7 @@ class GenerateData2D(CollectData):
 
     def detect(self, saturation=1.0, bitdepth=16, bkgd=0, frames=1, seed=None):
         """
-        Simulate the process of detection on a set of ptychography data
+        Simulate the process of detection on a set of ptycho data
 
         :param saturation: Fraction of the dynamic range reached by the brightest pixel
         :type saturation: float

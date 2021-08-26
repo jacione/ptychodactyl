@@ -1,5 +1,5 @@
 """
-Main script for collecting ptychography data.
+Main script for collecting ptycho data.
 
 ..note::
     Although 3D data collection is possible using this script, the corresponding 3D reconstruction is not yet
@@ -7,22 +7,17 @@ Main script for collecting ptychography data.
 """
 
 
-import click
 from progressbar import progressbar
-from ptycho_data import CollectData
-from camera import get_camera
-from stages import get_stages
-from scan import xy_scan, r_scan
-from utils.general import parse_specs
+from ptycho.ptycho_data import CollectData
+from ptycho.camera import get_camera
+from ptycho.stages import get_stages
+from ptycho.scan import xy_scan, r_scan
+from ptycho.general import parse_specs
 
 
-@click.command()
-@click.help_option('-h', '--help')
-@click.option('-v', '--verbose', is_flag=True, default=False, help='Print information at each step')
-@click.option('--spec_file', default='collection_specs.txt')
-def collect(verbose, spec_file):
+def collect(spec_file='collection_specs.txt', verbose=False):
     """
-    CLI for collecting ptychography data. If the whole repository is downloaded, you can just fill out the desired
+    CLI for collecting ptycho data. If the whole repository is downloaded, you can just fill out the desired
     parameters in "collection_specs.txt" and run this script from the command line.
     """
 
@@ -46,7 +41,7 @@ def collect(verbose, spec_file):
     distance = specs['distance']
     energy = specs['energy']
 
-    print('Beginning ptychography data collection!')
+    print('Beginning ptycho data collection!')
 
     # Generate the scanning positions
     X, Y, num_translations = xy_scan(pattern, scan_center, scan_width, scan_height, step_size)
@@ -66,7 +61,7 @@ def collect(verbose, spec_file):
                           verbose=verbose)
 
     # Print the most important run parameters
-    print(f'Run type: {2+is3d}D ptychography')
+    print(f'Run type: {2+is3d}D ptycho')
     print(f'Scan area:')
     print(f'\tPattern:   {pattern.upper()}')
     print(f'\tWidth:     {scan_width:0.4} mm')
@@ -81,7 +76,7 @@ def collect(verbose, spec_file):
         input('Preparing to take background images. Turn laser OFF, then press ENTER to continue...')
         dataset.record_background(camera.get_frames())
 
-    input('Preparing to take ptychography data. Turn laser ON, then press ENTER to continue...')
+    input('Preparing to take ptycho data. Turn laser ON, then press ENTER to continue...')
 
     for i in range(num_rotations):
         # This is

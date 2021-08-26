@@ -165,7 +165,7 @@ def parse_specs(filename):
     """
     Parses a spec file into a dictionary. Only tested with TXT files.
 
-    :param filename: name of the file to parse. Must be in the main directory (3d-ptychography).
+    :param filename: name of the file to parse. Must be in the main directory (3d-ptycho).
     :type filename: str
     :return: A dictionary containing all the desired parameters as key-value pairs.
     :rtype: dict

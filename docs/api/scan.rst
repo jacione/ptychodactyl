@@ -3,6 +3,6 @@
 Scan parameters
 ===============
 
-.. automodule:: scan
+.. automodule:: ptycho.scan
     :members:
 

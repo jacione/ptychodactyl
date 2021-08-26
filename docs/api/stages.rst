@@ -15,8 +15,8 @@ Subclass        Manufacturer  Model         Status      Dependencies (not includ
 
 These can each be found in the source code of *stages.py*.
 
-.. autofunction:: stages.get_stages
+.. autofunction:: ptycho.stages.get_stages
 
-.. autoclass:: stages.Stage
+.. autoclass:: ptycho.stages.Stage
     :members:
 

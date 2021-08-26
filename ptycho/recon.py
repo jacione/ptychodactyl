@@ -5,7 +5,7 @@ Currently implemented:
     - `Extended Ptychographic Iterative Engine (ePIE) <https://doi.org/10.1016/j.ultramic.2009.05.012>`_, 2D
     - `Regularized Ptychographic Iterative Engine (rPIE) <https://doi.org/10.1364/OPTICA.4.000736>`_, 2D
 Planned:
-    - `Coupled ptychography-tomography (CPT) <https://doi.org/10.1364/OL.42.003169>`_, 3D
+    - `Coupled ptycho-tomography (CPT) <https://doi.org/10.1364/OL.42.003169>`_, 3D
 """
 
 import h5py
@@ -20,9 +20,9 @@ from scipy import ndimage
 from skimage import draw
 from skimage.restoration import unwrap_phase
 
-from ptycho_data import LoadData
-from utils.general import ifft, random, shift
-from utils.plotting import comp_to_rgb
+from ptycho.ptycho_data import LoadData
+from ptycho.general import ifft, random, shift
+from ptycho.plotting import comp_to_rgb
 
 
 def Reconstruction(filename, **specs):
@@ -85,7 +85,7 @@ class Recon(ABC):
     def save(self):
         """Save the reconstruction to the original PTY file"""
         os.chdir(os.path.dirname(__file__))
-        os.chdir('data')
+        os.chdir('../data')
         f = h5py.File(self.data.file, 'r+')
         try:
             group = f.create_group('reconstruction')

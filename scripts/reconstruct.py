@@ -1,5 +1,5 @@
 """
-Main script for reconstructing ptychography data.
+Main script for reconstructing ptycho data.
 
 2D: stable
 3D: unfinished
@@ -7,20 +7,17 @@ Main script for reconstructing ptychography data.
 Nick Porter, jacioneportier@gmail.com
 """
 
-import click
-from recon import Reconstruction
-from utils.general import parse_specs
+from ptycho.recon import Reconstruction
+from ptycho.general import parse_specs
 
 
 LOADATA_KW = ['flip_images', 'flip_positions', 'background_subtract', 'vbleed_correct', 'threshold']
 RUN_KW = ['algorithm', 'num_iterations', 'obj_up_initial', 'obj_up_final', 'pro_up_initial', 'pro_up_final']
 
 
-@click.command()
-@click.option('--spec_file', default='reconstruction_specs.txt')
-def reconstruct(spec_file):
+def reconstruct(spec_file='reconstruction_specs.txt'):
     """
-    CLI for reconstructing ptychography data. If the whole repository is downloaded, you can just fill out the desired
+    CLI for reconstructing ptycho data. If the whole repository is downloaded, you can just fill out the desired
     parameters in "reconstruction_specs.txt" and run this script from the command line.
     """
 

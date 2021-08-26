@@ -3,7 +3,7 @@ Functions to generate an array of positions for ptychographic scans
 """
 
 import numpy as np
-import utils.general as hf
+import ptycho.general as hf
 from matplotlib import pyplot as plt
 
 
@@ -151,7 +151,7 @@ def r_scan(num_steps=0, full_range=180):
     a special case for non-rotational ptychographic scans.
 
     :param num_steps: Number of rotational positions. If zero, the return value will allow for a non-rotational
-        (2D) ptychography dataset.
+        (2D) ptycho dataset.
     :type num_steps: int
     :param full_range: Full range of angles to sweep through.
     :type full_range: float

@@ -3,6 +3,6 @@
 Data management
 ===============
 
-.. automodule:: ptycho_data
+.. automodule:: ptycho.ptycho_data
     :members:
 

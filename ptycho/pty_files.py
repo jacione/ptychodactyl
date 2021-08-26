@@ -11,9 +11,12 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.widgets import Slider
 from PIL import Image
+from pathlib import Path
 
 
 IMG_KWARGS = {'xticks': [], 'yticks': []}
+
+data_dir = Path(__file__).parent / 'data'
 
 
 def open_pty():
@@ -21,7 +24,7 @@ def open_pty():
     root = tk.Tk()
     root.withdraw()
 
-    file_path = filedialog.askopenfilename()
+    file_path = filedialog.askopenfilename(initialdir=data_dir)
     return h5py.File(file_path)
 
 
