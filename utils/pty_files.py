@@ -78,4 +78,4 @@ def convert_to_gif(pty_file):
 
 
 if __name__ == '__main__':
-    convert_to_gif('C:/Users/jacione/PycharmProjects/ptychodactyl/data/test-2021-08-18.pty')
+    view_pty()
