@@ -8,7 +8,17 @@ Installation & Setup
 Installing PtychoDactyl
 -----------------------
 
-Download the PtychoDactyl source code from my git repository.
+.. PtychoDactyl is **NOT** available through PyPI for a number of reasons, and in order to understand them better, let's compare with a module that *is* on PyPI:
+    ===========================================  ==================================================
+    **NumPy**                                    **PtychoDactyl**
+    ===========================================  ==================================================
+    Highly general                               Highly specialized
+    Designed to be imported                      Designed to be run
+    Works out of the box with nearly any system  Must be refactored for each new experimental setup
+    ===========================================  ==================================================
+    Primarily for these reasons,
+
+Download the PtychoDactyl source code from my git repository (currently private, maybe a link will go here eventually.
 
 .. note::
     PtychoDactyl has only been tested on Windows 10.

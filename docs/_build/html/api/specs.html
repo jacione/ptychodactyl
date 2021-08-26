@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Parameter specification &mdash; PtychoDactyl  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Camera interfacing" href="camera.html" />
+    <link rel="prev" title="API Reference" href="api.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PtychoDactyl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation &amp; Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Using PtychoDactyl</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Parameter specification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#collection-specs-txt">collection_specs.txt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reconstruction-specs-txt">reconstruction_specs.txt</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera interfacing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stages.html">Stage controller interfacing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ptycho_data.html">Data management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recon.html">Reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scan.html">Scan parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PtychoDactyl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api.html">API Reference</a> &raquo;</li>
+        
+      <li>Parameter specification</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/specs.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="parameter-specification">
+<span id="specs"></span><h1>Parameter specification<a class="headerlink" href="#parameter-specification" title="Permalink to this headline">¶</a></h1>
+<p>Before you run a data collection or reconstruction, you’ll need to fill out the associated specification file. Here’s a quick overview of the fields in each file.</p>
+<div class="section" id="collection-specs-txt">
+<h2>collection_specs.txt<a class="headerlink" href="#collection-specs-txt" title="Permalink to this headline">¶</a></h2>
+<p><strong>title</strong>: Give your data run a name! The collected data will automatically be saved with this title as well as the date on which it was completed, e.g. <code class="docutils literal notranslate"><span class="pre">pterodactylus-15-12-1784.pty</span></code>.</p>
+<p><strong>stages</strong>: Keyword for the stage controller you’re using. This should be all lowercase, and must match a keyword from the dictionary defined in <code class="docutils literal notranslate"><span class="pre">stages.get_stages()</span></code>.</p>
+<p><strong>scan_center</strong>: The x- and y-position of the center of your ptychography scan, in the center-origin laser reference frame. All distances should be given in millimeters unless otherwise specified</p>
+<p><strong>scan_width</strong>: Full horizontal scanning range.</p>
+<p><strong>scan_height</strong>: Full vertical scanning range.</p>
+<p><strong>step_size</strong>: Spacing between probe positions. This will affect the overlap, and should not be larger than about 30% of the probe size.</p>
+<p><strong>pattern</strong>: Geometric pattern for the ptychography scan. Options are <em>rect</em> (rectangular grid), <em>hex</em> (hexagonal grid, tighter packed), and <em>spiral</em> (spiraling out from the center).</p>
+<p><strong>num_rotations</strong>: Number of rotational steps (only for 3D ptycho-tomography, for a 2D scan leave this at zero).</p>
+<p><strong>camera</strong>: Keyword for the camera you’re using. This should be all lowercase and must match a keyword from the dictionary defined in <code class="docutils literal notranslate"><span class="pre">camera.get_camera()</span></code>.</p>
+<p><strong>background_frames</strong>: if set to true, the script will record a background image at the beginning of the collection run. Otherwise, it’ll jump straight into the scan.</p>
+<p><strong>frames_per_take</strong>: For each scan position (and the background), the camera will take this many frames and return their sum.</p>
+<p><strong>resolution</strong>: The side length (in pixels) of the desired image arrays. Larger images will be reduced through a combination of binning and cropping.</p>
+<p><strong>exposure</strong>: Exposure time for each frame, in milliseconds.</p>
+<p><strong>gain</strong>: Analog gain applied to the camera to boost signal. Tends to increase noise, so use with caution.</p>
+<p><strong>distance</strong>: Distance from the sample (or lens) to the image sensor, in meters.</p>
+<p><strong>energy</strong>: Laser photon energy, in eV.</p>
+</div>
+<div class="section" id="reconstruction-specs-txt">
+<h2>reconstruction_specs.txt<a class="headerlink" href="#reconstruction-specs-txt" title="Permalink to this headline">¶</a></h2>
+<p><strong>load</strong>: The name of the <code class="docutils literal notranslate"><span class="pre">.pty</span></code> data file to reconstruct. This should work with or without the <code class="docutils literal notranslate"><span class="pre">.pty</span></code> suffix.</p>
+<p><strong>flip_images</strong>: Determines whether to reflect the diffraction images along a certain direction. Options are <em>h</em> (reflect horizontally), <em>v</em> (reflect vertically), <em>hv</em> (both) or <em>n</em> (neither).</p>
+<p><strong>flip_positions</strong>: Determines whether/how to invert the recorded probe positions. Options are the same as flip_images.</p>
+<p><strong>background_subtract</strong>: If true, the reconstruction will subtract the stored background image from all diffraction patterns.</p>
+<p><strong>vbleed_correct</strong>: Reduces vertical pixel bleeding on diffraction images. Essentially it subtracts a certain quantile from each column. Must be between 0 and 1. Recommended starting value is 0.35.</p>
+<p><strong>threshold</strong>: Pixel values below this fraction of the maximum will be set to zero. Must be between 0 and 1. Recommended starting value is 0.0001.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This next section of the file (algorithm thru pro_up_final) should be treated like a table. Each field should be a comma-separated list. The script will reconstruct using each column’s parameters in series, meaning that the result of the first column’s reconstruction will be passed as the initial guess for the second column, etc.</p>
+</div>
+<p><strong>algorithm</strong>: The iterative algorithm to use for reconstruction. Currently the only options are ePIE and rPIE. These should be put in the spec file in all lowercase.</p>
+<p><strong>num_iterations</strong>: The number of iterations to run that particular algorithm.</p>
+<p><strong>obj_up_initial</strong>, <strong>obj_up_final</strong>, <strong>pro_up_initial</strong>, <strong>pro_up_final</strong>: The initial and final update strengths for the object and probe. These will affect how heavily the algorithm affects the object and probe images with each iteration. The first iteration will use the initial strength, with values being interpolated each iteration until the last iteration uses the final strength. It is often useful to start with big updates and make them smaller as it iterates. It is also often useful to update the object more strongly than the probe.</p>
+<p><strong>animate</strong>: Determines whether the reconstruction should output an animation of the updates at each iteration.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="camera.html" class="btn btn-neutral float-right" title="Camera interfacing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="api.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Nick Porter.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

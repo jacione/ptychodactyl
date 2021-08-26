@@ -1,0 +1,520 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Stage controller interfacing &mdash; PtychoDactyl  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data management" href="ptycho_data.html" />
+    <link rel="prev" title="Camera interfacing" href="camera.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PtychoDactyl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation &amp; Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Using PtychoDactyl</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="specs.html">Parameter specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera interfacing</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Stage controller interfacing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ptycho_data.html">Data management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recon.html">Reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scan.html">Scan parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PtychoDactyl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api.html">API Reference</a> &raquo;</li>
+        
+      <li>Stage controller interfacing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/stages.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="stage-controller-interfacing">
+<span id="stages"></span><h1>Stage controller interfacing<a class="headerlink" href="#stage-controller-interfacing" title="Permalink to this headline">¶</a></h1>
+<p>As discussed <a class="reference internal" href="../usage/installation.html#subclassing"><span class="std std-ref">previously</span></a>, you will likely need to define your own <code class="docutils literal notranslate"><span class="pre">Stages</span></code> subclass to use this software with your positioning systems. The following subclasses are built-in, and may serve as useful examples.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 5%" />
+<col style="width: 76%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Subclass</p></th>
+<th class="head"><p>Manufacturer</p></th>
+<th class="head"><p>Model</p></th>
+<th class="head"><p>Status</p></th>
+<th class="head"><p>Dependencies (not included)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Micronix</span></code></p></td>
+<td><p>Micronix</p></td>
+<td><p>MMC-200</p></td>
+<td><p>stable</p></td>
+<td><p><a class="reference external" href="https://pypi.org/project/pyserial">pyserial</a>, <a class="reference external" href="https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR">Micronix command syntax</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Attocube</span></code></p></td>
+<td><p>Attocube</p></td>
+<td><p>ANC350</p></td>
+<td><p>stable</p></td>
+<td><p><a class="reference external" href="https://github.com/Laukei/pyanc350">pyanc350</a> (modified), SDK (proprietary)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">YourStages</span></code></p></td>
+<td><p>n/a</p></td>
+<td><p>n/a</p></td>
+<td><p>template</p></td>
+<td><p>n/a</p></td>
+</tr>
+</tbody>
+</table>
+<p>These can each be found in the source code of <em>stages.py</em>.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="stages.get_stages">
+<span class="sig-prename descclassname"><span class="pre">stages.</span></span><span class="sig-name descname"><span class="pre">get_stages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage_type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.get_stages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up the stages with the correct controller subclass.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you write your own Stage subclass (recommended), be sure to add it to the dictionary within this function.
+Otherwise, you will get a <code class="docutils literal notranslate"><span class="pre">KeyError</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stage_type</strong> (<em>str</em>) – Type of stages to set up.</p></li>
+<li><p><strong>kwargs</strong> – keyword arguments to pass to stage constructor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Stage controller object, subclass of stages.Stage</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#stages.Stage" title="stages.Stage">Stage</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="stages.Stage">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">stages.</span></span><span class="sig-name descname"><span class="pre">Stage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Abstract base class for motorized stage controllers.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This class uses two coordinate systems, those of the stages (<em>x, y, z</em>) and those of the experiment (<em>x0, y0,
+z0</em>). If a rotation stage is included, the two systems are related by the angle between them. Outside of the
+class definition, only the experimental coordinates should be used.</p>
+<p>The experimental coordinates are defined <strong>in terms of the beamline</strong>, with the positive <em>z0</em>-axis aligning
+with the beam’s path, the <em>y0</em>-axis perpendicular to the table (positive up), and the <em>x0</em>-axis perpendicular
+to both (positive to the beam’s left), to make a right-handed coordinate system.</p>
+<p>To minimize confusion as much as possible, a similar convention is used for the stage coordinates.
+The <em>y</em> axis should correspond to the vertical stage, and the two horizontal stages should be <em>x</em> and <em>z</em> (you
+decide which is which). Note that this is different from how the axes are conventionally defined on the stages
+themselves, where <em>x</em> and <em>y</em> are horizontal axes, and <em>z</em> is vertical.</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.__init__">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Because this is an abstract class, this constructor must be explicitly called within a subclass constructor.
+At the very least, a subclass constructor should</p>
+<ol class="arabic simple">
+<li><p>call this function as <code class="docutils literal notranslate"><span class="pre">super().__init__(verbose)</span></code>,</p></li>
+<li><p>connect to the device,</p></li>
+<li><p>redefine the attributes <code class="docutils literal notranslate"><span class="pre">units</span></code>, <code class="docutils literal notranslate"><span class="pre">axes</span></code>, <code class="docutils literal notranslate"><span class="pre">limits</span></code>, and <code class="docutils literal notranslate"><span class="pre">zeros</span></code> if necessary, and</p></li>
+<li><p>call <code class="docutils literal notranslate"><span class="pre">self.measure()</span></code>.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>verbose</strong> (<em>bool</em>) – if True, this instance will print information about most processes as it runs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.measure">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">measure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.measure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the encoder on each axis and update the attributes within the class instance. This is run automatically
+immediately after any motion command, so that the attributes should always have the correct values.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When implementing this method in a subclass, make sure that it returns a value in <strong>millimeters</strong>. This is
+for consistency across all other modules in this package, particularly those in <code class="docutils literal notranslate"><span class="pre">ptycho_data.py</span></code>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The calculation of <code class="docutils literal notranslate"><span class="pre">x0</span></code> and <code class="docutils literal notranslate"><span class="pre">z0</span></code> will be different for each setup, but will likely follow some variation
+of <em>x0 = x cos(q) + z sin(q)</em>.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.check_errors">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">check_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.check_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check each axis for errors. For most devices, this will involve calling <code class="docutils literal notranslate"><span class="pre">self.get_status()</span></code> for each axis.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.get_status">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">get_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.get_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the status of a given axis. Typically, the controller will return a list of booleans, each corresponding
+to a certain attribute (connected, moving, has an error, etc.).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.is_moving">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">is_moving</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.is_moving" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether any of the axes are currently moving. This should return False if ALL stages are at their
+target positions and True if ANY stage is still in motion.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.set_position">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">set_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">laser_frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the stages to a desired position. When implementing this into a subclass, make sure that it waits until the
+stages have all reached their destination, then calls <code class="docutils literal notranslate"><span class="pre">self.measure()</span></code> before returning.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When subclassing, if this does not call <code class="docutils literal notranslate"><span class="pre">self.measure()</span></code>, or if it calls it before the stages are finished
+moving, the object will not read out the correct positions.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xyzq</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>)</em>) – Desired position for each axis, in mm.</p></li>
+<li><p><strong>laser_frame</strong> (<em>bool</em>) – if True, convert positions to be in the laser’s reference frame. Default is True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.get_position">
+<span class="sig-name descname"><span class="pre">get_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remeasure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.get_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current position of the sample.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>remeasure</strong> (<em>bool</em>) – If True, call self.measure() before returning a value. If False, use the currently stored
+values. Default is False.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Stage positions in the beam’s reference frame (vertical, horizontal, rotational)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.get_stage_positions">
+<span class="sig-name descname"><span class="pre">get_stage_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remeasure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.get_stage_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current positions of each of the stages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>remeasure</strong> (<em>bool</em>) – If True, call self.measure() before returning a value. If False, use the currently stored
+values. Default is False.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Stage positions in the beam’s reference frame (vertical, horizontal, rotational)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.check_scan">
+<span class="sig-name descname"><span class="pre">check_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.check_scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check a set of scan positions to make sure that they are all within the stages’ travel limits.</p>
+<p>The function checks whether the proposed scan is within the travel limits of the horizontal stages at
+zero-degree rotation (x_ok2), the horizontal stages at 45-deg rotation (x_ok3), and the vertical stages (y_ok)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>np.ndarray</em>) – Horizontal scan positions</p></li>
+<li><p><strong>Y</strong> (<em>np.ndarray</em>) – Vertical scan positions</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>x_ok2, x_ok3, y_ok</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(bool, bool, bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.home_all">
+<span class="sig-name descname"><span class="pre">home_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.home_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move all stages to their zero positions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.show_off">
+<span class="sig-name descname"><span class="pre">show_off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.show_off" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves all the axes around simultaneously…just for fun :)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.set_x0">
+<span class="sig-name descname"><span class="pre">set_x0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x0_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_x0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the sample to a desired position along the x0-axis (horizontal, orthogonal to the beamline)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.set_y0">
+<span class="sig-name descname"><span class="pre">set_y0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_y0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the sample to a desired position along the y0-axis (vertical, orthogonal to the beamline)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.set_z0">
+<span class="sig-name descname"><span class="pre">set_z0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z0_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_z0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the sample to a desired position along the x0-axis (horizontal, parallel to the beamline)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.set_q">
+<span class="sig-name descname"><span class="pre">set_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_q" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate the stack to a desired angle</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.set_x">
+<span class="sig-name descname"><span class="pre">set_x</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the x-stage to a desired position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.set_y">
+<span class="sig-name descname"><span class="pre">set_y</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the y-stage to a desired position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.set_z">
+<span class="sig-name descname"><span class="pre">set_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the z-stage to a desired position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.home_horizontal">
+<span class="sig-name descname"><span class="pre">home_horizontal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.home_horizontal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move horizontal stages to their zero positions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.get_translation">
+<span class="sig-name descname"><span class="pre">get_translation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.get_translation" title="Permalink to this definition">¶</a></dt>
+<dd><p>A quick command to get only the positions orthogonal to the beam</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.get_rotation">
+<span class="sig-name descname"><span class="pre">get_rotation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.get_rotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>A quick command to get only the rotational position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stages.Stage.print">
+<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.print" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for print() that checks whether the instance is set to verbose</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="ptycho_data.html" class="btn btn-neutral float-right" title="Data management" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="camera.html" class="btn btn-neutral float-left" title="Camera interfacing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Nick Porter.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
