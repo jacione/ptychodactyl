@@ -113,8 +113,8 @@ class LoadData(PtychoData):
     because it prevents the actual data in the file from being edited accidentally. It is dynamically able to handle
     both 2D and 3D datasets.
     """
-    def __init__(self, pty_file, flip_images='', flip_positions='', background_subtract=True, vbleed_correct=0.0,
-                 threshold=0.0):
+    def __init__(self, pty_file, flip_images='', flip_positions='', rotate_positions=0.0, background_subtract=True,
+                 vbleed_correct=0.0, threshold=0.0):
         """
         Create a LoadData object.
 
@@ -124,6 +124,8 @@ class LoadData(PtychoData):
         :type flip_images: str
         :param flip_positions: 'h' for horizontal, 'v' for vertical, 'hv' for both, '' for neither
         :type flip_positions: str
+        :param rotate_positions: rotation angle between camera and stages, in degrees
+        :type rotate_positions: float
         :param background_subtract: if True, subtracts the file's background image from the rest of the images.
         :type background_subtract: bool
         :param vbleed_correct: strength of vertical-bleed correction, must be between 0 and 1
@@ -177,6 +179,10 @@ class LoadData(PtychoData):
             self._im_data = np.flip(self.im_data, 2)
             self._bkgd = np.flip(self._bkgd, 0)
 
+        # Perform coordinate rotation
+        if rotate_positions != 0:
+            self.rotate_positions(rotate_positions)
+
         # Perform background subtraction
         if background_subtract:
             self._im_data[:, :] = self.im_data[:, :] - self.bkgd
@@ -214,6 +220,20 @@ class LoadData(PtychoData):
             return np.max(np.abs(self.position[:, :, :2]), axis=0)
         else:
             return np.max(np.abs(self.position), axis=0)
+
+    def rotate_positions(self, theta):
+        """
+        Rotates the probe positions by an angle theta. Use if the camera is skewed with respect to the stages.
+
+        :param theta: angle in degrees
+        :type theta: float
+        """
+        pos = self._position[:, :, :2]
+        theta = theta * np.pi / 180
+        rotator = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
+        pos = np.array([rotator @ p for p in pos])
+        pos = pos - np.min(pos, axis=0)
+        self._position[:, :, :2] = pos
 
 
 class CollectData(PtychoData):

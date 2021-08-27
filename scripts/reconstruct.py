@@ -11,7 +11,7 @@ from ptycho.recon import Reconstruction
 from ptycho.general import parse_specs
 
 
-LOADATA_KW = ['flip_images', 'flip_positions', 'background_subtract', 'vbleed_correct', 'threshold']
+LOADATA_KW = ['flip_images', 'flip_positions', 'rotate_positions', 'background_subtract', 'vbleed_correct', 'threshold']
 RUN_KW = ['algorithm', 'num_iterations', 'obj_up_initial', 'obj_up_final', 'pro_up_initial', 'pro_up_final']
 
 
