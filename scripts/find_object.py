@@ -59,5 +59,5 @@ def analyze_search(search_file):
 
 
 if __name__ == '__main__':
-    search('collection_specs.txt', 0.06, (1.2, 1.2))
+    search('../ptycho/collection_specs.txt', 0.06, (1.2, 1.2))
     # analyze_search('test_search.npy')

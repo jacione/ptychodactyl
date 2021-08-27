@@ -21,5 +21,5 @@ exposure = 100                 # Exposure time (ms)
 gain = 1                        # Analog gain
 
 #### Other parameters
-distance = 0.13                # Distance from lens (or sample) to detector (m)
+distance = 0.12814                # Distance from lens (or sample) to detector (m)
 energy = 52                   # Laser photon energy (eV)

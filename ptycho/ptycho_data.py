@@ -138,7 +138,7 @@ class LoadData(PtychoData):
         # LOAD DATA FROM FILE #########################################################################################
         # Open the .pty file
         self._file = pty_file
-        f = h5py.File(Path(__file__).parent / 'data' / self._file, 'r')
+        f = h5py.File(Path(__file__).parents[1] / 'data' / self._file, 'r')
 
         # Load diffraction image data
         self._im_data = np.array(f['data/data'])
@@ -179,10 +179,6 @@ class LoadData(PtychoData):
             self._im_data = np.flip(self.im_data, 2)
             self._bkgd = np.flip(self._bkgd, 0)
 
-        # Perform coordinate rotation
-        if rotate_positions != 0:
-            self.rotate_positions(rotate_positions)
-
         # Perform background subtraction
         if background_subtract:
             self._im_data[:, :] = self.im_data[:, :] - self.bkgd
@@ -202,6 +198,10 @@ class LoadData(PtychoData):
         if not self._is3d:
             self._im_data = np.squeeze(self._im_data)
             self._position = np.squeeze(self.position)[:, :2]
+
+        # Perform coordinate rotation
+        if rotate_positions != 0:
+            self.rotate_positions(rotate_positions)
 
     @property
     def is3d(self):
@@ -228,12 +228,18 @@ class LoadData(PtychoData):
         :param theta: angle in degrees
         :type theta: float
         """
-        pos = self._position[:, :, :2]
+        if self.is3d:
+            pos = self._position[:, :, :2]
+        else:
+            pos = self._position
         theta = theta * np.pi / 180
         rotator = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
         pos = np.array([rotator @ p for p in pos])
         pos = pos - np.min(pos, axis=0)
-        self._position[:, :, :2] = pos
+        if self.is3d:
+            self._position[:, :, :2] = pos
+        else:
+            self._position = pos
 
 
 class CollectData(PtychoData):
