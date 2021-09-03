@@ -1,5 +1,6 @@
 #### Title
 title = hhg-Yobject
+data_dir = data
 
 #### Probe positioning parameters
 stages = attocube               # Keyword for the stage controller that you're using
