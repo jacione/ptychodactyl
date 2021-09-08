@@ -8,26 +8,23 @@ Using PtychoDactyl
 Fully automated ptychography
 ----------------------------
 
-If you have working classes for the devices you're using, then running PtychoDactyl is as easy as pie! There are two main scripts designed to be run from the command line, one for data collection (``collect.py``) and the other for data analysis (``reconstruct.py``). These each use an associated text file (``collection_specs.txt`` and ``reconstruction_specs.txt``) to define the needed parameters. Before running either, double-check the spec file and make sure that it's set up the way you want. For a more detailed description of each file, see :ref:`specs`. Both scripts can be run with a ``--spec_file <filename>`` option if you want to define a specific set of parameters in a different place.
+If you have working classes for the devices you're using, then running PtychoDactyl is as easy as pie! There are two main scripts designed to be run from the command line, one for data collection (``collect.py``) and the other for data analysis (``reconstruct.py``). These each use an associated text file (``collection_specs.txt`` and ``reconstruction_specs.txt``) to define the needed parameters. Before running either, double-check the spec file and make sure that it's set up the way you want. For a more detailed description of each file, see :ref:`specs`.
 
-Make sure the camera, stages, and laser are all turned on and working properly. Open a commandline and navigate to the ptychodactyl directory, then run
+**To begin a data collection run:**
+#. Make sure the camera, stages, and laser are all turned on and working properly.
+#. Review/update the parameters in ``collection_specs.txt``.
+#. Run ``collect.py``.
 
-.. code-block:: console
+Data will be saved as a ``.pty`` file, which is based on HDF5 protocol. This has the benefit of being able to record all the data (diffraction patterns, positions, pixel size, etc.) in a single file.
 
-    $ python collect.py
+**To analyze and reconstruct the data:**
+#. Review/update the parameters in ``reconstruction_specs.txt``.
+#. Run ``reconstruct.py``
 
-to start the data collection. Data will be saved as a ``.pty`` file, which is based on HDF5 protocol. This has the benefit of being able to record all the data (diffraction patterns, positions, pixel size, etc.) in a single file.
-
-To analyze and reconstruct the data, fill out the associated spec file, then run
-
-.. code-block:: console
-
-    $ python reconstruct.py
-
-to start the reconstruction. The reconstructed image (probe and object, amplitude and phase) will be saved directly into the ``.pty`` file, overwriting any previous reconstruction.
+The reconstructed image (probe and object, amplitude and phase) will be saved directly into the ``.pty`` file, overwriting any previous reconstruction.
 
 .. warning::
-    Running reconstruct.py with default options *will overwrite* any previous reconstructions within the ``.pty`` file!
+    Running ``reconstruct.py`` with default options *will overwrite* any previous reconstructions within the ``.pty`` file!
 
 .. _quickstart-custom:
 

@@ -6,6 +6,9 @@ Main script for collecting ptycho data.
     implemented in this library.
 """
 
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from progressbar import progressbar
 from ptycho.ptycho_data import CollectData
@@ -24,6 +27,7 @@ def collect(spec_file='collection_specs.txt', verbose=False):
     # Load collection parameters from spec file
     specs = parse_specs(f'{spec_file}')
     title = specs['title']
+    data_dir = specs['data_dir']
     stage_model = specs['stages']
     pattern = specs['pattern']
     scan_center = specs['scan_center']
@@ -57,8 +61,8 @@ def collect(spec_file='collection_specs.txt', verbose=False):
     camera.set_exposure(exposure)
     camera.set_gain(gain)
     dataset = CollectData(num_translations=num_translations, num_rotations=num_rotations, title=title,
-                          im_shape=camera.im_shape, pixel_size=camera.pixel_size, distance=distance, energy=energy,
-                          verbose=verbose)
+                          data_dir=data_dir, im_shape=camera.im_shape, pixel_size=camera.pixel_size, distance=distance,
+                          energy=energy, verbose=verbose)
 
     # Print the most important run parameters
     print(f'Run type: {2+is3d}D ptycho')

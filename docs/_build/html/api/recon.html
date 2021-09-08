@@ -170,8 +170,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-recon">
-<span id="reconstruction"></span><span id="recon"></span><h1>Reconstruction<a class="headerlink" href="#module-recon" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-ptycho.recon">
+<span id="reconstruction"></span><span id="recon"></span><h1>Reconstruction<a class="headerlink" href="#module-ptycho.recon" title="Permalink to this headline">¶</a></h1>
 <p>Classes for ptychographic image reconstruction.</p>
 <dl class="simple">
 <dt>Currently implemented:</dt><dd><ul class="simple">
@@ -180,13 +180,13 @@
 </ul>
 </dd>
 <dt>Planned:</dt><dd><ul class="simple">
-<li><p><a class="reference external" href="https://doi.org/10.1364/OL.42.003169">Coupled ptychography-tomography (CPT)</a>, 3D</p></li>
+<li><p><a class="reference external" href="https://doi.org/10.1364/OL.42.003169">Coupled ptycho-tomography (CPT)</a>, 3D</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="recon.Reconstruction">
-<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">Reconstruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Reconstruction" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Reconstruction">
+<span class="sig-prename descclassname"><span class="pre">ptycho.recon.</span></span><span class="sig-name descname"><span class="pre">Reconstruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Reconstruction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a PTY file and construct the appropriate Recon subclass.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -199,62 +199,62 @@
 <dd class="field-even"><p>Recon2D or Recon3D instance</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#recon.Recon" title="recon.Recon">Recon</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#ptycho.recon.Recon" title="ptycho.recon.Recon">Recon</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="recon.Recon">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">Recon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="ptycho_data.html#ptycho_data.LoadData" title="ptycho_data.LoadData"><span class="pre">ptycho_data.LoadData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ptycho.recon.</span></span><span class="sig-name descname"><span class="pre">Recon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="ptycho_data.html#ptycho.ptycho_data.LoadData" title="ptycho.ptycho_data.LoadData"><span class="pre">ptycho.ptycho_data.LoadData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="recon.Recon.__init__">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="ptycho_data.html#ptycho_data.LoadData" title="ptycho_data.LoadData"><span class="pre">ptycho_data.LoadData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon.__init__">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="ptycho_data.html#ptycho.ptycho_data.LoadData" title="ptycho.ptycho_data.LoadData"><span class="pre">ptycho.ptycho_data.LoadData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract parent class for ptychographic reconstructions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="ptycho_data.html#ptycho_data.LoadData" title="ptycho_data.LoadData"><em>LoadData</em></a>) – Data set that will be reconstructed</p>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="ptycho_data.html#ptycho.ptycho_data.LoadData" title="ptycho.ptycho_data.LoadData"><em>LoadData</em></a>) – Data set that will be reconstructed</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="recon.Recon.run">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon.run" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon.run">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon.run" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="recon.Recon.show_object_and_probe">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">show_object_and_probe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon.show_object_and_probe" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon.show_object_and_probe">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">show_object_and_probe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon.show_object_and_probe" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="recon.Recon.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon.save" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the reconstruction to the original PTY file</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="recon.Recon2D">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">Recon2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon2D" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#recon.Recon" title="recon.Recon"><code class="xref py py-class docutils literal notranslate"><span class="pre">recon.Recon</span></code></a></p>
+<dt class="sig sig-object py" id="ptycho.recon.Recon2D">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ptycho.recon.</span></span><span class="sig-name descname"><span class="pre">Recon2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptycho.recon.Recon" title="ptycho.recon.Recon"><code class="xref py py-class docutils literal notranslate"><span class="pre">ptycho.recon.Recon</span></code></a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="recon.Recon2D.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon2D.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon2D.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon2D.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a 2D ptychographic reconstructor</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="ptycho_data.html#ptycho_data.LoadData" title="ptycho_data.LoadData"><em>LoadData</em></a>) – Data set that will be reconstructed</p>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="ptycho_data.html#ptycho.ptycho_data.LoadData" title="ptycho.ptycho_data.LoadData"><em>LoadData</em></a>) – Data set that will be reconstructed</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="recon.Recon2D.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon2D.run" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon2D.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon2D.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a reconstruction using the provided parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -267,53 +267,53 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="recon.Recon2D.show_probe_positions">
-<span class="sig-name descname"><span class="pre">show_probe_positions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon2D.show_probe_positions" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon2D.show_probe_positions">
+<span class="sig-name descname"><span class="pre">show_probe_positions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon2D.show_probe_positions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show a scatter plot of all of the probe positions in the scan.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="recon.Recon2D.show_object_and_probe">
-<span class="sig-name descname"><span class="pre">show_object_and_probe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon2D.show_object_and_probe" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon2D.show_object_and_probe">
+<span class="sig-name descname"><span class="pre">show_object_and_probe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon2D.show_object_and_probe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show the object and probe in their current state of reconstruction.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="recon.Recon3D">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">Recon3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon3D" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#recon.Recon" title="recon.Recon"><code class="xref py py-class docutils literal notranslate"><span class="pre">recon.Recon</span></code></a></p>
+<dt class="sig sig-object py" id="ptycho.recon.Recon3D">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ptycho.recon.</span></span><span class="sig-name descname"><span class="pre">Recon3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon3D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptycho.recon.Recon" title="ptycho.recon.Recon"><code class="xref py py-class docutils literal notranslate"><span class="pre">ptycho.recon.Recon</span></code></a></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Not yet implemented.</p>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="recon.Recon3D.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon3D.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon3D.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon3D.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract parent class for ptychographic reconstructions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="ptycho_data.html#ptycho_data.LoadData" title="ptycho_data.LoadData"><em>LoadData</em></a>) – Data set that will be reconstructed</p>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="ptycho_data.html#ptycho.ptycho_data.LoadData" title="ptycho.ptycho_data.LoadData"><em>LoadData</em></a>) – Data set that will be reconstructed</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="recon.Recon3D.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon3D.run" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon3D.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon3D.run" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="recon.Recon3D.show_object_and_probe">
-<span class="sig-name descname"><span class="pre">show_object_and_probe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#recon.Recon3D.show_object_and_probe" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon3D.show_object_and_probe">
+<span class="sig-name descname"><span class="pre">show_object_and_probe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon3D.show_object_and_probe" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="recon.center">
-<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.center" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.center">
+<span class="sig-prename descclassname"><span class="pre">ptycho.recon.</span></span><span class="sig-name descname"><span class="pre">center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.center" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shift an image so that the center of brightness is in the center of the image. This is intended for use with a
 probe array to help keep the reconstruction centered in the frame</p>
 <dl class="field-list simple">
@@ -330,8 +330,8 @@ probe array to help keep the reconstruction centered in the frame</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="recon.init_object">
-<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">init_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.init_object" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.init_object">
+<span class="sig-prename descclassname"><span class="pre">ptycho.recon.</span></span><span class="sig-name descname"><span class="pre">init_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.init_object" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize an object to have everywhere a small nonzero amplitude and a random phase.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -347,8 +347,8 @@ probe array to help keep the reconstruction centered in the frame</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="recon.init_probe">
-<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">init_probe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.init_probe" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.init_probe">
+<span class="sig-prename descclassname"><span class="pre">ptycho.recon.</span></span><span class="sig-name descname"><span class="pre">init_probe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.init_probe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a probe for a set of diffraction patterns. The probe is generated by taking the average of all
 diffraction patterns, inverse Fourier transforming it, and passing the resulting amplitude through a gaussian
 filter.</p>
@@ -369,8 +369,8 @@ filter.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="recon.init_probe_flat">
-<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">init_probe_flat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.init_probe_flat" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.init_probe_flat">
+<span class="sig-prename descclassname"><span class="pre">ptycho.recon.</span></span><span class="sig-name descname"><span class="pre">init_probe_flat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.init_probe_flat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a generic probe using a top-hat function and random phase</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -386,8 +386,8 @@ filter.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="recon.setup_figure">
-<span class="sig-prename descclassname"><span class="pre">recon.</span></span><span class="sig-name descname"><span class="pre">setup_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actually_do_it</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#recon.setup_figure" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.setup_figure">
+<span class="sig-prename descclassname"><span class="pre">ptycho.recon.</span></span><span class="sig-name descname"><span class="pre">setup_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actually_do_it</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.setup_figure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a figure and 4 axes for plotting. This is really just a shortcut for the Recon subclasses</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

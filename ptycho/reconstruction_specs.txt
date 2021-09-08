@@ -1,6 +1,6 @@
 #### Title
-load = hhg-Yobject-2021-08-25
-data_dir = data
+title = hhg-Yobject-2021-08-25
+data_dir =                          # Leave blank to use the builtin 'data' directory
 
 #### Pre-processing parameters
 flip_images = v                     # 'h' to flip horizontal, 'v' for vertical, 'hv' for both, 'n' for neither

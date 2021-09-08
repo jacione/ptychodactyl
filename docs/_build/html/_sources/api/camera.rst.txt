@@ -16,7 +16,7 @@ Subclass        Manufacturer  Camera model  Status      Dependencies (not includ
 
 These can each be found in the source code of *camera.py*.
 
-.. autofunction:: camera.get_camera
+.. autofunction:: ptycho.camera.get_camera
 
-.. autoclass:: camera.Camera
+.. autoclass:: ptycho.camera.Camera
     :members:

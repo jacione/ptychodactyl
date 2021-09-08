@@ -3,5 +3,5 @@
 Reconstruction
 ==============
 
-.. automodule:: recon
+.. automodule:: ptycho.recon
     :members:

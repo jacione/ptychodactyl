@@ -8,16 +8,6 @@ Installation & Setup
 Installing PtychoDactyl
 -----------------------
 
-.. PtychoDactyl is **NOT** available through PyPI for a number of reasons, and in order to understand them better, let's compare with a module that *is* on PyPI:
-    ===========================================  ==================================================
-    **NumPy**                                    **PtychoDactyl**
-    ===========================================  ==================================================
-    Highly general                               Highly specialized
-    Designed to be imported                      Designed to be run
-    Works out of the box with nearly any system  Must be refactored for each new experimental setup
-    ===========================================  ==================================================
-    Primarily for these reasons,
-
 Download the PtychoDactyl source code from my git repository (currently private, maybe a link will go here eventually.
 
 .. note::
@@ -25,7 +15,6 @@ Download the PtychoDactyl source code from my git repository (currently private,
 
 PtychoDactyl requires the following packages, all available via ``pip install``:
 
-* click (>=8.0.1)
 * h5py (>=3.2.1)
 * matplotlib (>=3.4.2)
 * numpy (>=1.20.3)

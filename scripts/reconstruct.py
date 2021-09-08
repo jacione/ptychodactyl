@@ -1,11 +1,9 @@
 """
 Main script for reconstructing ptycho data.
-
-2D: stable
-3D: unfinished
-
-Nick Porter, jacioneportier@gmail.com
 """
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from ptycho.recon import Reconstruction
 from ptycho.general import parse_specs
@@ -23,11 +21,16 @@ def reconstruct(spec_file='reconstruction_specs.txt'):
 
     specs = parse_specs(spec_file)
 
-    load = specs['load']
-    if not load.endswith('.pty'):
-        load = load + '.pty'
+    title = specs['title']
+    data_dir = specs['data_dir']
+    if not title.endswith('.pty'):
+        title = title + '.pty'
+    if data_dir == '':
+        title = Path(__file__).parents[1] / 'data' / title
+    else:
+        title = Path(data_dir) / title
 
-    recon = Reconstruction(load, **{kw: specs[kw] for kw in LOADATA_KW})
+    recon = Reconstruction(title, **{kw: specs[kw] for kw in LOADATA_KW})
 
     for n in range(specs['num_stages']):
         recon.run({kw: specs[kw][n] for kw in RUN_KW}, animate=specs['animate'])

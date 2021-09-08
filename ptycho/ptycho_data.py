@@ -138,7 +138,7 @@ class LoadData(PtychoData):
         # LOAD DATA FROM FILE #########################################################################################
         # Open the .pty file
         self._file = pty_file
-        f = h5py.File(Path(__file__).parents[1] / 'data' / self._file, 'r')
+        f = h5py.File(self._file, 'r')
 
         # Load diffraction image data
         self._im_data = np.array(f['data/data'])
@@ -246,7 +246,7 @@ class CollectData(PtychoData):
     """
     PtychoData subclass for collecting, organizing, and saving ptycho data during an experiment
     """
-    def __init__(self, num_rotations, num_translations, title, im_shape, pixel_size, distance, energy, verbose=False):
+    def __init__(self, num_rotations, num_translations, title, data_dir, im_shape, pixel_size, distance, energy, verbose=False):
         """
         Create a CollectData object for collecting, organizing, and saving ptycho data during an experiment.
 
@@ -256,6 +256,8 @@ class CollectData(PtychoData):
         :type num_translations: int
         :param title: data will be saved in a PTY file under this name
         :type title: str
+        :param data_dir: data will be stored in this directory
+        :type data_dir: str
         :param im_shape: dimensions of the images being collected
         :type im_shape: (int, int)
         :param pixel_size: camera pixel size in microns (affected by binning)
@@ -293,6 +295,10 @@ class CollectData(PtychoData):
 
         # Parameters for saving the data afterward
         self.title = title
+        if data_dir == '':
+            self._dir = Path(__file__).parents[1] / 'data'
+        else:
+            self._dir = Path(data_dir)
         self.is_finalized = False
         return
 
@@ -415,7 +421,7 @@ class CollectData(PtychoData):
         print(f'Compressing and saving data...')
 
         # Create file using HDF5 protocol.
-        filepath = Path(__file__).parent / 'data' / f'{self.title}.pty'
+        filepath = self._dir / f'{self.title}.pty'
         f = h5py.File(filepath, 'w')
 
         # Save collected data

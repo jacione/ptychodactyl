@@ -170,12 +170,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-scan">
-<span id="scan-parameters"></span><span id="scan"></span><h1>Scan parameters<a class="headerlink" href="#module-scan" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-ptycho.scan">
+<span id="scan-parameters"></span><span id="scan"></span><h1>Scan parameters<a class="headerlink" href="#module-ptycho.scan" title="Permalink to this headline">¶</a></h1>
 <p>Functions to generate an array of positions for ptychographic scans</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="scan.xy_scan">
-<span class="sig-prename descclassname"><span class="pre">scan.</span></span><span class="sig-name descname"><span class="pre">xy_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scan.xy_scan" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.scan.xy_scan">
+<span class="sig-prename descclassname"><span class="pre">ptycho.scan.</span></span><span class="sig-name descname"><span class="pre">xy_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.scan.xy_scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a set of positions used for a ptychographic scan.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -198,8 +198,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="scan.rect_scan">
-<span class="sig-prename descclassname"><span class="pre">scan.</span></span><span class="sig-name descname"><span class="pre">rect_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scan.rect_scan" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.scan.rect_scan">
+<span class="sig-prename descclassname"><span class="pre">ptycho.scan.</span></span><span class="sig-name descname"><span class="pre">rect_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.scan.rect_scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a rectangular ptychographic scan. Positions are aligned into rows and columns, such that the four nearest
 neighbors of each position are directly above, below, and to either side.</p>
 <dl class="field-list simple">
@@ -222,8 +222,8 @@ neighbors of each position are directly above, below, and to either side.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="scan.hex_scan">
-<span class="sig-prename descclassname"><span class="pre">scan.</span></span><span class="sig-name descname"><span class="pre">hex_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scan.hex_scan" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.scan.hex_scan">
+<span class="sig-prename descclassname"><span class="pre">ptycho.scan.</span></span><span class="sig-name descname"><span class="pre">hex_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.scan.hex_scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a hexagonal ptychographic scan. Positions are aligned into rows and (loosely) columns, such that the six
 nearest neighbors of each position form a regular hexagon.</p>
 <dl class="field-list simple">
@@ -246,8 +246,8 @@ nearest neighbors of each position form a regular hexagon.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="scan.spiral_scan">
-<span class="sig-prename descclassname"><span class="pre">scan.</span></span><span class="sig-name descname"><span class="pre">spiral_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scan.spiral_scan" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.scan.spiral_scan">
+<span class="sig-prename descclassname"><span class="pre">ptycho.scan.</span></span><span class="sig-name descname"><span class="pre">spiral_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.scan.spiral_scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a spiral ptychographic scan. Positions are arranged spiraling out such that the points are spaced evenly
 along the path and the loops are spaced evenly from each other.</p>
 <dl class="field-list simple">
@@ -270,15 +270,15 @@ along the path and the loops are spaced evenly from each other.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="scan.r_scan">
-<span class="sig-prename descclassname"><span class="pre">scan.</span></span><span class="sig-name descname"><span class="pre">r_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scan.r_scan" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.scan.r_scan">
+<span class="sig-prename descclassname"><span class="pre">ptycho.scan.</span></span><span class="sig-name descname"><span class="pre">r_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.scan.r_scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates an array of rotational positions. This is basically just a fancy wrapper for np.linspace, but it includes
 a special case for non-rotational ptychographic scans.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_steps</strong> (<em>int</em>) – Number of rotational positions. If zero, the return value will allow for a non-rotational
-(2D) ptychography dataset.</p></li>
+(2D) ptycho dataset.</p></li>
 <li><p><strong>full_range</strong> (<em>float</em>) – Full range of angles to sweep through.</p></li>
 </ul>
 </dd>

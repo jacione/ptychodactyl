@@ -16,7 +16,7 @@ from pathlib import Path
 
 IMG_KWARGS = {'xticks': [], 'yticks': []}
 
-data_dir = Path(__file__).parent / 'data'
+data_dir = Path(__file__).parents[1] / 'data'
 
 
 def open_pty():
@@ -73,10 +73,10 @@ def convert_to_gif(pty_file):
     images = np.squeeze(np.array(data['data/data']))
     # images = images - np.min(images)
     images = np.log(images+1)
-    images = np.uint8(images / np.max(images) * 255)
+    images = np.array(images / np.max(images) * 255, dtype='int')
 
     ims = [Image.fromarray(a) for a in images]
-    ims[0].save("array.gif", save_all=True, append_images=ims[1:], duration=150, loop=0)
+    ims[0].save("images.gif", save_all=True, append_images=ims[1:], duration=150, loop=0)
     return
 
 

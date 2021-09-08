@@ -9,6 +9,8 @@ collection_specs.txt
 --------------------
 **title**: Give your data run a name! The collected data will automatically be saved with this title as well as the date on which it was completed, e.g. ``pterodactylus-15-12-1784.pty``.
 
+**data_dir**: The directory where your data will be saved. If left blank, it will automatically be saved in ``ptychodactyl/data``.
+
 **stages**: Keyword for the stage controller you're using. This should be all lowercase, and must match a keyword from the dictionary defined in ``stages.get_stages()``.
 
 **scan_center**: The x- and y-position of the center of your ptychography scan, in the center-origin laser reference frame. All distances should be given in millimeters unless otherwise specified
@@ -43,6 +45,8 @@ reconstruction_specs.txt
 ------------------------
 
 **load**: The name of the ``.pty`` data file to reconstruct. This should work with or without the ``.pty`` suffix.
+
+**data_dir**: The directory where your data file is located. If left blank, it will automatically load from ``ptychodactyl/data``.
 
 **flip_images**: Determines whether to reflect the diffraction images along a certain direction. Options are *h* (reflect horizontally), *v* (reflect vertically), *hv* (both) or *n* (neither).
 

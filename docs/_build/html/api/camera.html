@@ -218,8 +218,8 @@
 </table>
 <p>These can each be found in the source code of <em>camera.py</em>.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="camera.get_camera">
-<span class="sig-prename descclassname"><span class="pre">camera.</span></span><span class="sig-name descname"><span class="pre">get_camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera_type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.get_camera" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.get_camera">
+<span class="sig-prename descclassname"><span class="pre">ptycho.camera.</span></span><span class="sig-name descname"><span class="pre">get_camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera_type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.get_camera" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set up the camera with the correct controller subclass.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -237,19 +237,19 @@ Otherwise, you will get a <code class="docutils literal notranslate"><span class
 <dd class="field-even"><p>Camera controller object, subclass of camera.Camera</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#camera.Camera" title="camera.Camera">Camera</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#ptycho.camera.Camera" title="ptycho.camera.Camera">Camera</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="camera.Camera">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">camera.</span></span><span class="sig-name descname"><span class="pre">Camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ptycho.camera.</span></span><span class="sig-name descname"><span class="pre">Camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Abstract parent class for camera devices</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.__init__">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.__init__">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Because this is an abstract class, this constructor must be explicitly called within a subclass constructor.
 At the very least, a subclass constructor should</p>
 <ol class="arabic simple">
@@ -273,8 +273,8 @@ be passed to <code class="docutils literal notranslate"><span class="pre">get_ca
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.camera_on">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">camera_on</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.camera_on" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.camera_on">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">camera_on</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.camera_on" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turns on the camera interface.</p>
 <p>This is where you should set any parameters that you won’t change over the course of a single data run. It may
 not be a bad idea to also include a call to <code class="docutils literal notranslate"><span class="pre">self.set_defaults()</span></code>. After this function is called, the camera
@@ -282,8 +282,8 @@ should be ready to take images.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.camera_off">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">camera_off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.camera_off" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.camera_off">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">camera_off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.camera_off" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turns off the camera interface.</p>
 <p>This is where you should dispose of any handles to the device. After this function is called, all camera
 functions should be disabled (except <code class="docutils literal notranslate"><span class="pre">self.camera_on()</span></code>), and the garbage collector should only have to clean
@@ -291,8 +291,8 @@ up the class object itself.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.set_exposure">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">set_exposure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.set_exposure" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.set_exposure">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">set_exposure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.set_exposure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the camera exposure time in milliseconds.</p>
 <p>Not all camera drivers use milliseconds to define exposure time. When implementing this in a subclass,
 remember to check the units that the device is expecting and convert your value if necessary.</p>
@@ -304,8 +304,8 @@ remember to check the units that the device is expecting and convert your value 
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.set_gain">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">set_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.set_gain" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.set_gain">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">set_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.set_gain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the camera’s analog gain.</p>
 <p>Not all camera drivers use raw coefficients to define analog gain. When implementing this in a subclass,
 remember to check the format that the device is expecting and convert your value if necessary.</p>
@@ -317,15 +317,15 @@ remember to check the format that the device is expecting and convert your value
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.arm">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">arm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.arm" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.arm">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">arm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.arm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Arm the camera for image capture.</p>
 <p>Most cameras have some sort of arming function that must be called before any frames can be captured.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.get_frame">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">get_frame</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.get_frame" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.get_frame">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">get_frame</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.get_frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Capture and return a single frame from the image detector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -338,14 +338,14 @@ remember to check the format that the device is expecting and convert your value
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.disarm">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">disarm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.disarm" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.disarm">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">disarm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.disarm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Disarm the camera after image capture.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.get_frames">
-<span class="sig-name descname"><span class="pre">get_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.get_frames" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.get_frames">
+<span class="sig-name descname"><span class="pre">get_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.get_frames" title="Permalink to this definition">¶</a></dt>
 <dd><p>Collect a composite image from the camera. The returned image will be a sum of <em>N</em> frames, where <em>N</em> is set
 using <code class="docutils literal notranslate"><span class="pre">self.set_frames_per_take()</span></code>.</p>
 <dl class="field-list simple">
@@ -362,32 +362,32 @@ using <code class="docutils literal notranslate"><span class="pre">self.set_fram
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.imshow">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">imshow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.imshow" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.imshow">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">imshow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.imshow" title="Permalink to this definition">¶</a></dt>
 <dd><p>A compact wrapper for pyplot’s imshow with some commonly desired parameters preloaded</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.print">
-<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.print" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.print">
+<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.print" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper for print() that checks whether the instance is set to verbose</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.set_defaults">
-<span class="sig-name descname"><span class="pre">set_defaults</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.set_defaults" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.set_defaults">
+<span class="sig-name descname"><span class="pre">set_defaults</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.set_defaults" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the basic camera features to their default values.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.set_frames_per_take">
-<span class="sig-name descname"><span class="pre">set_frames_per_take</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames_per_take</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.set_frames_per_take" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.set_frames_per_take">
+<span class="sig-name descname"><span class="pre">set_frames_per_take</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames_per_take</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.set_frames_per_take" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the number of frames to sum for each image measurement</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.set_resolution">
-<span class="sig-name descname"><span class="pre">set_resolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.set_resolution" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.set_resolution">
+<span class="sig-name descname"><span class="pre">set_resolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.set_resolution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set camera resolution. The functionality of this is a little counter-intuitive. The <strong>resolution</strong> parameter is
 the side-length of the desired diffraction data. This method will set the camera to bin each image as much as
 possible without reducing the height or width below <strong>resolution</strong>. The data will be cropped to the right
@@ -395,24 +395,32 @@ size in CollectData.finalize() before saving. The binning happens here to reduce
 but the cropping has to happen there because it needs to be centered on the diffraction patterns.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>resolution</strong> (<em>int</em>) – Desired side length of diffraction data.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resolution</strong> (<em>int</em>) – Desired side length of diffraction data.</p></li>
+<li><p><strong>space_factor</strong> (<em>float</em>) – extra space on the edges</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.find_center">
-<span class="sig-name descname"><span class="pre">find_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.find_center" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.find_center">
+<span class="sig-name descname"><span class="pre">find_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.find_center" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find and return the “center of brightness” on the camera’s image sensor. Useful for finding the center of a
 beam or diffraction pattern.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="camera.Camera.analyze_frame">
-<span class="sig-name descname"><span class="pre">analyze_frame</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#camera.Camera.analyze_frame" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.camera.Camera.analyze_frame">
+<span class="sig-name descname"><span class="pre">analyze_frame</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.analyze_frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Take an image, then show the image, the center of brightness, and the centered horizontal and vertical line
 readouts.</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptycho.camera.Camera.running_analysis">
+<span class="sig-name descname"><span class="pre">running_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.running_analysis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

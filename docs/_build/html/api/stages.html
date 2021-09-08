@@ -212,8 +212,8 @@
 </table>
 <p>These can each be found in the source code of <em>stages.py</em>.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="stages.get_stages">
-<span class="sig-prename descclassname"><span class="pre">stages.</span></span><span class="sig-name descname"><span class="pre">get_stages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage_type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.get_stages" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.get_stages">
+<span class="sig-prename descclassname"><span class="pre">ptycho.stages.</span></span><span class="sig-name descname"><span class="pre">get_stages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage_type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.get_stages" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set up the stages with the correct controller subclass.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -231,14 +231,14 @@ Otherwise, you will get a <code class="docutils literal notranslate"><span class
 <dd class="field-even"><p>Stage controller object, subclass of stages.Stage</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#stages.Stage" title="stages.Stage">Stage</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#ptycho.stages.Stage" title="ptycho.stages.Stage">Stage</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="stages.Stage">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">stages.</span></span><span class="sig-name descname"><span class="pre">Stage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ptycho.stages.</span></span><span class="sig-name descname"><span class="pre">Stage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Abstract base class for motorized stage controllers.</p>
 <div class="admonition warning">
@@ -255,8 +255,8 @@ decide which is which). Note that this is different from how the axes are conven
 themselves, where <em>x</em> and <em>y</em> are horizontal axes, and <em>z</em> is vertical.</p>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.__init__">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.__init__">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Because this is an abstract class, this constructor must be explicitly called within a subclass constructor.
 At the very least, a subclass constructor should</p>
 <ol class="arabic simple">
@@ -273,8 +273,8 @@ At the very least, a subclass constructor should</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.measure">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">measure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.measure" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.measure">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">measure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.measure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check the encoder on each axis and update the attributes within the class instance. This is run automatically
 immediately after any motion command, so that the attributes should always have the correct values.</p>
 <div class="admonition warning">
@@ -290,28 +290,28 @@ of <em>x0 = x cos(q) + z sin(q)</em>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.check_errors">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">check_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.check_errors" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.check_errors">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">check_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.check_errors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check each axis for errors. For most devices, this will involve calling <code class="docutils literal notranslate"><span class="pre">self.get_status()</span></code> for each axis.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.get_status">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">get_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.get_status" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.get_status">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">get_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.get_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check the status of a given axis. Typically, the controller will return a list of booleans, each corresponding
 to a certain attribute (connected, moving, has an error, etc.).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.is_moving">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">is_moving</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.is_moving" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.is_moving">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">is_moving</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.is_moving" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check whether any of the axes are currently moving. This should return False if ALL stages are at their
 target positions and True if ANY stage is still in motion.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.set_position">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">set_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">laser_frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_position" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.set_position">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">set_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">laser_frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.set_position" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move the stages to a desired position. When implementing this into a subclass, make sure that it waits until the
 stages have all reached their destination, then calls <code class="docutils literal notranslate"><span class="pre">self.measure()</span></code> before returning.</p>
 <div class="admonition warning">
@@ -330,8 +330,8 @@ moving, the object will not read out the correct positions.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.get_position">
-<span class="sig-name descname"><span class="pre">get_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remeasure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.get_position" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.get_position">
+<span class="sig-name descname"><span class="pre">get_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remeasure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.get_position" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the current position of the sample.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -348,8 +348,8 @@ values. Default is False.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.get_stage_positions">
-<span class="sig-name descname"><span class="pre">get_stage_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remeasure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.get_stage_positions" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.get_stage_positions">
+<span class="sig-name descname"><span class="pre">get_stage_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remeasure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.get_stage_positions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the current positions of each of the stages.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -366,8 +366,8 @@ values. Default is False.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.check_scan">
-<span class="sig-name descname"><span class="pre">check_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.check_scan" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.check_scan">
+<span class="sig-name descname"><span class="pre">check_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.check_scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check a set of scan positions to make sure that they are all within the stages’ travel limits.</p>
 <p>The function checks whether the proposed scan is within the travel limits of the horizontal stages at
 zero-degree rotation (x_ok2), the horizontal stages at 45-deg rotation (x_ok3), and the vertical stages (y_ok)</p>
@@ -388,80 +388,80 @@ zero-degree rotation (x_ok2), the horizontal stages at 45-deg rotation (x_ok3), 
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.home_all">
-<span class="sig-name descname"><span class="pre">home_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.home_all" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.home_all">
+<span class="sig-name descname"><span class="pre">home_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.home_all" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move all stages to their zero positions.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.show_off">
-<span class="sig-name descname"><span class="pre">show_off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.show_off" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.show_off">
+<span class="sig-name descname"><span class="pre">show_off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.show_off" title="Permalink to this definition">¶</a></dt>
 <dd><p>Moves all the axes around simultaneously…just for fun :)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.set_x0">
-<span class="sig-name descname"><span class="pre">set_x0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x0_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_x0" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.set_x0">
+<span class="sig-name descname"><span class="pre">set_x0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x0_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.set_x0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move the sample to a desired position along the x0-axis (horizontal, orthogonal to the beamline)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.set_y0">
-<span class="sig-name descname"><span class="pre">set_y0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_y0" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.set_y0">
+<span class="sig-name descname"><span class="pre">set_y0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.set_y0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move the sample to a desired position along the y0-axis (vertical, orthogonal to the beamline)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.set_z0">
-<span class="sig-name descname"><span class="pre">set_z0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z0_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_z0" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.set_z0">
+<span class="sig-name descname"><span class="pre">set_z0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z0_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.set_z0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move the sample to a desired position along the x0-axis (horizontal, parallel to the beamline)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.set_q">
-<span class="sig-name descname"><span class="pre">set_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_q" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.set_q">
+<span class="sig-name descname"><span class="pre">set_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.set_q" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate the stack to a desired angle</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.set_x">
-<span class="sig-name descname"><span class="pre">set_x</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_x" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.set_x">
+<span class="sig-name descname"><span class="pre">set_x</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.set_x" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move the x-stage to a desired position</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.set_y">
-<span class="sig-name descname"><span class="pre">set_y</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_y" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.set_y">
+<span class="sig-name descname"><span class="pre">set_y</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.set_y" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move the y-stage to a desired position</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.set_z">
-<span class="sig-name descname"><span class="pre">set_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.set_z" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.set_z">
+<span class="sig-name descname"><span class="pre">set_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.set_z" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move the z-stage to a desired position</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.home_horizontal">
-<span class="sig-name descname"><span class="pre">home_horizontal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.home_horizontal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.home_horizontal">
+<span class="sig-name descname"><span class="pre">home_horizontal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.home_horizontal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move horizontal stages to their zero positions.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.get_translation">
-<span class="sig-name descname"><span class="pre">get_translation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.get_translation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.get_translation">
+<span class="sig-name descname"><span class="pre">get_translation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.get_translation" title="Permalink to this definition">¶</a></dt>
 <dd><p>A quick command to get only the positions orthogonal to the beam</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.get_rotation">
-<span class="sig-name descname"><span class="pre">get_rotation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.get_rotation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.get_rotation">
+<span class="sig-name descname"><span class="pre">get_rotation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.get_rotation" title="Permalink to this definition">¶</a></dt>
 <dd><p>A quick command to get only the rotational position</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="stages.Stage.print">
-<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stages.Stage.print" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.stages.Stage.print">
+<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.stages.Stage.print" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper for print() that checks whether the instance is set to verbose</p>
 </dd></dl>
 
