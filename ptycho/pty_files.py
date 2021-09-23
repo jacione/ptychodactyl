@@ -76,7 +76,7 @@ def convert_to_gif(pty_file):
     images = np.array(images / np.max(images) * 255, dtype='int')
 
     ims = [Image.fromarray(a) for a in images]
-    ims[0].save("images.gif", save_all=True, append_images=ims[1:], duration=150, loop=0)
+    ims[0].save_reconstruction("images.gif", save_all=True, append_images=ims[1:], duration=150, loop=0)
     return
 
 

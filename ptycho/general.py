@@ -161,61 +161,6 @@ def demo_image(size):
     return img
 
 
-def parse_specs(filename):
-    """
-    Parses a spec file into a dictionary. Only tested with TXT files.
-
-    :param filename: name of the file to parse. Must be in the main directory (3d-ptycho).
-    :type filename: str
-    :return: A dictionary containing all the desired parameters as key-value pairs.
-    :rtype: dict
-    """
-    parents = Path(__file__).parents
-    for p in parents:
-        try:
-            os.chdir(p)
-            file = open(filename, 'r')
-            break
-        except FileNotFoundError:
-            continue
-    else:
-        raise FileNotFoundError(f'Could not find spec_file called "{filename}"')
-
-    specs = {}  # create an empty dictionary
-
-    def sub_parse(s):
-        # Assigns an appropriate type to the value strings taken from a spec file.
-        s = s.strip()
-        if 'true' in s.lower():
-            s = True
-        elif 'false' in s.lower():
-            s = False
-        else:
-            try:
-                if '.' in s:
-                    s = float(s)
-                else:
-                    s = int(s)
-            except ValueError:
-                pass
-        return s
-
-    for line in file.readlines():
-        line, _, _ = line.partition('#')  # Separate the comments from the actual values
-        if "=" in line:
-            key, val = map(str.strip, line.split("="))
-            if ',' in val:
-                val = tuple(map(sub_parse, val.split(',')))
-            else:
-                val = sub_parse(val)
-            specs[key] = val
-    try:
-        specs['num_stages'] = len(specs['algorithm'])
-    except KeyError:
-        pass
-    return specs
-
-
 if __name__ == '__main__':
     a = demo_binary(512)
     plt.subplot(121)

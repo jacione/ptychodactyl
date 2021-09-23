@@ -101,7 +101,7 @@ class Camera(ABC):
         """
         Turns on the camera interface.
 
-        This is where you should set any parameters that you won't change over the course of a single data run. It may
+        This is where you should set any parameters that you won't change over the course of a single data run_cycle. It may
         not be a bad idea to also include a call to ``self.set_defaults()``. After this function is called, the camera
         should be ready to take images.
         """

@@ -6,24 +6,36 @@ import numpy as np
 from matplotlib import pyplot as plt
 from ptycho.camera import get_camera
 from ptycho.stages import get_stages
-from ptycho.general import parse_specs
 from ptycho.scan import xy_scan
+from ptycho.specs import CollectionSpecs
 from progressbar import progressbar as pbar
 import time
 
 
-def search(spec_file, obj_size, search_area):
-    specs = parse_specs(spec_file)
-    title = specs['title']
-    camera = get_camera(specs['camera'], temperature=-10)
-    stages = get_stages(specs['stages'])
+SPECS = CollectionSpecs(
+    # General parameters - these MUST be given values.
+    title='test',
+    stages='attocube',
+    camera='andor',
+
+    # Scan parameters
+    scan_center=(0.300, 0.600),
+    scan_width=1.2,
+    scan_height=1.2,
+    scan_step=0.03,
+    z_position=-2.0
+)
+
+
+def search(specs, obj_size, search_area):
+    title = specs.title
+    camera = get_camera(specs.camera)
+    stages = get_stages(specs.stages)
 
     # Generate a scan for the search area
     # x0 = (0.003264 - stages.zeros['x']) / stages.units
     # y0 = (0.002905 - stages.zeros['y']) / stages.units
-    x0 = 0.300  # Center in mm
-    y0 = 0.800  # center in mm
-    X, Y, N = xy_scan('hex', (x0, y0), search_area[0], search_area[1], obj_size/2, False)
+    X, Y, N = xy_scan('hex', specs.scan_center, specs.scan_width, specs.scan_height, specs.scan_step, False)
 
     # Scan over the full range. At each position, take a quick image and record only the sum
     search_results = np.zeros((N, 3))
@@ -31,7 +43,7 @@ def search(spec_file, obj_size, search_area):
     time.sleep(0.1)
     for i in pbar(range(N)):
         try:
-            stages.set_position((X[i], Y[i], 0, 0))
+            stages.set_position((X[i], Y[i], specs.z_position, 0))
             res = np.mean(camera.get_frames())
             # res = np.exp(-(X[i]**2 + Y[i]**2))
             search_results[i] = [X[i], Y[i], res]
@@ -63,5 +75,5 @@ def analyze_search(search_file):
 
 
 if __name__ == '__main__':
-    search('../ptycho/collection_specs.txt', 0.06, (1.2, 1.2))
+    search(SPECS, 0.06, (1.2, 1.2))
     # analyze_search('test_search.npy')

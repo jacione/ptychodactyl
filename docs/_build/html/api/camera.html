@@ -42,7 +42,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Stage controller interfacing" href="stages.html" />
-    <link rel="prev" title="Parameter specification" href="specs.html" /> 
+    <link rel="prev" title="Specifying parameters" href="specs.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -92,7 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation &amp; Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Using PtychoDactyl</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="specs.html">Parameter specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specs.html">Specifying parameters</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Camera interfacing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="stages.html">Stage controller interfacing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ptycho_data.html">Data management</a></li>
@@ -276,7 +276,7 @@ be passed to <code class="docutils literal notranslate"><span class="pre">get_ca
 <dt class="sig sig-object py" id="ptycho.camera.Camera.camera_on">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">camera_on</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.camera.Camera.camera_on" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turns on the camera interface.</p>
-<p>This is where you should set any parameters that you won’t change over the course of a single data run. It may
+<p>This is where you should set any parameters that you won’t change over the course of a single data run_cycle. It may
 not be a bad idea to also include a call to <code class="docutils literal notranslate"><span class="pre">self.set_defaults()</span></code>. After this function is called, the camera
 should be ready to take images.</p>
 </dd></dl>
@@ -433,7 +433,7 @@ readouts.</p>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="stages.html" class="btn btn-neutral float-right" title="Stage controller interfacing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="specs.html" class="btn btn-neutral float-left" title="Parameter specification" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="specs.html" class="btn btn-neutral float-left" title="Specifying parameters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

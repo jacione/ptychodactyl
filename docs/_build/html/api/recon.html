@@ -92,7 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation &amp; Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Using PtychoDactyl</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="specs.html">Parameter specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specs.html">Specifying parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="camera.html">Camera interfacing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="stages.html">Stage controller interfacing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ptycho_data.html">Data management</a></li>
@@ -186,14 +186,11 @@
 </dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="ptycho.recon.Reconstruction">
-<span class="sig-prename descclassname"><span class="pre">ptycho.recon.</span></span><span class="sig-name descname"><span class="pre">Reconstruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Reconstruction" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ptycho.recon.</span></span><span class="sig-name descname"><span class="pre">Reconstruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Reconstruction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a PTY file and construct the appropriate Recon subclass.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – name of the datafile</p></li>
-<li><p><strong>specs</strong> – keyword arguments to pass to LoadData</p></li>
-</ul>
+<dd class="field-odd"><p><strong>specs</strong> – keyword arguments to pass to LoadData</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Recon2D or Recon3D instance</p>
@@ -220,8 +217,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ptycho.recon.Recon.run">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon.run" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon.run_cycle">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">run_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cycle_specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon.run_cycle" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -230,8 +227,8 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ptycho.recon.Recon.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon.save" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon.save_reconstruction">
+<span class="sig-name descname"><span class="pre">save_reconstruction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon.save_reconstruction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the reconstruction to the original PTY file</p>
 </dd></dl>
 
@@ -253,15 +250,12 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ptycho.recon.Recon2D.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon2D.run" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon2D.run_cycle">
+<span class="sig-name descname"><span class="pre">run_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cycle_specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon2D.run_cycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a reconstruction using the provided parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>run_specs</strong> (<em>dict</em>) – parameters for this reconstruction</p></li>
-<li><p><strong>animate</strong> (<em>bool</em>) – if True, saves a frame after each iteration and animates them all at the end. Default is False.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>cycle_specs</strong> (<a class="reference internal" href="specs.html#ptycho.specs_classes.ReconstructionSpecs" title="ptycho.specs_classes.ReconstructionSpecs"><em>ReconstructionSpecs</em></a>) – parameters for this reconstruction</p>
 </dd>
 </dl>
 </dd></dl>
@@ -300,8 +294,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ptycho.recon.Recon3D.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon3D.run" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ptycho.recon.Recon3D.run_cycle">
+<span class="sig-name descname"><span class="pre">run_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.recon.Recon3D.run_cycle" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

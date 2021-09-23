@@ -90,7 +90,7 @@ class Stage(ABC):
     @abstractmethod
     def measure(self):
         """
-        Check the encoder on each axis and update the attributes within the class instance. This is run automatically
+        Check the encoder on each axis and update the attributes within the class instance. This is run_cycle automatically
         immediately after any motion command, so that the attributes should always have the correct values.
 
         .. warning::
@@ -559,7 +559,7 @@ class Micronix(Stage):
 
     def measure(self):
         """
-        Check the encoder on each axis and update the attributes within the class instance. This is run automatically
+        Check the encoder on each axis and update the attributes within the class instance. This is run_cycle automatically
         immediately after any motion command, so that the attributes should always have the correct values.
         """
         positions = []

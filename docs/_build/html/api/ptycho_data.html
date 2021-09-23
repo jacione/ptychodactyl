@@ -92,7 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation &amp; Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Using PtychoDactyl</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="specs.html">Parameter specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specs.html">Specifying parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="camera.html">Camera interfacing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="stages.html">Stage controller interfacing</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Data management</a></li>
@@ -257,26 +257,18 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ptycho.ptycho_data.LoadData">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ptycho.ptycho_data.</span></span><span class="sig-name descname"><span class="pre">LoadData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pty_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotate_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_subtract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vbleed_correct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.ptycho_data.LoadData" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ptycho.ptycho_data.</span></span><span class="sig-name descname"><span class="pre">LoadData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.ptycho_data.LoadData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#ptycho.ptycho_data.PtychoData" title="ptycho.ptycho_data.PtychoData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ptycho.ptycho_data.PtychoData</span></code></a></p>
 <p>PtychoData subclass for data loaded from a PTY file. The LoadData class is the preferred way to work with PTY files
 because it prevents the actual data in the file from being edited accidentally. It is dynamically able to handle
 both 2D and 3D datasets.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ptycho.ptycho_data.LoadData.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pty_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotate_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_subtract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vbleed_correct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.ptycho_data.LoadData.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptycho.ptycho_data.LoadData.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a LoadData object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pty_file</strong> (<em>str</em>) – must be the name of a PTY file</p></li>
-<li><p><strong>flip_images</strong> (<em>str</em>) – ‘h’ for horizontal, ‘v’ for vertical, ‘hv’ for both, ‘’ for neither</p></li>
-<li><p><strong>flip_positions</strong> (<em>str</em>) – ‘h’ for horizontal, ‘v’ for vertical, ‘hv’ for both, ‘’ for neither</p></li>
-<li><p><strong>rotate_positions</strong> (<em>float</em>) – rotation angle between camera and stages, in degrees</p></li>
-<li><p><strong>background_subtract</strong> (<em>bool</em>) – if True, subtracts the file’s background image from the rest of the images.</p></li>
-<li><p><strong>vbleed_correct</strong> (<em>float</em>) – strength of vertical-bleed correction, must be between 0 and 1</p></li>
-<li><p><strong>threshold</strong> (<em>float</em>) – pixel values below this fraction of the maximum will be set to zero</p></li>
-</ul>
+<dd class="field-odd"><p><strong>specs</strong> (<a class="reference internal" href="specs.html#ptycho.specs_classes.ReconstructionSpecs" title="ptycho.specs_classes.ReconstructionSpecs"><em>specs_classes.ReconstructionSpecs</em></a>) – Parameters for the reconstruction and data handling</p>
 </dd>
 </dl>
 </dd></dl>

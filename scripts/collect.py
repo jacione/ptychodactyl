@@ -15,40 +15,57 @@ from ptycho.ptycho_data import CollectData
 from ptycho.camera import get_camera
 from ptycho.stages import get_stages
 from ptycho.scan import xy_scan, r_scan
-from ptycho.general import parse_specs
+from ptycho.specs import CollectionSpecs
 
 
-def collect(spec_file='collection_specs.txt', verbose=False):
-    """
-    CLI for collecting ptycho data. If the whole repository is downloaded, you can just fill out the desired
-    parameters in "collection_specs.txt" and run this script from the command line.
-    """
+SPECS = CollectionSpecs(
+    # General parameters - these MUST be given values.
+    title='test',
+    stages='attocube',
+    camera='andor',
 
-    # Load collection parameters from spec file
-    specs = parse_specs(f'{spec_file}')
-    title = specs['title']
-    data_dir = specs['data_dir']
-    stage_model = specs['stages']
-    pattern = specs['pattern']
-    scan_center = specs['scan_center']
-    scan_width = specs['scan_width']
-    scan_height = specs['scan_height']
-    step_size = specs['step_size']
-    Z = specs['z_position']
-    num_rotations = specs['num_rotations']
-    camera_model = specs['camera']
-    background_frames = specs['background_frames']
-    frames_per_take = specs['frames_per_take']
-    resolution = specs['resolution']
-    exposure = specs['exposure']
-    gain = specs['gain']
-    distance = specs['distance']
-    energy = specs['energy']
+    # Scan parameters
+    scan_center=(-0.046, 0.078),
+    scan_width=0.03,
+    scan_height=0.03,
+    scan_step=0.002,
+    z_position=-2.0,
+
+    # Camera parameters
+    frames_per_take=5,
+
+    # Beam parameters
+    distance=0.12814,
+    energy=52
+)
+
+
+def collect(specs):
+    # Load collection parameters from specs
+    title = specs.title
+    data_dir = specs.data_dir
+    stage_model = specs.stages
+    pattern = specs.pattern
+    scan_center = specs.scan_center
+    scan_width = specs.scan_width
+    scan_height = specs.scan_height
+    scan_step = specs.scan_step
+    Z = specs.z_position
+    num_rotations = specs.num_rotations
+    camera_model = specs.camera
+    background = specs.background
+    frames_per_take = specs.frames_per_take
+    resolution = specs.resolution
+    exposure = specs.exposure
+    gain = specs.gain
+    distance = specs.distance
+    energy = specs.energy
+    verbose = specs.verbose
 
     print('Beginning ptycho data collection!')
 
     # Generate the scanning positions
-    X, Y, num_translations = xy_scan(pattern, scan_center, scan_width, scan_height, step_size)
+    X, Y, num_translations = xy_scan(pattern, scan_center, scan_width, scan_height, scan_step)
     Q, num_rotations = r_scan(num_rotations)
     num_total = num_rotations * num_translations
     is3d = num_rotations > 1
@@ -70,13 +87,13 @@ def collect(spec_file='collection_specs.txt', verbose=False):
     print(f'\tPattern:   {pattern.upper()}')
     print(f'\tWidth:     {scan_width:0.4} mm')
     print(f'\tHeight:    {scan_height:0.4} mm')
-    print(f'\tStep:      {step_size:0.4} mm')
+    print(f'\tStep:      {scan_step:0.4} mm')
     if is3d:
         print(f'\tRotations: {num_rotations}')
     print(f'Total: {num_total} takes\n')
 
     # Record frames for background subtraction
-    if background_frames:
+    if background:
         input('Preparing to take background images. Turn laser OFF, then press ENTER to continue...')
         dataset.record_background(camera.get_frames())
 
@@ -104,4 +121,4 @@ def collect(spec_file='collection_specs.txt', verbose=False):
 
 
 if __name__ == '__main__':
-    collect()
+    collect(SPECS)

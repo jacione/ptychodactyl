@@ -113,31 +113,18 @@ class LoadData(PtychoData):
     because it prevents the actual data in the file from being edited accidentally. It is dynamically able to handle
     both 2D and 3D datasets.
     """
-    def __init__(self, pty_file, flip_images='', flip_positions='', rotate_positions=0.0, background_subtract=True,
-                 vbleed_correct=0.0, threshold=0.0):
+    def __init__(self, specs):
         """
         Create a LoadData object.
 
-        :param pty_file: must be the name of a PTY file
-        :type pty_file: str
-        :param flip_images: 'h' for horizontal, 'v' for vertical, 'hv' for both, '' for neither
-        :type flip_images: str
-        :param flip_positions: 'h' for horizontal, 'v' for vertical, 'hv' for both, '' for neither
-        :type flip_positions: str
-        :param rotate_positions: rotation angle between camera and stages, in degrees
-        :type rotate_positions: float
-        :param background_subtract: if True, subtracts the file's background image from the rest of the images.
-        :type background_subtract: bool
-        :param vbleed_correct: strength of vertical-bleed correction, must be between 0 and 1
-        :type vbleed_correct: float
-        :param threshold: pixel values below this fraction of the maximum will be set to zero
-        :type threshold: float
+        :param specs: Parameters for the reconstruction and data handling
+        :type specs: specs_classes.ReconstructionSpecs
         """
         super().__init__()
 
         # LOAD DATA FROM FILE #########################################################################################
         # Open the .pty file
-        self._file = pty_file
+        self._file = specs.file
         f = h5py.File(self._file, 'r')
 
         # Load diffraction image data
@@ -165,33 +152,24 @@ class LoadData(PtychoData):
         f.close()
 
         # IMAGE PRE-PROCESSING ########################################################################################
-        # Invert the probe positions
-        if 'h' in flip_positions:
-            self._position[:, :, 1] = np.max(self.position[:, :, 1]) - self.position[:, :, 1]
-        if 'v' in flip_positions:
-            self._position[:, :, 0] = np.max(self.position[:, :, 0]) - self.position[:, :, 0]
-
         # Flip the diffraction images
-        if 'h' in flip_images:
-            self._im_data = np.flip(self.im_data, 3)
-            self._bkgd = np.flip(self._bkgd, 1)
-        if 'v' in flip_images:
+        if specs.flip_images:
             self._im_data = np.flip(self.im_data, 2)
             self._bkgd = np.flip(self._bkgd, 0)
 
         # Perform background subtraction
-        if background_subtract:
+        if specs.background_subtract:
             self._im_data[:, :] = self.im_data[:, :] - self.bkgd
             self._im_data[self.im_data < 0] = 0
 
         # Perform vertical bleed correction
-        vbleed = np.quantile(self.im_data, vbleed_correct, axis=2)
+        vbleed = np.quantile(self.im_data, specs.vbleed_correct, axis=2)
         vbleed = np.reshape(np.tile(vbleed, self.shape[-2]), self.im_data.shape)
         self._im_data = self.im_data - vbleed
         self._im_data[self.im_data < 0] = 0
 
         # Perform thresholding to further reduce noise
-        self._im_data[self.im_data < threshold*np.max(self.im_data)] = 0
+        self._im_data[self.im_data < specs.threshold * np.max(self.im_data)] = 0
 
         # Squeeze rotation axis if necessary
         self._is3d = self.num_rotations > 1
@@ -200,8 +178,8 @@ class LoadData(PtychoData):
             self._position = np.squeeze(self.position)[:, :2]
 
         # Perform coordinate rotation
-        if rotate_positions != 0:
-            self.rotate_positions(rotate_positions)
+        if specs.rotate_positions != 0:
+            self.rotate_positions(specs.rotate_positions)
 
     @property
     def is3d(self):
@@ -362,7 +340,7 @@ class CollectData(PtychoData):
 
             self.print('Cropping to square...')
             if np.any(np.array(self._shape) > cropto):
-                # Crops the image down to save space.
+                # Crops the image down to save_reconstruction space.
                 d = cropto // 2
                 # Be careful with this... scipy doesn't always hit the center exactly.
                 im_sum = np.sum(self._im_data, axis=(0, 1))
@@ -413,7 +391,7 @@ class CollectData(PtychoData):
         if self._n == self.num_entries:
             self.finalize(timestamp, cropto)
         else:
-            if input('Scan not complete! Are you sure you want to save? (Y/n)').lower() == 'n':
+            if input('Scan not complete! Are you sure you want to save_reconstruction? (Y/n)').lower() == 'n':
                 return
             else:
                 self.title = self.title + '-INCOMPLETE'

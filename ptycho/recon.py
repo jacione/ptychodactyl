@@ -25,17 +25,15 @@ from ptycho.general import ifft, random, shift
 from ptycho.plotting import comp_to_rgb
 
 
-def Reconstruction(filename, **specs):
+def Reconstruction(specs):
     """
     Load a PTY file and construct the appropriate Recon subclass.
 
-    :param filename: name of the datafile
-    :type filename: str
     :param specs: keyword arguments to pass to LoadData
     :return: Recon2D or Recon3D instance
     :rtype: Recon
     """
-    data = LoadData(filename, **specs)
+    data = LoadData(specs)
     if data.is3d:
         return Recon3D(data)
     else:
@@ -67,7 +65,7 @@ class Recon(ABC):
         self._algs = {}
 
     @abstractmethod
-    def run(self, run_specs, animate):
+    def run_cycle(self, cycle_specs):
         pass
 
     @abstractmethod
@@ -82,10 +80,8 @@ class Recon(ABC):
     def _correct_probe(self):
         pass
 
-    def save(self):
+    def save_reconstruction(self):
         """Save the reconstruction to the original PTY file"""
-        os.chdir(os.path.dirname(__file__))
-        os.chdir('../data')
         f = h5py.File(self.data.file, 'r+')
         try:
             group = f.create_group('reconstruction')
@@ -122,52 +118,40 @@ class Recon2D(Recon):
             'rpie': lambda i, o, p, u: self._rpie(i, o, p, u)
         }
 
-    def run(self, run_specs, animate=False):
+    def run_cycle(self, cycle_specs):
         """
         Perform a reconstruction using the provided parameters.
 
-        :param run_specs: parameters for this reconstruction
-        :type run_specs: dict
-        :param animate: if True, saves a frame after each iteration and animates them all at the end. Default is False.
-        :type animate: bool
+        :param cycle_specs: parameters for this reconstruction
+        :type cycle_specs: ReconstructionSpecs
         """
 
-        # Load parameters from run_specs
-        algorithm = run_specs['algorithm']
-        num_iterations = run_specs['num_iterations']
-        o_i = run_specs['obj_up_initial']
-        o_f = run_specs['obj_up_final']
-        p_i = run_specs['pro_up_initial']
-        p_f = run_specs['pro_up_final']
-
         # Define what the update strength will be at each iteration based on the initial and final values provided
-        o_param = np.linspace(o_i, o_f, num_iterations)
-        p_param = np.linspace(p_i, p_f, num_iterations)
 
         # Make sure the provided algorithm is one it knows
         try:
-            update_function = self._algs[algorithm]
+            update_function = self._algs[cycle_specs.algorithm]
         except KeyError:
-            print(f"Warning: '{algorithm}' is not a recognized reconstruction algorithm.")
+            print(f"Warning: '{cycle_specs.algorithm}' is not a recognized reconstruction algorithm.")
             return
 
         # Set up the animation (returns all Nones if animate is False
-        fig, ax1, ax2, ax3, ax4 = setup_figure(animate)
+        fig, ax1, ax2, ax3, ax4 = setup_figure(cycle_specs.animate)
         frames = []
 
         # Perform the reconstruction
         entries = np.arange(self.data.num_entries)
-        for j in progressbar.progressbar(range(num_iterations)):
+        for j in progressbar.progressbar(range(cycle_specs.num_iterations)):
             self.rng.shuffle(entries)  # Shuffling the order with each iteration helps the reconstruction
             for i in entries:
-                update_function(i, o_param[j], p_param[j], j > 0)
+                update_function(i, cycle_specs.o_param[j], cycle_specs.p_param[j], j > 0)
 
-            if animate:
+            if cycle_specs.animate:
                 frames.append([ax1.imshow(np.abs(self.object), cmap='bone'),
                                ax2.imshow(np.angle(self.object), cmap='hsv'),
                                ax3.imshow(np.abs(self.probe), cmap='bone'),
                                ax4.imshow(np.angle(self.probe), cmap='hsv')])
-        if animate:
+        if cycle_specs.animate:
             vid = ArtistAnimation(fig, frames, interval=250, repeat_delay=0)
 
     def _apply_update(self, x, y, object_update, probe_update=None):
@@ -352,7 +336,7 @@ class Recon3D(Recon):
         # self._algs = {}
         pass
 
-    def run(self, num_iterations, algorithm, animate=False):
+    def run_cycle(self, num_iterations, algorithm, animate=False):
         pass
 
     def show_object_and_probe(self):
