@@ -336,7 +336,7 @@ class Recon3D(Recon):
         # self._algs = {}
         pass
 
-    def run_cycle(self, num_iterations, algorithm, animate=False):
+    def run_cycle(self, cycle_specs):
         pass
 
     def show_object_and_probe(self):

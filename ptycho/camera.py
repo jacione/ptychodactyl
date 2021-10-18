@@ -854,5 +854,5 @@ class YourCamera(Camera):
 
 
 if __name__ == '__main__':
-    cam = Andor(False)
+    cam = ThorCam(False)
     cam.analyze_frame()

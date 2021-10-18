@@ -21,22 +21,21 @@ from ptycho.specs import CollectionSpecs
 SPECS = CollectionSpecs(
     # General parameters - these MUST be given values.
     title='test',
-    stages='attocube',
-    camera='andor',
+    stages='micronix',
+    camera='thorcam',
 
     # Scan parameters
-    scan_center=(-0.046, 0.078),
-    scan_width=0.03,
-    scan_height=0.03,
-    scan_step=0.002,
-    z_position=-2.0,
+    scan_center=(0.0, 0.0),
+    scan_width=1.0,
+    scan_height=1.0,
+    scan_step=0.2,
+    z_position=0,
 
     # Camera parameters
     frames_per_take=5,
 
     # Beam parameters
-    distance=0.12814,
-    energy=52
+    distance=0.080
 )
 
 

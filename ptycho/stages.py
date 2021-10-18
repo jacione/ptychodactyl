@@ -494,7 +494,7 @@ class Micronix(Stage):
             'x': (-9.0, 9.0),
             'y': (0.1, 9.9),
             'z': (-9.0, 9.0),
-            'q': (-np.infty. np.infty)
+            'q': (-np.infty, np.infty)
         }
 
         self.check_errors()
@@ -581,7 +581,7 @@ class Micronix(Stage):
         for ax in self.axes:
             status = self.get_status(ax)
             self.print(f'{ax}-axis  (SB: {status})')
-            err = self.query(f'{ax}ERR?')
+            err = self.query(f'{self.ax_id[ax]}ERR?')
             if len(err):
                 for s in err.split('#'):
                     if len(s) and not s.isspace():
@@ -643,6 +643,8 @@ class YourStage(Stage):
 
 
 if __name__ == '__main__':
-    ctrl = Attocube(verbose=True)
-    ctrl.set_position((-0.046, 0.078, 0, 0))
+    ctrl = Micronix(verbose=True)
+    ctrl.set_position((1, 1, 1, 1))
+    ctrl.get_position()
+    ctrl.home_all()
     ctrl.get_position()
