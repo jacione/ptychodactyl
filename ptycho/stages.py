@@ -497,6 +497,13 @@ class Micronix(Stage):
             'q': (-np.infty, np.infty)
         }
 
+        self.zeros = {
+            'q': 0.0,
+            'x': sum(self.limits['x'])/2,
+            'y': sum(self.limits['y'])/2,
+            'z': sum(self.limits['z'])/2
+        }
+
         self.check_errors()
         self.measure()
         pass
@@ -515,7 +522,7 @@ class Micronix(Stage):
             z = zp
         xyzq = {'x': x, 'y': y, 'z': z, 'q': q}
         for ax in self.axes:
-            self.command(f'{self.ax_id[ax]}MSA{xyzq[ax]:0.6f}')
+            self.command(f'{self.ax_id[ax]}MSA{xyzq[ax]+self.zeros[ax]:0.6f}')
         self.command('0RUN')
         while self.is_moving():
             time.sleep(0.1)
