@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from progressbar import progressbar
+import tqdm
 from ptycho.ptycho_data import CollectData
 from ptycho.camera import get_camera
 from ptycho.stages import get_stages
@@ -20,22 +20,24 @@ from ptycho.specs import CollectionSpecs
 
 SPECS = CollectionSpecs(
     # General parameters - these MUST be given values.
-    title='test',
+    title='test_new_setup',
     stages='micronix',
     camera='thorcam',
 
     # Scan parameters
     scan_center=(0.0, 0.0),
-    scan_width=1.0,
-    scan_height=1.0,
-    scan_step=0.2,
+    scan_width=0.5,
+    scan_height=0.5,
+    scan_step=0.05,
     z_position=0,
 
     # Camera parameters
     frames_per_take=5,
 
     # Beam parameters
-    distance=0.080
+    distance=0.15,
+
+    verbose=False
 )
 
 
@@ -102,7 +104,7 @@ def collect(specs):
         # This is
         print(f'Rotation {i+1}: {Q[i]} deg')
         rotation_complete = False
-        for j in progressbar(range(num_translations)):
+        for j in tqdm.tqdm(range(num_translations)):
             if verbose:
                 print()
             stages.set_position((X[j], Y[j], Z, Q[i]))

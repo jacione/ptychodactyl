@@ -10,9 +10,10 @@ from ptycho.specs import ReconstructionSpecs
 
 
 SPECS = ReconstructionSpecs(
-    title='test-2021-07-22.pty'
+    title='fake.pty',
+    flip_images=True
 )
-SPECS.add_cycle('epie', 10)
+SPECS.add_cycle('epie', 50)
 
 
 def reconstruct(specs):

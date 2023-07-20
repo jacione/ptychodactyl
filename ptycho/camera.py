@@ -3,16 +3,97 @@ Controller classes for cameras.
 """
 import time
 from ctypes import *
+import sys
+from pathlib import Path
+from abc import ABC, abstractmethod
+
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.ndimage import center_of_mass
-from abc import ABC, abstractmethod
-import os
 from skimage.transform import downscale_local_mean
 from progressbar import ProgressBar, widgets
 
 
-libs = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/libs'
+libs = Path(__file__).parents[1] / "libs"
+for p in libs.iterdir():
+    if p.is_dir():
+        sys.path.append(p.as_posix())
+
+THORCAM = "thorcam"
+MIGHTEX = "mightex"
+ANDOR = "andor"
+
+
+class CameraManager:
+    def __init__(self):
+        self.valid_keys = (THORCAM, MIGHTEX, ANDOR)
+        self._sdk = {name: None for name in self.valid_keys}
+        self._registry = {name: 0 for name in self.valid_keys}
+        self.cameras = dict()
+
+    def __getitem__(self, item):
+        return self.cameras[item]
+
+    def __del__(self):
+        self.close_all()
+
+    def add_camera(self, key, nickname, **kwargs):
+        if self._sdk[key] is None:
+            self._open_sdk(key)
+
+        if key == THORCAM:
+            self.cameras[nickname] = ThorCam(self._sdk[key], **kwargs)
+        elif key == MIGHTEX:
+            pass
+        elif key == ANDOR:
+            self.cameras[nickname] = Andor(self._sdk[key], **kwargs)
+
+        self._registry[key] += 1
+
+    def remove_camera(self, nickname):
+        key = self.cameras[nickname].key
+        self.cameras[nickname].camera_off()
+        self._registry[key] -= 1
+        if not self._registry[key]:
+            self._close_sdk(key)
+
+    def close_all(self):
+        for cam in self.cameras:
+            cam.camera_off()
+        for key in self.valid_keys:
+            self._close_sdk(key)
+
+    def get_frames(self, cams=None):
+        if cams is None:
+            cams = self.cameras.keys()
+        return [self.cameras[cam].get_frames() for cam in cams]
+
+    def _open_sdk(self, key):
+        if key not in self.valid_keys:
+            raise KeyError(f"\"{key}\" is not a valid camera key")
+        if key == THORCAM:
+            from thorlabs_tsi_sdk import tl_camera
+            self._sdk[key] = tl_camera.TLCameraSDK()
+            print("Opened TLCameraSDK")
+            print(f"Available devices: {self._sdk[key].discover_available_cameras()}")
+        elif key == MIGHTEX:
+            pass
+        elif key == ANDOR:
+            from pyAndorSDK2 import atmcd
+            self._sdk[key] = atmcd
+
+    def _close_sdk(self, key):
+        if key not in self.valid_keys:
+            raise KeyError(f"\"{key}\" is not a valid camera key")
+
+        if key == THORCAM:
+            self._sdk[key].dispose()
+        elif key == MIGHTEX:
+            pass
+        elif key == ANDOR:
+            pass
+
+        self._sdk[key] = None
 
 
 def get_camera(camera_type, **kwargs):
@@ -64,6 +145,7 @@ class Camera(ABC):
         :param verbose: Whether to print lots of information about camera processes.
         :type verbose: bool
         """
+        self.key = None
         try:
             self.defaults = defaults
             self.is_on = False
@@ -95,17 +177,6 @@ class Camera(ABC):
 
     def __del__(self):
         self.camera_off()
-
-    @abstractmethod
-    def camera_on(self):
-        """
-        Turns on the camera interface.
-
-        This is where you should set any parameters that you won't change over the course of a single data run_cycle. It may
-        not be a bad idea to also include a call to ``self.set_defaults()``. After this function is called, the camera
-        should be ready to take images.
-        """
-        pass
 
     @abstractmethod
     def camera_off(self):
@@ -312,15 +383,13 @@ class ThorCam(Camera):
         to externally sum a series of single images.
     """
 
-    def __init__(self, verbose=True):
+    def __init__(self, sdk, serial_num, verbose=True):
         """
         Create a ThorCam object
 
         :param verbose: if True (default), this instance will print information about most processes as it runs.
         :type verbose: bool
         """
-
-        from libs.ThorCam.tl_dotnet_wrapper import TL_SDK
 
         defaults = {
             'width': 3296,
@@ -332,23 +401,10 @@ class ThorCam(Camera):
 
         super().__init__(defaults, verbose)
 
-        self._sdk = TL_SDK()
-        self._handle = None
+        self.key = THORCAM
+        self._handle = sdk.open_camera(serial_num)
 
-        self.camera_on()
         self.set_defaults()
-        return
-
-    def camera_on(self):
-        """Turns on the camera"""
-        if self.is_on:
-            self.print('Camera engine already started!')
-            return
-
-        self._handle = self._sdk.open_camera(self._sdk.get_camera_list()[0])
-
-        self.is_on = True
-        self.print('SUCCESS: Camera engine started!')
         return
 
     def camera_off(self):
@@ -387,8 +443,6 @@ class ThorCam(Camera):
         return
 
     def arm(self):
-        if not self.is_on:
-            self.camera_on()
         self._handle.arm()
         self.is_armed = True
         return
@@ -398,6 +452,7 @@ class ThorCam(Camera):
         frame = None
         while frame is None:
             frame = self._handle.get_pending_frame_or_null()
+        print(frame)
         return self._handle.frame_to_array(frame)
 
     def disarm(self):
@@ -680,8 +735,7 @@ class Mightex(Camera):
 
 class Andor(Camera):
 
-    def __init__(self, verbose=False, temperature=-59, hold_temp=True):
-        from pyAndorSDK2.atmcd import atmcd
+    def __init__(self, sdk, verbose=False, temperature=-59, hold_temp=True):
         defaults = {
             'width': 2048,
             'height': 2048,
@@ -692,37 +746,29 @@ class Andor(Camera):
             'hold_temp': hold_temp,
         }
         super().__init__(defaults, verbose)
-        self._sdk = atmcd()
+        self.key = ValidKeys.ANDOR
+        self._handle = sdk.atmcd()
         self.temp = self.defaults['temperature']
         self.hold_temp = hold_temp
 
-        self.camera_on()
-
-    def camera_on(self):
-        if self.is_on:
-            self.print('Camera engine already started!')
-            return
-
-        self._sdk.Initialize("")
-        self._sdk.SetAcquisitionMode(1)  # Single image capture
-        self._sdk.SetReadMode(4)  # Full image mode
-        self._sdk.SetTriggerMode(0)  # Internally regulated triggering
-        self._sdk.SetImage(1, 1, 1, self.full_width, 1, self.full_height)
-        self._sdk.SetShutter(1, 0, 15, 15)
-        self._sdk.CoolerON()
-        self._sdk.SetCoolerMode(int(self.hold_temp))
+        self._handle.Initialize("")
+        self._handle.SetAcquisitionMode(1)  # Single image capture
+        self._handle.SetReadMode(4)  # Full image mode
+        self._handle.SetTriggerMode(0)  # Internally regulated triggering
+        self._handle.SetImage(1, 1, 1, self.full_width, 1, self.full_height)
+        self._handle.SetShutter(1, 0, 15, 15)
+        self._handle.CoolerON()
+        self._handle.SetCoolerMode(int(self.hold_temp))
         self.set_defaults()
 
-        self.is_on = True
         self.print('SUCCESS: Camera engine started!')
-        return
 
     def camera_off(self):
         if not self.is_on:
             self.print('Camera engine not started!')
             return
 
-        self._sdk.ShutDown()
+        self._handle.ShutDown()
 
         self.is_on = False
         self.print('SUCCESS: Camera engine stopped!')
@@ -730,8 +776,8 @@ class Andor(Camera):
 
     def set_temperature(self, temp):
         self.temp = temp
-        self._sdk.SetTemperature(temp)
-        ret, curr_temp = self._sdk.GetTemperature()
+        self._handle.SetTemperature(temp)
+        ret, curr_temp = self._handle.GetTemperature()
         if self.temp == curr_temp:
             return
         print(f'Setting camera temperature to {self.temp} °C...')
@@ -742,9 +788,9 @@ class Andor(Camera):
             variables={'T': curr_temp}
         )
         time.sleep(0.1)
-        while ret != self._sdk.DRV_TEMP_STABILIZED or abs(curr_temp-self.temp) > 1:
+        while ret != self._handle.DRV_TEMP_STABILIZED or abs(curr_temp - self.temp) > 1:
             time.sleep(1)
-            ret, curr_temp = self._sdk.GetTemperature()
+            ret, curr_temp = self._handle.GetTemperature()
             t_val = curr_temp-self.temp+5
             if t_val > pbar.max_value:
                 t_val = pbar.max_value
@@ -761,7 +807,7 @@ class Andor(Camera):
         if ms < 50:
             ms = 50
         seconds = ms / 1000
-        self._sdk.SetExposureTime(seconds)
+        self._handle.SetExposureTime(seconds)
         return
 
     def set_gain(self, gain):
@@ -781,9 +827,9 @@ class Andor(Camera):
     def get_frame(self):
         # The AndorSDK supports automatic image summation with (unlike the ThorCam, I might add) corresponding dynamic
         # range increase, so there's no need for this function.
-        self._sdk.StartAcquisition()
-        self._sdk.WaitForAcquisition()
-        _, buffer = self._sdk.GetMostRecentImage(self.full_size)
+        self._handle.StartAcquisition()
+        self._handle.WaitForAcquisition()
+        _, buffer = self._handle.GetMostRecentImage(self.full_size)
         image = np.ctypeslib.as_array(buffer, self.full_size)
         image = np.reshape(image, self.full_shape)
         return image
@@ -854,5 +900,6 @@ class YourCamera(Camera):
 
 
 if __name__ == '__main__':
-    cam = ThorCam(False)
-    cam.analyze_frame()
+    mgr = CameraManager()
+    mgr.add_camera("thorcam", "lil", serial_num="08949")
+

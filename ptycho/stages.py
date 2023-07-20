@@ -467,7 +467,7 @@ class Micronix(Stage):
         advanced functionality, you can use the ``command`` method to send specific serial commands using the
         supported `command line syntax <https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR>`_.
     """
-    def __init__(self, port='COM3', verbose=False):
+    def __init__(self, port='COM4', verbose=False):
         """
         Create a Stage object to interface with a Micronix MMC-200 stage controller.
 
@@ -601,6 +601,10 @@ class Micronix(Stage):
         s = int(self.query(f'{self.ax_id[ax]}STA?'))
         status = f'{s:b}'.rjust(8, '0')
         return status
+
+    def clear_errors(self):
+        """Clear errors from all axes"""
+        self.command(f"0CER")
 
     def is_moving(self):
         """Check each axis' status byte to see if any of them are moving"""
