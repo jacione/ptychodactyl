@@ -53,15 +53,14 @@ class CameraManager:
     def remove_camera(self, nickname):
         key = self.cameras[nickname].key
         self.cameras[nickname].camera_off()
+        del self.cameras[nickname]
         self._registry[key] -= 1
         if not self._registry[key]:
             self._close_sdk(key)
 
     def close_all(self):
-        for cam in self.cameras:
-            cam.camera_off()
-        for key in self.valid_keys:
-            self._close_sdk(key)
+        for cam in list(self.cameras.keys()):
+            self.remove_camera(cam)
 
     def get_frames(self, cams=None):
         if cams is None:
@@ -72,10 +71,10 @@ class CameraManager:
         if key not in self.valid_keys:
             raise KeyError(f"\"{key}\" is not a valid camera key")
         if key == THORCAM:
-            from thorlabs_tsi_sdk import tl_camera
-            self._sdk[key] = tl_camera.TLCameraSDK()
+            from libs.ThorCam.tl_dotnet_wrapper import TL_SDK
+            self._sdk[key] = TL_SDK()
             print("Opened TLCameraSDK")
-            print(f"Available devices: {self._sdk[key].discover_available_cameras()}")
+            print(f"Available devices: {self._sdk[key].get_camera_list()}")
         elif key == MIGHTEX:
             pass
         elif key == ANDOR:
@@ -87,7 +86,7 @@ class CameraManager:
             raise KeyError(f"\"{key}\" is not a valid camera key")
 
         if key == THORCAM:
-            self._sdk[key].dispose()
+            self._sdk[key].close()
         elif key == MIGHTEX:
             pass
         elif key == ANDOR:
@@ -392,23 +391,23 @@ class ThorCam(Camera):
         """
 
         defaults = {
-            'width': 3296,
-            'height': 2472,
-            'exposure': 0.25,
-            'gain': 1,
-            'pixel_size': 5.5
+            "08949": {'width': 3296, 'height': 2472, 'exposure': 0.25, 'gain': 1, 'pixel_size': 5.5},
+            "21723": {'width': 1440, 'height': 1080, 'exposure': 0.25, 'gain': 1, 'pixel_size': 3.45},
         }
 
-        super().__init__(defaults, verbose)
+        super().__init__(defaults[serial_num], verbose)
 
         self.key = THORCAM
         self._handle = sdk.open_camera(serial_num)
 
         self.set_defaults()
+        print("Camera created")
+        self.is_on = True
         return
 
     def camera_off(self):
         """Turns off the camera"""
+        self.print("Attempting to close camera...")
         if not self.is_on:
             self.print('Camera engine not started!')
             return
@@ -901,5 +900,9 @@ class YourCamera(Camera):
 
 if __name__ == '__main__':
     mgr = CameraManager()
-    mgr.add_camera("thorcam", "lil", serial_num="08949")
+    mgr.add_camera("thorcam", "lil", serial_num="21723")
+    mgr.add_camera("thorcam", "big", serial_num="08949")
+    mgr["lil"].analyze_frame()
+    mgr["big"].analyze_frame()
+    mgr.close_all()
 
