@@ -21,6 +21,24 @@ def ifft(image):
     return np.fft.fftshift(np.fft.ifftn(np.fft.ifftshift(image)))
 
 
+def crop_to_square(img, edge):
+    """Crops a 2D image to a square of the desired edge length"""
+    x, y = img.shape
+    cx = (x - edge) // 2
+    cy = (y - edge) // 2
+    return img[cx:x-cx, cy:y-cy]
+
+
+def remove_recursive(directory):
+    """Deletes a directory and all of its contents recursively."""
+    for x in directory.iterdir():
+        if x.is_file():
+            x.unlink()
+        elif x.is_dir():
+            remove_recursive(x)
+    directory.rmdir()
+
+
 def random(shape, low=0.0, high=1.0):
     """
     Generate an array of random values within a certain range.

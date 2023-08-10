@@ -1,4 +1,5 @@
 import sys
+import time
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
@@ -8,8 +9,7 @@ from ptycho.camera import get_camera
 from ptycho.stages import get_stages
 from ptycho.scan import xy_scan
 from ptycho.specs import CollectionSpecs
-from progressbar import progressbar as pbar
-import time
+from tqdm import tqdm
 
 
 SPECS = CollectionSpecs(
@@ -41,7 +41,7 @@ def search(specs, obj_size, search_area):
     search_results = np.zeros((N, 3))
     print('Scanning object space for features...')
     time.sleep(0.1)
-    for i in pbar(range(N)):
+    for i in tqdm(range(N)):
         try:
             stages.set_position((X[i], Y[i], specs.z_position, 0))
             res = np.mean(camera.get_frames())

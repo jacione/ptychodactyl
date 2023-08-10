@@ -1,12 +1,14 @@
 """
 Controller classes for motorized stages.
 """
-import numpy as np
 import time
 from abc import ABC, abstractmethod
+from queue import Queue
+
+import numpy as np
 
 
-def get_stages(stage_type, **kwargs):
+def get_stages(config):
     """
     Set up the stages with the correct controller subclass.
 
@@ -24,7 +26,7 @@ def get_stages(stage_type, **kwargs):
         'micronix': Micronix,
         'attocube': Attocube
     }
-    return options[stage_type.lower()](**kwargs)
+    return options[config["stages"].lower()](**config)
 
 
 class Stage(ABC):
@@ -78,6 +80,8 @@ class Stage(ABC):
         self.axes = ['x', 'y', 'z', 'q']  # Basic 4-axis setup
         self.limits = {ax: (0.0, 0.0) for ax in self.axes}  # EOT limits for each axis in AXIS UNITS
         self.zeros = {ax: 0.0 for ax in self.axes}  # Center position for each axis in AXIS UNITS
+
+        self._queue = Queue()
 
     @abstractmethod
     def __del__(self):
@@ -163,6 +167,15 @@ class Stage(ABC):
                    f'  Z0    {self.z0:0.6f}\n'
                    f'  Q     {self.q:0.6f}')
         return np.array([self.y0, self.x0, self.q])
+
+    def add_position_to_queue(self, remeasure=False):
+        self._queue.put(self.get_position(remeasure=remeasure))
+
+    def get_position_from_queue(self):
+        return self._queue.get()
+
+    def clear_queue(self):
+        self._queue = Queue()
 
     def get_stage_positions(self, remeasure=False):
         """
@@ -294,7 +307,7 @@ class Attocube(Stage):
     Bottom  L010810  perpendicular-to-beam (x), parallel-to-beam (z)
     """
 
-    def __init__(self, verbose=False, ignore_rotation=True):
+    def __init__(self, verbose=False, ignore_rotation=True, **_):
         """
         Instantiate Attocube object
         """
@@ -467,7 +480,7 @@ class Micronix(Stage):
         advanced functionality, you can use the ``command`` method to send specific serial commands using the
         supported `command line syntax <https://micronixusa.com/product/download/evPpvw/universal-document/Avj2vR>`_.
     """
-    def __init__(self, port='COM4', verbose=False):
+    def __init__(self, port='COM4', verbose=False, **_):
         """
         Create a Stage object to interface with a Micronix MMC-200 stage controller.
 
@@ -525,7 +538,7 @@ class Micronix(Stage):
             self.command(f'{self.ax_id[ax]}MSA{xyzq[ax]+self.zeros[ax]:0.6f}')
         self.command('0RUN')
         while self.is_moving():
-            time.sleep(0.1)
+            time.sleep(0.05)
         self.measure()
         return
 
@@ -617,7 +630,7 @@ class Micronix(Stage):
 
 class YourStage(Stage):
 
-    def __init__(self, verbose):
+    def __init__(self, verbose, **_):
         super().__init__(verbose)
 
         # Establish connection with the device

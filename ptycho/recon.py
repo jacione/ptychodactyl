@@ -21,7 +21,7 @@ from skimage import draw
 from skimage.restoration import unwrap_phase
 
 from ptycho.ptycho_data import LoadData
-from ptycho.general import ifft, random, shift
+from ptycho.utils import ifft, random, shift
 from ptycho.plotting import comp_to_rgb
 
 
@@ -281,9 +281,9 @@ class Recon2D(Recon):
         This is kind of a brute-force method, and should probably be avoided. It also really gums up the performance.
         FIXME
         """
-        probe_mask = np.zeros(self.probe.shape)
+        probe_mask = np.zeros(self.probe._shape)
         probe_mask[np.abs(self.probe) > np.abs(np.max(self.probe)) / 4] = 1
-        object_mask = np.zeros(self.object.shape)
+        object_mask = np.zeros(self.object._shape)
         for t in self.translation:
             y = int(t[0] + 0.5)
             x = int(t[1] + 0.5)
@@ -295,7 +295,7 @@ class Recon2D(Recon):
 
     def show_probe_positions(self):
         """Show a scatter plot of all of the probe positions in the scan."""
-        coords = -self.translation + self.probe.shape[0] / 2
+        coords = -self.translation + self.probe._shape[0] / 2
         x, y = coords[:, 1], coords[:, 0]
         plt.imshow(self.object)
         plt.scatter(x, y, c='r')
@@ -310,8 +310,8 @@ class Recon2D(Recon):
         ax4.imshow(np.angle(self.probe), cmap='hsv')
 
         plt.figure()
-        obj_length = self.pixel_size * self.object.shape[0]
-        pro_length = self.pixel_size * self.probe.shape[0]
+        obj_length = self.pixel_size * self.object._shape[0]
+        pro_length = self.pixel_size * self.probe._shape[0]
         plt.subplot(121, title='Object', xlabel='[microns]', ylabel='[microns]')
         plt.imshow(comp_to_rgb(self.object), extent=(0, obj_length, 0, obj_length))
         plt.subplot(122, title='Probe', xlabel='[microns]', ylabel='[microns]')

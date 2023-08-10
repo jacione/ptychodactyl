@@ -55,7 +55,7 @@ def collect(specs):
     num_rotations = specs.num_rotations
     camera_model = specs.camera
     background = specs.background
-    frames_per_take = specs.frames_per_take
+    frames_per_take = specs.accums
     resolution = specs.resolution
     exposure = specs.exposure
     gain = specs.gain
@@ -74,12 +74,12 @@ def collect(specs):
     # Initialize the devices and data structures
     stages = get_stages(stage_model, verbose=verbose)
     camera = get_camera(camera_model, verbose=verbose)
-    camera.set_frames_per_take(frames_per_take)
+    camera.set_accums(frames_per_take)
     camera.set_resolution(resolution)
     camera.set_exposure(exposure)
     camera.set_gain(gain)
     dataset = CollectData(num_translations=num_translations, num_rotations=num_rotations, title=title,
-                          data_dir=data_dir, im_shape=camera.im_shape, pixel_size=camera.pixel_size, distance=distance,
+                          data_dir=data_dir, im_shape=camera.im_shape, pixel_size=camera._pixel_size, distance=distance,
                           energy=energy, verbose=verbose)
 
     # Print the most important run parameters

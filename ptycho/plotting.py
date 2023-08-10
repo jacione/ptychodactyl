@@ -4,7 +4,7 @@ Some utilitarian functions for plotting. Also, a few demos.
 from matplotlib import colors
 from matplotlib.animation import ArtistAnimation
 from scipy import misc
-from ptycho.general import *
+from ptycho.utils import *
 
 
 here = os.path.dirname(os.path.realpath(__file__))

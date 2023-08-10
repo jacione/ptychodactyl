@@ -1,0 +1,44 @@
+# General
+title: lensecloth_scan
+data_dir: 'C:/Users/Public/Documents/ptychodactyl_data'
+rm_temp: true  # Delete raw images after pty file is generated?
+
+# Hardware interface
+stages: "micronix"
+camera_0:
+  key: "thorcam"
+  serial_num: "08949"
+  distance: 0.15
+  accums: 100
+  exposure: 0.001
+  gain: 1
+  im_size: 1024
+  verbose: false
+camera_1:
+  key: "thorcam"
+  serial_num: "21723"
+  distance: 0.0
+  accums: 10
+  exposure: 0.01
+  gain: 1
+  im_size: 1024
+  verbose: false
+
+# Scan
+scan_center: [0.0, 0.0]  # X,Y stage position where probe is centered on object (mm)
+scan_width: 2.0  # Horizontal scanning range (mm)
+scan_height: 2.0  # Vertical scanning range (mm)
+scan_step: 0.1  # Spacing between probe positions (mm)
+z_position: 0.0  # Positioning along the beamline
+scan_pattern: 'spiral'  # Geometric pattern for ptychography scan (rect, hex, or spiral)
+random_shift: false  # apply a small shift (<5% step size) to each position
+num_rotations: 0  # Number of rotational steps (zero for 2D scan)
+
+# Image acquisition
+background: true  # Set to true to record a background image with the laser off
+
+# Other
+distance: 0.15  # Distance from lens/sample to main detector (m)
+energy: 1.97  # Laser photon energy (eV)
+show_images: false  # If true, display diffraction images while taking data. Not yet implemented.
+verbose: true

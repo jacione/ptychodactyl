@@ -14,8 +14,9 @@ from matplotlib.animation import ArtistAnimation
 import progressbar
 from pathlib import Path
 from time import perf_counter
+import tifffile
 
-import ptycho.general as utils
+import ptycho.utils as utils
 import ptycho.plotting as plotting
 from ptycho.scan import xy_scan
 
@@ -129,7 +130,7 @@ class LoadData(PtychoData):
 
         # Load diffraction image data
         self._im_data = np.array(f['data/data'])
-        shape = self.im_data.shape
+        shape = self.im_data._shape
         self._num_rotations = shape[0]
         self._num_translations = shape[1]
         self._num_entries = shape[0] * shape[1]
@@ -164,7 +165,7 @@ class LoadData(PtychoData):
 
         # Perform vertical bleed correction
         vbleed = np.quantile(self.im_data, specs.vbleed_correct, axis=2)
-        vbleed = np.reshape(np.tile(vbleed, self.shape[-2]), self.im_data.shape)
+        vbleed = np.reshape(np.tile(vbleed, self.shape[-2]), self.im_data._shape)
         self._im_data = self.im_data - vbleed
         self._im_data[self.im_data < 0] = 0
 
@@ -224,7 +225,8 @@ class CollectData(PtychoData):
     """
     PtychoData subclass for collecting, organizing, and saving ptycho data during an experiment
     """
-    def __init__(self, num_rotations, num_translations, title, data_dir, im_shape, pixel_size, distance, energy, verbose=False):
+    def __init__(self, num_rotations, num_translations, num_detectors, title, data_dir, im_shape, pixel_size, distance,
+                 energy, verbose=False):
         """
         Create a CollectData object for collecting, organizing, and saving ptycho data during an experiment.
 
@@ -254,29 +256,30 @@ class CollectData(PtychoData):
         self._num_entries = num_translations * num_rotations  # Total number of takes (all translations and rotations)
         self._num_translations = num_translations
         self._num_rotations = num_rotations
-        self._n = 0  # Current take
-        self._i = 0  # Current rotation
-        self._j = 0  # Current translation
-        self._shape = im_shape  # image resolution
-        self._bkgd = np.zeros(im_shape)
+        self.num_detectors = num_detectors
+        self._n = 0  # Current measurement index
+        self._i = -1  # Current rotation index
+        self._q = 0  # Current rotation angle
+        self._j = 0  # Current translation index
 
-        # Pre-allocate memory for these arrays, as they can get quite large
-        self._position = np.empty((self.num_rotations, self.num_translations, 3))
-        self._im_data = np.empty((self.num_rotations, self.num_translations,
-                                  self._shape[0], self._shape[1]))
-
-        # These parameters probably won't change
+        # These parameters shouldn't change
         self._energy = energy  # photon energy in eV
         self._wavelength = 1.240 / energy  # wavelength in microns
         self._pixel_size = pixel_size  # pixel side length in microns
         self._distance = distance * 1e6  # sample-to-detector distance in microns
 
         # Parameters for saving the data afterward
-        self.title = title
+        self.title = title + '-' + date.today().isoformat()
         if data_dir == '':
-            self._dir = Path(__file__).parents[1] / 'data'
+            self._dir = Path(__file__).parents[1] / 'data' / self.title
         else:
-            self._dir = Path(data_dir)
+            self._dir = Path(data_dir) / self.title
+        self._dir.mkdir(exist_ok=True)
+        (self._dir / "positions").mkdir(exist_ok=True)
+        self.pos_file = None
+        for i in range(num_detectors):
+            (self._dir / f"det_{i}").mkdir(exist_ok=True)
+
         self.is_finalized = False
         return
 
@@ -285,6 +288,19 @@ class CollectData(PtychoData):
         if self.verbose:
             print(text)
 
+    def new_rotation(self, q):
+        self._i += 1
+        self._j = 0
+        self.pos_file = self._dir / f"positions/rot_{self._i:03}_{int(round(q))}.npy"
+        self.pos_file.unlink(missing_ok=True)
+        self.pos_file.touch()
+        for i in range(self.num_detectors):
+            try:
+                (self._dir / f"det_{i}/rot_{self._i:03}").mkdir()
+            except FileExistsError:
+                for f in (self._dir / f"det_{i}/rot_{self._i:03}").iterdir():
+                    f.unlink()
+                    
     def record_data(self, position, im_data):
         """
         Record the incoming measurement in the next available index. This method increments one of two internal counters
@@ -293,25 +309,22 @@ class CollectData(PtychoData):
         :param position: 1D array, The measured position of the sample. Should have length 3, corresponding to the
             vertical, horizontal, and rotational positions respectively.
         :type position: np.ndarray
-        :param im_data: 2D array, The measured diffraction pattern.
-        :type im_data: np.ndarray
         :return: True if this measurement was the last of a given rotation. False otherwise
         :rtype: bool
         """
-        # Record the position and image data
-        self._position[self._i, self._j] = position  # Record in millimeters / degrees
-        self._im_data[self._i, self._j] = im_data
+        if len(im_data) != self.num_detectors:
+            raise IndexError(f"Tried to save data from {len(im_data)} detectors (expected {self.num_detectors})")
+        for i, img in enumerate(im_data):
+            tifffile.imwrite(self._dir / f"det_{i}/rot_{self._i:03}/img_{self._j:04}.tiff", img)
 
-        # This next bit is all about making sure the measurements from a given rotation all stay together.
-        # Increment j until it fills up, then reset and increment i.
+        # Record the position and image data
+        pos_array = np.load(self.pos_file)  # Record in millimeters / degrees
+        np.save(self.pos_file, np.vstack((pos_array, position)))
+
+        self.print(f'Take {self._n} of {self.num_entries} recorded!')
         self._n += 1
         self._j += 1
-        ret_code = self._j == self.num_translations
-        if ret_code:
-            self._j = 0
-            self._i += 1
-        self.print(f'Take {self._n} of {self.num_entries} recorded!')
-        return ret_code
+        return
 
     def record_background(self, im_data):
         """
@@ -321,7 +334,10 @@ class CollectData(PtychoData):
         :param im_data: 2D array, The measured background image.
         :type im_data: np.ndarray
         """
-        self._bkgd = im_data
+        if len(im_data) != self.num_detectors:
+            raise IndexError(f"Tried to save data from {len(im_data)} detectors (expected {self.num_detectors})")
+        for i, img in enumerate(im_data):
+            tifffile.imwrite(self._dir / f"det_{i}/background.tiff", img)
 
     def finalize(self, timestamp, cropto):
         """
@@ -342,16 +358,16 @@ class CollectData(PtychoData):
             if np.any(np.array(self._shape) > cropto):
                 # Crops the image down to save_reconstruction space.
                 d = cropto // 2
-                # Be careful with this... scipy doesn't always hit the center exactly.
                 im_sum = np.sum(self._im_data, axis=(0, 1))
                 im_sum[im_sum < np.quantile(im_sum, 0.9)] = 0
                 cy, cx = ndimage.center_of_mass(im_sum)
+                # Be careful with this... scipy doesn't always hit the center exactly.
                 cx = int(cx)
                 cy = int(cy)
                 # Crop the image data down to the desired size.
                 self._im_data = self._im_data[:, :, cy - d:cy + d, cx - d:cx + d]
                 self._bkgd = self._bkgd[cy - d:cy + d, cx - d:cx + d]
-                self._shape = (self.im_data.shape[-2], self.im_data.shape[-1])
+                self._shape = (self.im_data._shape[-2], self.im_data._shape[-1])
 
             if timestamp:
                 # Add the date to the end of the title. Optional for simulated data.

@@ -6,12 +6,15 @@ from ctypes import *
 import sys
 from pathlib import Path
 from abc import ABC, abstractmethod
+from threading import Thread
+from queue import Queue
 
 import numpy as np
 from matplotlib import pyplot as plt
-from scipy.ndimage import center_of_mass
-from skimage.transform import downscale_local_mean
+from scipy import ndimage as ndi
 from progressbar import ProgressBar, widgets
+
+from ptycho.utils import crop_to_square
 
 
 libs = Path(__file__).parents[1] / "libs"
@@ -29,7 +32,7 @@ class CameraManager:
         self.valid_keys = (THORCAM, MIGHTEX, ANDOR)
         self._sdk = {name: None for name in self.valid_keys}
         self._registry = {name: 0 for name in self.valid_keys}
-        self.cameras = dict()
+        self.cameras = []
 
     def __getitem__(self, item):
         return self.cameras[item]
@@ -37,35 +40,44 @@ class CameraManager:
     def __del__(self):
         self.close_all()
 
-    def add_camera(self, key, nickname, **kwargs):
+    def add_camera(self, key, **kwargs):
         if self._sdk[key] is None:
             self._open_sdk(key)
 
         if key == THORCAM:
-            self.cameras[nickname] = ThorCam(self._sdk[key], **kwargs)
+            self.cameras.append(ThorCam(self._sdk[key], **kwargs))
         elif key == MIGHTEX:
             pass
         elif key == ANDOR:
-            self.cameras[nickname] = Andor(self._sdk[key], **kwargs)
+            self.cameras.append(Andor(self._sdk[key], **kwargs))
 
         self._registry[key] += 1
+        return self.cameras[-1]
 
-    def remove_camera(self, nickname):
-        key = self.cameras[nickname].key
-        self.cameras[nickname].camera_off()
-        del self.cameras[nickname]
+    def remove_camera(self, index):
+        key = self.cameras[index].key
+        self.cameras[index].camera_off()
         self._registry[key] -= 1
         if not self._registry[key]:
             self._close_sdk(key)
 
     def close_all(self):
-        for cam in list(self.cameras.keys()):
-            self.remove_camera(cam)
+        for i, cam in enumerate(self.cameras):
+            if cam.is_on:
+                self.remove_camera(i)
 
-    def get_frames(self, cams=None):
-        if cams is None:
-            cams = self.cameras.keys()
-        return [self.cameras[cam].get_frames() for cam in cams]
+    def get_frames(self, cam_index=None):
+        if len(self.cameras) == 1:
+            cam_index = 0
+        if cam_index is not None:
+            return [self.cameras[cam_index].get_frames()]
+        threads = [Thread(target=cam.add_frame_to_queue) for cam in self.cameras]
+        [t.start() for t in threads]
+        [t.join() for t in threads]
+        return [cam.get_frame_from_queue() for cam in self.cameras]
+
+    def get_frames_from_queue(self):
+        return [cam.get_frame_from_queue() for cam in self.cameras]
 
     def _open_sdk(self, key):
         if key not in self.valid_keys:
@@ -123,7 +135,7 @@ class Camera(ABC):
     Abstract parent class for camera devices
     """
     @abstractmethod
-    def __init__(self, defaults, verbose):
+    def __init__(self, camera_specs, verbose):
         """
         Because this is an abstract class, this constructor must be explicitly called within a subclass constructor.
         At the very least, a subclass constructor should
@@ -138,44 +150,39 @@ class Camera(ABC):
         constructor. These are OK as long as they are keyword arguments (i.e. they have a default value). They can then
         be passed to ``get_camera`` without any issue.
 
-        :param defaults: Default camera parameters. Must include the following keys: ["width", "height", "exposure",
+        :param camera_specs: Default camera parameters. Must include the following keys: ["width", "height", "exposure",
             "gain", "pixel_size", or will raise a ``KeyError``.
-        :type defaults: dict
+        :type camera_specs: dict
         :param verbose: Whether to print lots of information about camera processes.
         :type verbose: bool
         """
         self.key = None
+        self.is_on = False
+        self.is_armed = False
+        self.verbose = verbose
+
         try:
-            self.defaults = defaults
-            self.is_on = False
-            self.is_armed = False
-            self.verbose = verbose
-            self.full_width = self.defaults['width']
-            self.full_height = self.defaults['height']
-            self.full_shape = (self.full_height, self.full_width)
-            self.full_size = self.full_height*self.full_width
-            self.binning = 1
-            self.width = self.defaults['width']
-            self.height = self.defaults['height']
-            self.im_shape = (self.height, self.width)
-            self.im_size = self.width * self.height
-            self.pixel_size = self.defaults['pixel_size']
-            self.frames_per_take = 1
-            self.exposure = self.defaults['exposure']
-            self.gain = self.defaults['gain']
+            # Specs inherent to the camera
+            self._width = camera_specs['width']
+            self._height = camera_specs['height']
+            self._shape = np.array([self._height, self._width])
+            self._nbits = camera_specs['nbits']
+            self._pixel_size = camera_specs['pixel_size']
         except KeyError:
             raise KeyError(f'The dict containing the default parameters did not contain all the expected keys.\n'
-                           f'\tExpected: ["width", "height", "exposure", "gain", "pixel_size"]\n'
-                           f'\tFound:    {list(defaults.keys())}')
+                           f'\tExpected: ["width", "height", "pixel_size", "nbits"]\n'
+                           f'\tFound:    {list(camera_specs.keys())}')
 
-    def __enter__(self):
-        return self
+        # Camera settings
+        self.settings = {
+            "binning": 1,
+            "im_size": min(self._shape),
+            "accums": 1,
+            "exposure": 0.25,
+            "gain": 1
+        }
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.camera_off()
-
-    def __del__(self):
-        self.camera_off()
+        self._queue = Queue()
 
     @abstractmethod
     def camera_off(self):
@@ -185,32 +192,6 @@ class Camera(ABC):
         This is where you should dispose of any handles to the device. After this function is called, all camera
         functions should be disabled (except ``self.camera_on()``), and the garbage collector should only have to clean
         up the class object itself.
-        """
-        pass
-
-    @abstractmethod
-    def set_exposure(self, ms):
-        """
-        Set the camera exposure time in milliseconds.
-
-        Not all camera drivers use milliseconds to define exposure time. When implementing this in a subclass,
-        remember to check the units that the device is expecting and convert your value if necessary.
-
-        :param ms: Exposure time in milliseconds
-        :type ms: float
-        """
-        pass
-
-    @abstractmethod
-    def set_gain(self, gain):
-        """
-        Set the camera's analog gain.
-
-        Not all camera drivers use raw coefficients to define analog gain. When implementing this in a subclass,
-        remember to check the format that the device is expecting and convert your value if necessary.
-
-        :param gain: Analog gain
-        :type gain: float
         """
         pass
 
@@ -250,11 +231,11 @@ class Camera(ABC):
         :return: 2D image array
         :rtype: np.ndarray
         """
-        data = np.zeros(self.im_shape)
+        data = np.zeros((self.settings["im_size"], self.settings["im_size"]))
         self.arm()
-        for i in range(self.frames_per_take):
+        for i in range(self.settings["accums"]):
             frame = self.get_frame()
-            data = data + downscale_local_mean(frame, (self.binning, self.binning))
+            data = data + crop_to_square(frame, self.settings["im_size"])
         self.disarm()
         if show:
             plt.subplot(111, xticks=[], yticks=[])
@@ -266,6 +247,18 @@ class Camera(ABC):
             plt.show()
         return data
 
+    def add_frame_to_queue(self):
+        self._queue.put(self.get_frames())
+
+    def get_frame_from_queue(self):
+        if not self._queue.empty():
+            return self._queue.get()
+        else:
+            raise IOError("No frame in camera queue.")
+
+    def clear_queue(self):
+        self._queue = Queue()
+
     @staticmethod
     def imshow(image):
         """A compact wrapper for pyplot's imshow with some commonly desired parameters preloaded"""
@@ -274,6 +267,27 @@ class Camera(ABC):
         plt.tight_layout()
         plt.show()
 
+    def get_specs(self):
+        return {
+            'width': self._width,
+            'height': self._height,
+            'x_pixel_size': self._pixel_size,
+            'y_pixel_size': self._pixel_size,
+            'nbits': self._nbits
+        }
+
+    def set(self, **kwargs):
+        for setting, value in kwargs.items():
+            try:
+                self.settings[setting] = value
+            except KeyError:
+                raise RuntimeWarning(f"Setting {setting} does not exist on {self.key} camera.")
+        self._set_all()
+
+    @abstractmethod
+    def _set_all(self):
+        pass
+
     def print(self, text):
         """A wrapper for print() that checks whether the instance is set to verbose"""
         if self.verbose:
@@ -281,40 +295,7 @@ class Camera(ABC):
 
     def set_defaults(self):
         """Set the basic camera features to their default values."""
-        self.set_frames_per_take(1)
-        self.set_resolution()
-        self.set_exposure(self.defaults['exposure'])
-        self.set_gain(self.defaults['gain'])
-        return
-
-    def set_frames_per_take(self, frames_per_take):
-        """
-        Set the number of frames to sum for each image measurement
-        """
-        self.frames_per_take = frames_per_take
-
-    def set_resolution(self, resolution=None, space_factor=1.0):
-        """
-        Set camera resolution. The functionality of this is a little counter-intuitive. The **resolution** parameter is
-        the side-length of the desired diffraction data. This method will set the camera to bin each image as much as
-        possible without reducing the height or width below **resolution**. The data will be cropped to the right
-        size in CollectData.finalize() before saving. The binning happens here to reduce runtime memory usage,
-        but the cropping has to happen there because it needs to be centered on the diffraction patterns.
-
-        :param resolution: Desired side length of diffraction data.
-        :type resolution: int
-        :param space_factor: extra space on the edges
-        :type space_factor: float
-        """
-        if resolution is not None:
-            self.binning = int(self.full_height / (space_factor*resolution))
-        else:
-            self.binning = 1
-        self.width = self.full_width // self.binning
-        self.height = self.full_height // self.binning
-        self.im_shape = (self.height, self.width)
-        self.im_size = self.width * self.height
-        self.pixel_size = self.defaults['pixel_size'] * self.binning
+        self.set(binning=1, im_shape=self._shape, accums=1, exposure=0.25, gain=1)
         return
 
     def find_center(self, img=None):
@@ -326,7 +307,7 @@ class Camera(ABC):
             img = self.get_frames()
         img = np.array(img, dtype='Q')
         img[img < np.quantile(img, 0.99)] = 0
-        return center_of_mass(img)
+        return ndi.center_of_mass(img)
 
     def analyze_frame(self):
         """
@@ -345,7 +326,7 @@ class Camera(ABC):
         plt.subplot2grid((4, 4), (3, 0), colspan=3)
         plt.plot(x, c='g')
         plt.subplot2grid((4, 4), (0, 3), rowspan=3)
-        plt.plot(np.flip(y), np.arange(self.height), c='r')
+        plt.plot(np.flip(y), np.arange(self.settings["im_size"]), c='r')
         plt.show()
 
     def running_analysis(self):
@@ -362,7 +343,7 @@ class Camera(ABC):
             plt.subplot2grid((4, 4), (3, 0), colspan=3)
             plt.plot(x, c='g')
             plt.subplot2grid((4, 4), (0, 3), rowspan=3)
-            plt.plot(np.flip(y), np.arange(self.height), c='r')
+            plt.plot(np.flip(y), np.arange(self._height), c='r')
             plt.draw()
             plt.pause(0.1)
 
@@ -382,7 +363,7 @@ class ThorCam(Camera):
         to externally sum a series of single images.
     """
 
-    def __init__(self, sdk, serial_num, verbose=True):
+    def __init__(self, sdk, serial_num, verbose=False):
         """
         Create a ThorCam object
 
@@ -390,12 +371,12 @@ class ThorCam(Camera):
         :type verbose: bool
         """
 
-        defaults = {
-            "08949": {'width': 3296, 'height': 2472, 'exposure': 0.25, 'gain': 1, 'pixel_size': 5.5},
-            "21723": {'width': 1440, 'height': 1080, 'exposure': 0.25, 'gain': 1, 'pixel_size': 3.45},
+        camera_specs = {
+            "08949": {'width': 3296, 'height': 2472, 'pixel_size': 5.5, 'nbits': 14},
+            "21723": {'width': 1440, 'height': 1080, 'pixel_size': 3.45, 'nbits': 10},
         }
 
-        super().__init__(defaults[serial_num], verbose)
+        super().__init__(camera_specs[serial_num], verbose)
 
         self.key = THORCAM
         self._handle = sdk.open_camera(serial_num)
@@ -418,28 +399,9 @@ class ThorCam(Camera):
         self.print('SUCCESS: Camera engine stopped!')
         return
 
-    def set_exposure(self, ms):
-        """
-        Set the camera exposure time in milliseconds.
-
-        :param ms: exposure time in milliseconds
-        :type ms: float
-        """
-        if ms is not None:
-            us = int(ms * 1000)
-            self._handle.set_exposure_time_us(us)
-        return
-
-    def set_gain(self, gain):
-        """
-        Set the camera analog gain
-
-        :param gain: analog gain
-        :type gain: int
-        """
-        if gain is not None:
-            self._handle.set_gain(gain)
-        return
+    def _set_all(self):
+        self._handle.set_exposure_time_us(int(self.settings["exposure"]*10**6))
+        self._handle.set_gain(self.settings["gain"])
 
     def arm(self):
         self._handle.arm()
@@ -485,8 +447,8 @@ class Mightex(Camera):
             'pixel_size': 2.2
         }
         super().__init__(defaults, verbose)
-        self.dtype = self.defaults['dtype']
-        self.image_metadata_size = self.defaults['metadata']
+        self.dtype = self.specs['dtype']
+        self.image_metadata_size = self.specs['metadata']
         self.data_size = self.im_size + self.image_metadata_size
 
         _dll = CDLL(f'{libs}/Mightex/SSClassic_USBCamera_SDK.dll')
@@ -633,8 +595,8 @@ class Mightex(Camera):
             width = resolution[0]
             height = resolution[1]
             s1 = self._sdk_SetResolution(1, width, height, 0, 0)
-            x_start = (self.full_width - width) // 2
-            y_start = (self.full_height - height) // 2
+            x_start = (self._width - width) // 2
+            y_start = (self._height - height) // 2
             s2 = self._sdk_SetXYStart(1, x_start, y_start)
             if -1 not in [s1, s2]:
                 self.width = width
@@ -745,16 +707,16 @@ class Andor(Camera):
             'hold_temp': hold_temp,
         }
         super().__init__(defaults, verbose)
-        self.key = ValidKeys.ANDOR
+        self.key = ANDOR
         self._handle = sdk.atmcd()
-        self.temp = self.defaults['temperature']
+        self.settings["temperature"] = temperature
         self.hold_temp = hold_temp
 
         self._handle.Initialize("")
         self._handle.SetAcquisitionMode(1)  # Single image capture
         self._handle.SetReadMode(4)  # Full image mode
         self._handle.SetTriggerMode(0)  # Internally regulated triggering
-        self._handle.SetImage(1, 1, 1, self.full_width, 1, self.full_height)
+        self._handle.SetImage(1, 1, 1, self._width, 1, self._height)
         self._handle.SetShutter(1, 0, 15, 15)
         self._handle.CoolerON()
         self._handle.SetCoolerMode(int(self.hold_temp))
@@ -800,7 +762,7 @@ class Andor(Camera):
 
     def set_defaults(self):
         super().set_defaults()
-        self.set_temperature(self.defaults['temperature'])
+        self.set_temperature(self.specs['temperature'])
 
     def set_exposure(self, ms):
         if ms < 50:
@@ -813,8 +775,8 @@ class Andor(Camera):
         # Feature not supported by camera
         pass
 
-    def set_frames_per_take(self, frames_per_take):
-        self.frames_per_take = frames_per_take
+    def set_accums(self, accums):
+        self.frames_per_take = accums
         return
 
     def arm(self):
@@ -828,9 +790,9 @@ class Andor(Camera):
         # range increase, so there's no need for this function.
         self._handle.StartAcquisition()
         self._handle.WaitForAcquisition()
-        _, buffer = self._handle.GetMostRecentImage(self.full_size)
-        image = np.ctypeslib.as_array(buffer, self.full_size)
-        image = np.reshape(image, self.full_shape)
+        _, buffer = self._handle.GetMostRecentImage(self.size)
+        image = np.ctypeslib.as_array(buffer, self.size)
+        image = np.reshape(image, self._shape)
         return image
 
     def disarm(self):
@@ -900,9 +862,10 @@ class YourCamera(Camera):
 
 if __name__ == '__main__':
     mgr = CameraManager()
-    mgr.add_camera("thorcam", "lil", serial_num="21723")
-    mgr.add_camera("thorcam", "big", serial_num="08949")
-    mgr["lil"].analyze_frame()
-    mgr["big"].analyze_frame()
+    mgr.add_camera("thorcam", serial_num="21723")
+    mgr.add_camera("thorcam", serial_num="08949")
+    for cam in mgr:
+        cam.set(im_size=1024, exposure=0.001)
+        cam.analyze_frame()
     mgr.close_all()
 
