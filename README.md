@@ -21,5 +21,6 @@ Download the PtychoDactyl source code from the git repository (currently private
 *  scipy (>=1.6.3)
 *  tqdm
 *  pyyaml
+*  tifffile
 
 So far, this version of this project has only been tested on Windows 10, running Python 3.11.
