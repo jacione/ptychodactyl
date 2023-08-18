@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import numpy as np
 from matplotlib import pyplot as plt
-from scipy import ndimage
+from scipy import ndimage as ndi
 from scipy.misc import ascent, face
 from skimage import transform, draw
 from skimage import data as skidata
@@ -19,6 +19,33 @@ def fft(image):
 def ifft(image):
     """Performs an inverse fast-fourier transform with correct shifting"""
     return np.fft.fftshift(np.fft.ifftn(np.fft.ifftshift(image)))
+
+
+def center_array(image, subpixel=False):
+    """
+    Shift an image so that the center of brightness is in the center of the image. This is intended for use with a
+    probe array to help keep the reconstruction centered in the frame
+
+    :param image: Any 2D image
+    :type image: np.ndarray
+    :param subpixel: Whether to perform the shift with subpixel registration
+    :type subpixel: bool
+    :return: Centered image
+    :rtype: np.ndarray
+    """
+
+    # Gets the cell-center rather than the edge-center
+    ctr = np.asarray(image.shape) / 2 - 0.5
+
+    # Take only the brightest parts of the image to get the best center
+    abs_image = np.abs(image)
+    abs_image[abs_image < np.quantile(abs_image, 0.8)] = 0
+    c_mass = np.array(ndi.center_of_mass(abs_image))
+
+    # Shift the image to center the center of brightness
+    shift_amt = ctr - c_mass
+    ret_image = shift(image, shift_amt, subpixel=subpixel)
+    return ret_image
 
 
 def crop_to_square(img, edge):
@@ -73,8 +100,8 @@ def shift(arr, shift_amt, crop=None, subpixel=False):
     :rtype: np.ndarray
     """
     if subpixel:
-        amp = ndimage.shift(np.abs(arr), shift_amt)
-        phi = np.angle(ndimage.shift(arr, shift_amt))
+        amp = ndi.shift(np.abs(arr), shift_amt)
+        phi = np.angle(ndi.shift(arr, shift_amt))
         new_arr = amp * np.exp(1j * phi)
     else:
         x = int(shift_amt[0] + 0.5)

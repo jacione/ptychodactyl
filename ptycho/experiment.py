@@ -120,7 +120,6 @@ class Experiment:
         self._j = 0
         self.pos_file = self._dir / f"positions/rot_{self._i:03}.npy"
         self.pos_file.unlink(missing_ok=True)
-        np.save(self.pos_file, np.empty(3))
         for d in range(self._num_detectors):
             try:
                 (self._dir / f"det_{d}/rot_{self._i:03}").mkdir()
@@ -143,8 +142,11 @@ class Experiment:
             tifffile.imwrite(self._dir / f"det_{d}/rot_{self._i:03}/img_{self._j:04}.tiff", img)
 
         # Record the position data
-        pos_array = np.load(self.pos_file)  # Record in millimeters / degrees
-        np.save(self.pos_file, np.vstack((pos_array, stage_data)))
+        try:
+            pos_array = np.load(self.pos_file)  # Record in millimeters / degrees
+            np.save(self.pos_file, np.vstack((pos_array, stage_data)))
+        except FileNotFoundError:
+            np.save(self.pos_file, stage_data)
 
         self.print(f'Take {self._n} of {self._num_entries} recorded!')
         self._n += 1
@@ -197,11 +199,14 @@ class Experiment:
         source.attrs.create('energy', data=self._energy)
         source.attrs.create('wavelength', data=self._wavelength)
         for d, cam in enumerate(self.camera_mgr):
-            det = equip.create_group(f'detector_{d}')
+            det = equip.create_group(f'det_{d}')
             specs = cam.get_specs() | cam.settings | {"distance": self._config[f"camera_{d}"]["distance"]}
             for key, val in specs.items():
                 det.attrs.create(key, val)
-            det.create_dataset("background", data=tifffile.imread(self._dir / f"det_{d}/background.tiff"))
+            try:
+                det.create_dataset("background", data=tifffile.imread(self._dir / f"det_{d}/background.tiff"))
+            except FileNotFoundError:
+                det.create_dataset("background", data=np.zeros((specs["im_size"], specs["im_size"])))
 
         t1 = perf_counter()
         f.close()
@@ -215,6 +220,10 @@ class Experiment:
         remove_recursive(self._dir/"positions")
         for d, _ in enumerate(self.camera_mgr):
             remove_recursive(self._dir/f"det_{d}")
+
+
+class Simulation(Experiment):
+    pass
 
 
 if __name__ == "__main__":

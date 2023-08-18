@@ -1,0 +1,35 @@
+# General parameters
+title: lensecloth-scan-2-2023-08-10.pty
+data_dir: C:/Users/Public/Documents/ptychodactyl_data/lensecloth-scan-2/
+
+# Diffraction parameters (required)
+diffraction:
+  det: det_0
+  flip: [1, 0, 0]  # [vertical, horizontal, transpose]
+  center: true  # Whether the array needs to be centered
+  crop: 0  # Crop the original images to a square of this size. Set to zero for no cropping
+  binning: 4  # Binning factor to apply to the images AFTER CROPPING. Set to zero for no binning. Note that the actual
+              # final size of the images will be the cropped size divided by the binning factor.
+  background: true
+  vbleed_correct: 0.35
+  threshold: 0.5
+
+# Probe parameters (optional)
+probe:
+  det: det_1
+  flip: [0, 0, 0]
+  center: true
+  crop: 0
+  binning: 0
+  background: true
+  vbleed_correct: 0.35
+  threshold: 0.5
+
+# Recipe parameters (recipe_0 is required, additional recipies optional)
+# All recipes must take the form "recipe_X" where X determines the order of execution
+recipe_0:
+  algorithm: epie
+  iterations: 100
+  obj_update: [0.9, 0.9]
+  prb_update: [0.3, 0.1]
+  animate: yes
