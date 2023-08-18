@@ -174,7 +174,7 @@ class Camera(ABC):
                            f'\tFound:    {list(camera_specs.keys())}')
 
         # Camera settings
-        self.settings = {
+        self._settings = {
             "binning": 1,
             "im_size": min(self._shape),
             "accums": 1,
@@ -231,11 +231,11 @@ class Camera(ABC):
         :return: 2D image array
         :rtype: np.ndarray
         """
-        data = np.zeros((self.settings["im_size"], self.settings["im_size"]))
+        data = np.zeros((self._settings["im_size"], self._settings["im_size"]))
         self.arm()
-        for i in range(self.settings["accums"]):
+        for i in range(self._settings["accums"]):
             frame = self.get_frame()
-            data = data + crop_to_square(frame, self.settings["im_size"])
+            data = data + crop_to_square(frame, self._settings["im_size"])
         self.disarm()
         if show:
             plt.subplot(111, xticks=[], yticks=[])
@@ -279,10 +279,14 @@ class Camera(ABC):
     def set(self, **kwargs):
         for setting, value in kwargs.items():
             try:
-                self.settings[setting] = value
+                self._settings[setting] = value
             except KeyError:
                 raise RuntimeWarning(f"Setting {setting} does not exist on {self.key} camera.")
         self._set_all()
+
+    @property
+    def settings(self):
+        return self._settings
 
     @abstractmethod
     def _set_all(self):
@@ -326,7 +330,7 @@ class Camera(ABC):
         plt.subplot2grid((4, 4), (3, 0), colspan=3)
         plt.plot(x, c='g')
         plt.subplot2grid((4, 4), (0, 3), rowspan=3)
-        plt.plot(np.flip(y), np.arange(self.settings["im_size"]), c='r')
+        plt.plot(np.flip(y), np.arange(self._settings["im_size"]), c='r')
         plt.show()
 
     def running_analysis(self):
@@ -400,8 +404,8 @@ class ThorCam(Camera):
         return
 
     def _set_all(self):
-        self._handle.set_exposure_time_us(int(self.settings["exposure"]*10**6))
-        self._handle.set_gain(self.settings["gain"])
+        self._handle.set_exposure_time_us(int(self._settings["exposure"] * 10 ** 6))
+        self._handle.set_gain(self._settings["gain"])
 
     def arm(self):
         self._handle.arm()
@@ -709,7 +713,7 @@ class Andor(Camera):
         super().__init__(defaults, verbose)
         self.key = ANDOR
         self._handle = sdk.atmcd()
-        self.settings["temperature"] = temperature
+        self._settings["temperature"] = temperature
         self.hold_temp = hold_temp
 
         self._handle.Initialize("")

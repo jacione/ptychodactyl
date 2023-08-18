@@ -1,5 +1,5 @@
 # General
-title: lensecloth_scan
+title: lensecloth-scan-2
 data_dir: 'C:/Users/Public/Documents/ptychodactyl_data'
 rm_temp: true  # Delete raw images after pty file is generated?
 
@@ -10,7 +10,7 @@ camera_0:
   serial_num: "08949"
   distance: 0.15
   accums: 100
-  exposure: 0.001
+  exposure: 0.01
   gain: 1
   im_size: 1024
   verbose: false
