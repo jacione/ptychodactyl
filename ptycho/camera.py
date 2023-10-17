@@ -386,6 +386,8 @@ class ThorCam(Camera):
         self._handle = sdk.open_camera(serial_num)
 
         self.set_defaults()
+        if serial_num == "08949":
+            self._handle.set_data_rate("40MHz")
         print("Camera created")
         self.is_on = True
         return

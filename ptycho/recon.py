@@ -47,9 +47,9 @@ class Dataset:
             self._det_specs["energy"] = f["equipment/source"].attrs["energy"]
             self._det_specs["wavelength"] = f["equipment/source"].attrs["wavelength"]
 
-        self._position = self._position * 1e3
+        self._position = self._position * 1e3  # Convert from mm to um
         self._position -= np.min(self._position, axis=1)
-        self._det_specs["distance"] *= 1e6
+        self._det_specs["distance"] *= 1e6  # Convert from m to um
 
         self._n_rot, self._n_trn, self._x_pix, self._y_pix = self._data.shape
         self._data = np.reshape(self._data, (-1, self._x_pix, self._y_pix))
@@ -295,7 +295,8 @@ class Recon2D(Recon):
                                    ax3.imshow(np.abs(self.probe), cmap='gray'),
                                    ax4.imshow(np.angle(self.probe), cmap='hsv')])
             if recipe['animate']:
-                vid = ArtistAnimation(fig, frames, interval=500, repeat_delay=0)
+                vid = ArtistAnimation(fig, frames, interval=200, repeat_delay=0)
+                vid.save(f"{self._file.as_posix()[:-4]}.gif", fps=5)
                 plt.show()
 
     def _dampen_phase(self):
@@ -406,24 +407,25 @@ class Recon2D(Recon):
 
     def _correct_phase(self):
         """
-        Manually detect and remove a phase ramp from the probe and object.
+        Manually detect and remove a common phase ramp from the probe and object.
 
         This works fairly well on simulated data, but causes problems when it's applied to real data. Until I find a
         way to fix this, I'm leaving it out of the actual reconstruction process.
         FIXME
         """
-        phase = unwrap_phase(np.angle(self.probe))
-        cond = np.abs(self.probe) > np.max(np.abs(self.probe))/2
+        phase = unwrap_phase(np.angle(self.object))
         r_grad, c_grad = np.gradient(phase)
-        r_grad = np.mean(r_grad[cond])
-        c_grad = np.mean(c_grad[cond])
+
+        cond = np.abs(self.object) > np.max(np.abs(self.object))/2
+        r_grad = np.median(r_grad[cond])
+        c_grad = np.median(c_grad[cond])
+        obj_rows, obj_cols = np.indices(self.object.shape)
+
+        obj_ramp = r_grad*obj_rows + c_grad*obj_cols
         probe_ramp = r_grad*self.rows + c_grad*self.cols
 
-        obj_rows, obj_cols = np.indices(self.object.shape)
-        obj_ramp = r_grad*obj_rows + c_grad*obj_cols
-
-        self.probe = self.probe * np.exp(-1j*probe_ramp)
-        self.object = self.object * np.exp(1j*obj_ramp)
+        self.probe = self.probe * np.exp(1j*probe_ramp)
+        self.object = self.object * np.exp(-1j*obj_ramp)
 
     def _probe_mask(self):
         """
@@ -524,6 +526,18 @@ def init_probe_flat(shape):
     probe_array[rr, cc] = 1
     probe_array = probe_array * np.exp(1j*ut.random(probe_array.shape, 0, 2*np.pi))
     return probe_array
+
+
+def remove_phase_ramp(arr):
+    phase = unwrap_phase(np.angle(arr))
+    cond = np.abs(arr) > np.max(np.abs(arr)) / 2
+    r_grad, c_grad = np.gradient(phase)
+    r_grad = np.mean(r_grad[cond])
+    c_grad = np.mean(c_grad[cond])
+    rows, cols = np.indices(arr.shape)
+    phase_ramp = r_grad * rows + c_grad * cols
+    arr = arr * np.exp(-1j * phase_ramp)
+    return arr
 
 
 def setup_figure(actually_do_it=True):

@@ -1,6 +1,6 @@
 # General
-title: lensecloth-scan-2
-data_dir: 'C:/Users/Public/Documents/ptychodactyl_data'
+title: bee_wing_test
+data_dir: C:/Users/Public/Documents/ptychodactyl_data
 rm_temp: true  # Delete raw images after pty file is generated?
 
 # Hardware interface
@@ -10,25 +10,25 @@ camera_0:
   serial_num: "08949"
   distance: 0.15
   accums: 100
-  exposure: 0.01
+  exposure: 0.0001
   gain: 1
-  im_size: 1024
+  im_size: 2048
   verbose: false
 camera_1:
   key: "thorcam"
   serial_num: "21723"
-  distance: 0.0
+  distance: 0.155
   accums: 10
-  exposure: 0.01
-  gain: 1
+  exposure: 0.3
+  gain: 7
   im_size: 1024
   verbose: false
 
 # Scan
-scan_center: [0.0, 0.0]  # X,Y stage position where probe is centered on object (mm)
-scan_width: 2.0  # Horizontal scanning range (mm)
-scan_height: 2.0  # Vertical scanning range (mm)
-scan_step: 0.1  # Spacing between probe positions (mm)
+scan_center: [1.3, -5]  # X,Y stage position where probe is centered on object (mm)
+scan_width: 4.0  # Horizontal scanning range (mm)
+scan_height: 4.0  # Vertical scanning range (mm)
+scan_step: 0.2  # Spacing between probe positions (mm)
 z_position: 0.0  # Positioning along the beamline
 scan_pattern: 'spiral'  # Geometric pattern for ptychography scan (rect, hex, or spiral)
 random_shift: false  # apply a small shift (<5% step size) to each position

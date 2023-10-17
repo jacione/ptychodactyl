@@ -1,6 +1,6 @@
 # General parameters
-title: lensecloth-scan-2-2023-08-10.pty
-data_dir: C:/Users/Public/Documents/ptychodactyl_data/lensecloth-scan-2/
+title: test_run-2023-08-08.pty
+data_dir: C:/Users/Public/Documents/ptychodactyl_data/test_run
 
 # Diffraction parameters (required)
 diffraction:
@@ -29,7 +29,7 @@ probe:
 # All recipes must take the form "recipe_X" where X determines the order of execution
 recipe_0:
   algorithm: epie
-  iterations: 100
+  iterations: 2
   obj_update: [0.9, 0.9]
   prb_update: [0.3, 0.1]
   animate: yes
