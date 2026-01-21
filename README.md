@@ -6,7 +6,7 @@ A simple, approachable ptychography experimental pipeline written in Python.
 ## Overview
 There are some really robust software packages out there for doing ptychography—PtyPy, PyNX, and PtychoShelves, to name just a few. However, while these all deliver incredible performance, they come with an unfortunately necessary tradeoff in readability and approachability. This software is an attempt to do the opposite. It’s written with a people-over-performance philosophy, which I think will be helpful for ptychography newcomers (like myself, not too long ago).
 
-As to why I chose the name “PtychoDactyl,” it was a combination four factors. First, there aren’t very many words that have the silent “p” and I wanted that. Second, I used my fingers (greek dactylos) to type it. Third, my son likes dinosaurs (although technically pterosaurs weren’t dinosaurs). Finally, GitHub asked for a name and it was the first thing I could come up with.
+As to why I chose the name “PtychoDactyl,” it was a combination four factors. First, there aren’t very many words that have the silent “p” and I wanted that. Second, I used my fingers (Greek: _dactylos_) to type it. Third, my son likes dinosaurs (although technically pterosaurs weren’t dinosaurs). Finally, GitHub asked for a name and it was the first thing I could come up with.
 
 This repository contains code for collecting and analyzing 2D ptychography data, with 3D hopefully supported soon. 
 
