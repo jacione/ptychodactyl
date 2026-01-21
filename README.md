@@ -22,4 +22,4 @@ Download the PtychoDactyl source code from the git repository (currently private
 
 So far, this project has only been tested on Windows 10, running Python 3.8.
 
-If I end up making this code public, I'll put the documentation on readthedocs.org. For now, you can just open `/docs/_build/html/index.html` with a web browser to get to the main page and navigate around the docs from there.
+For documentation, just open `/docs/_build/html/index.html` with a web browser to get to the main page and navigate around the docs from there.
